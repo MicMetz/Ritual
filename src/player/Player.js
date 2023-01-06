@@ -2,15 +2,15 @@
  * @author MicMetzger /
  */
 
-import {AABB, MathUtils, MovingEntity, OBB, Ray, Vector3} from 'yuka';
-import {Particle, ParticleSystem} from '../core/ParticleSystem.js';
-import {WeaponSystem}             from "../weapons/WeaponSystem.js";
-import {Weapon}                   from "../weapons/Weapon.js";
-import PlayerStateMachine           from "./PlayerStateMachine.js";
-import PlayerControllerProxy        from "./PlayerControllerProxy.js";
-import {PlayerProjectile}           from './PlayerProjectile.js';
-import PlayerProxy                  from "./PlayerProxy.js";
-import {EventDispatcher, Raycaster} from 'three';
+import {AABB, MathUtils, MovingEntity, OBB, Ray, Vector3, Vision} from 'yuka';
+import {Particle, ParticleSystem}                                 from '../core/ParticleSystem.js';
+import {WeaponSystem}                                             from "../weapons/WeaponSystem.js";
+import {Weapon}                                                   from "../weapons/Weapon.js";
+import PlayerStateMachine                                         from "./PlayerStateMachine.js";
+import PlayerControllerProxy                                      from "./PlayerControllerProxy.js";
+import {PlayerProjectile}                                         from './PlayerProjectile.js';
+import PlayerProxy                                                from "./PlayerProxy.js";
+import {EventDispatcher, Raycaster}                               from 'three';
 
 
 
@@ -45,6 +45,10 @@ class Player extends MovingEntity {
       this.mixer      = mixer;
       this.animations = animations;
       this.controls   = world.controls;
+
+      this.vision             = new Vision(this);
+      this.vision.fieldOfView = 90;
+      this.vision.range       = 20;
 
       this.protected      = false;
       this.protection     = 0;

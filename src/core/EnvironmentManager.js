@@ -1,5 +1,9 @@
-import {Color, Geometry, Group, Object3D, Points, PointsMaterial, MathUtils, BoxBufferGeometry, MeshLambertMaterial, Mesh, AmbientLight, DirectionalLight, CameraHelper, MeshBasicMaterial} from "three";
-import * as YUKA                                                                                                                                                                            from "yuka";
+import {
+   Color, Geometry, Group, Object3D, Points, PointsMaterial, MathUtils,
+   BoxBufferGeometry, MeshLambertMaterial, Mesh, AmbientLight, DirectionalLight,
+   CameraHelper, MeshBasicMaterial, Fog
+}                from "three";
+import * as YUKA from "yuka";
 
 
 
@@ -11,6 +15,9 @@ class EnvironmentManager {
 
       this.floorMesh   = new Group();
       this.wallsMeshes = new Group();
+
+      this.outBoundFog = new Fog('lightblue', 0, 100);
+      this.background  = new Color('black');
 
       this.width  = 0;
       this.depth  = 0;
@@ -175,49 +182,12 @@ class EnvironmentManager {
    }
 
 
-   generateBackground(newColor, stars = true, options = null) {
+   generateBackground(options = null) {
+
       if (options === null) {
+         this.world.scene.background = this.background;
+         this.world.scene.fog        = this.outBoundFog;
 
-         for (var i = 0; i < 8000; i++) {
-
-            var star = new Object3D();
-
-            star.x = MathUtils.randFloat(-200, 200);
-            star.y = MathUtils.randFloat(-75, -50);
-            star.z = MathUtils.randFloat(-200, 200);
-
-            star.scale.set(1, 1, 1).multiplyScalar(Math.random());
-
-            star.updateMatrixWorld();
-
-            star.velocity     = 0;
-            star.acceleration = 0.002;
-            this.stargeometry.vertices.push(star);
-
-         }
-
-         let sprite       = this.world.assetManager.textures.get('star');
-         let starMaterial = new PointsMaterial({
-            color: 0xaaaaaa,
-            size : 0.7,
-            map  : sprite,
-         });
-         this.stars       = new Points(this.stargeometry, starMaterial);
-
-         let color;
-         if (newColor) {color = new Color(newColor);} else {color = new Color(0x030303);}
-         this.world.scene.background = new Color(color);
-
-         if (stars) {
-
-            this.world.scene.add(this.stars);
-
-         } else {
-
-            this.world.scene.remove(this.stars);
-
-         }
-      } else {
 
       }
 
@@ -247,8 +217,8 @@ class EnvironmentManager {
 
    generateFloor() {
       const totalcells    = this.width * this.depth;
-      const floorGeometry = new BoxBufferGeometry(1, 0.5, 1);
-      const floorMaterial = new MeshBasicMaterial({map: this.world.assetManager.textures.get('grass1')});
+      const floorGeometry = new BoxBufferGeometry(1, 0.1, 1);
+      const floorMaterial = new MeshBasicMaterial({map: this.world.assetManager.textures.get('grass')});
       this.floorMesh.clear();
       for (let x = -this.width / 2; x <= this.width / 2; x++) {
          for (let z = -this.depth / 2; z <= this.depth / 2; z++) {

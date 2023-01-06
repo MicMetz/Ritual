@@ -43,6 +43,7 @@ class AssetManager {
       this.weapons   = new Map();
       this.props     = new Map();
       this.interiors = new Map();
+      this.exteriors = new Map();
 
       this.descriptors = new Map();
 
@@ -155,27 +156,34 @@ class AssetManager {
          textures.set('quad', texture);
       });
 
-      textureLoader.load('./textures/WoodFloor.png', (texture) => {
+      textureLoader.load('./textures/carbon/WoodFloor.png', (texture) => {
          texture.wrapS = THREE.RepeatWrapping;
          texture.wrapT = THREE.RepeatWrapping;
          textures.set('woodFloor', texture);
       });
 
-      textureLoader.load('./textures/Grass.png', (texture) => {
+      textureLoader.load('./textures/Summer_Grass_A.png', (texture) => {
          texture.wrapS = THREE.RepeatWrapping;
          texture.wrapT = THREE.RepeatWrapping;
          texture.repeat.set(100, 100);
          textures.set('grass', texture);
       });
 
-      textureLoader.load('./textures/Grass_1.png', (texture) => {
+      textureLoader.load('./textures/Summer_Dirt_A.png', (texture) => {
          texture.wrapS = THREE.RepeatWrapping;
          texture.wrapT = THREE.RepeatWrapping;
          texture.repeat.set(100, 100);
-         textures.set('grass1', texture);
+         textures.set('dirt', texture);
       });
 
-      textureLoader.load('./textures/Bush_Leaves.png', (texture) => {
+      textureLoader.load('./textures/Summer_Moss.png', (texture) => {
+         texture.wrapS = THREE.RepeatWrapping;
+         texture.wrapT = THREE.RepeatWrapping;
+         texture.repeat.set(100, 100);
+         textures.set('moss', texture);
+      });
+
+      textureLoader.load('./textures/carbon/Bush_Leaves.png', (texture) => {
          texture.wrapS = THREE.RepeatWrapping;
          texture.wrapT = THREE.RepeatWrapping;
          texture.repeat.set(100, 100);
@@ -190,8 +198,8 @@ class AssetManager {
       });
 
       // Tree Bark
-      textureLoader.load('./textures/NormalTree_Bark.png', (texture) => {
-         textureLoader.load('./textures/NormalTree_Bark_Normal.png', (normalMap) => {
+      textureLoader.load('./textures/carbon/NormalTree_Bark.png', (texture) => {
+         textureLoader.load('./textures/carbon/NormalTree_Bark_Normal.png', (normalMap) => {
             texture.wrapS = THREE.RepeatWrapping;
             texture.wrapT = THREE.RepeatWrapping;
             texture.repeat.set(100, 100);
@@ -525,6 +533,156 @@ class AssetManager {
       });
 
 
+      // Task Force Operator
+      gltfLoader.load('./models/enemies/TaskForceOperator.glb', (gltf) => {
+         const clone = {
+            animations: gltf.animations,
+            scene     : gltf.scene.clone(true)
+         }
+
+         const cloneBones         = {};
+         const cloneSkinnedMeshes = {};
+
+         clone.scene.traverse(node => {
+            if (node.isBone) {
+               cloneBones[node.name] = node;
+            }
+
+            if (node.isSkinnedMesh) {
+               cloneSkinnedMeshes[node.name] = node;
+            }
+         });
+
+         for (let name in cloneSkinnedMeshes) {
+            // const SMesh      = skinnedMeshes[name];
+            const cloneSMesh = cloneSkinnedMeshes[name];
+            const skeleton   = cloneSMesh.skeleton;
+
+            const orderedCloneBone = [];
+
+            for (let i = 0; i < skeleton.bones.length; i++) {
+               const cloneBone = cloneBones[skeleton.bones[i].name];
+               orderedCloneBone.push(cloneBone);
+            }
+
+            cloneSMesh.bind(
+              new THREE.Skeleton(orderedCloneBone, skeleton.boneInverses),
+              cloneSMesh.matrixWorld
+            );
+         }
+
+         clone.scene.scale.set(0.1, 0.1, 0.1);
+
+         const mixer      = new THREE.AnimationMixer(clone.scene);
+         const animations = new Map();
+         // const animations = {};
+
+         // const deathClip   = clone.animations[0];
+         // const deathAction = mixer.clipAction(deathClip);
+         // deathAction.play();
+         // deathAction.enabled = false;
+         //
+         // const shootClip   = clone.animations[1];
+         // const shootAction = mixer.clipAction(shootClip);
+         // shootAction.play();
+         // shootAction.enabled = false;
+         //
+         // const hitClip   = clone.animations[2];
+         // const hitAction = mixer.clipAction(hitClip);
+         // hitAction.play();
+         // hitAction.enabled = false;
+         //
+         // const idleClip   = clone.animations[4];
+         // const idleAction = mixer.clipAction(idleClip);
+         // idleAction.play();
+         // idleAction.enabled = false;
+         //
+         // const idleGunPointClip   = clone.animations[6];
+         // const idleGunPointAction = mixer.clipAction(idleGunPointClip);
+         // idleGunPointAction.play();
+         // idleGunPointAction.enabled = false;
+         //
+         // const idleGunShootClip   = clone.animations[7];
+         // const idleGunShootAction = mixer.clipAction(idleGunShootClip);
+         // idleGunShootAction.play();
+         // idleGunShootAction.enabled = false;
+         //
+         // const idleMeleeClip   = clone.animations[9];
+         // const idleMeleeAction = mixer.clipAction(idleMeleeClip);
+         // idleMeleeAction.play();
+         // idleMeleeAction.enabled = false;
+         //
+         // const interactClip   = clone.animations[10];
+         // const interactAction = mixer.clipAction(interactClip);
+         // interactAction.play();
+         // interactAction.enabled = false;
+         //
+         // const rollClip   = clone.animations[15];
+         // const rollAction = mixer.clipAction(rollClip);
+         // rollAction.play();
+         // rollAction.enabled = false;
+         //
+         // const runClip   = clone.animations[16];
+         // const runAction = mixer.clipAction(runClip);
+         // runAction.play();
+         // runAction.enabled = false;
+         //
+         // const runBackClip   = clone.animations[17];
+         // const runBackAction = mixer.clipAction(runBackClip);
+         // runBackAction.play();
+         // runBackAction.enabled = false;
+         //
+         // const runLeftClip   = clone.animations[18];
+         // const runLeftAction = mixer.clipAction(runLeftClip);
+         // runLeftAction.play();
+         // runLeftAction.enabled = false;
+         //
+         // const runRightClip   = clone.animations[19];
+         // const runRightAction = mixer.clipAction(runRightClip);
+         // runRightAction.play();
+         // runRightAction.enabled = false;
+         //
+         // const runShootClip   = clone.animations[20];
+         // const runShootAction = mixer.clipAction(runShootClip);
+         // runShootAction.play();
+         // runShootAction.enabled = false;
+         //
+         // const slashClip   = clone.animations[21];
+         // const slashAction = mixer.clipAction(slashClip);
+         // slashAction.play();
+         // slashAction.enabled = false;
+         //
+         // const walkClip   = clone.animations[22];
+         // const walkAction = mixer.clipAction(walkClip);
+         // walkAction.play();
+         // walkAction.enabled = false;
+         //
+         // animations.set('idle', {clip: idleClip, action: idleAction});
+         // animations.set('shoot', {clip: shootClip, action: shootAction});
+         // animations.set('die', {clip: deathClip, action: deathAction});
+         // animations.set('hit', {clip: hitClip, action: hitAction});
+         // animations.set('idleGunPoint', {clip: idleGunPointClip, action: idleGunPointAction});
+         // animations.set('idleGunShoot', {clip: idleGunShootClip, action: idleGunShootAction});
+         // animations.set('idleMelee', {clip: idleMeleeClip, action: idleMeleeAction});
+         // animations.set('interact', {clip: interactClip, action: interactAction});
+         // animations.set('roll', {clip: rollClip, action: rollAction});
+         // animations.set('run', {clip: runClip, action: runAction});
+         // animations.set('runBack', {clip: runBackClip, action: runBackAction});
+         // animations.set('runLeft', {clip: runLeftClip, action: runLeftAction});
+         // animations.set('runRight', {clip: runRightClip, action: runRightAction});
+         // animations.set('runShoot', {clip: runShootClip, action: runShootAction});
+         // animations.set('slash', {clip: slashClip, action: slashAction});
+         // animations.set('walk', {clip: walkClip, action: walkAction});
+
+
+         clone.name = 'task_force';
+         this.animations.set('task_force', animations);
+         this.mixers.set('task_force', mixer);
+         this.enemyModels.set('task_force', clone.scene);
+
+      });
+
+
    }
 
 
@@ -538,7 +696,7 @@ class AssetManager {
       // Wanderer Player model
 
       // Android Player model
-      gltfLoader.load('./models/player/Android.gltf', (gltf) => {
+      gltfLoader.load('./models/player/Woman2.glb', (gltf) => {
          const clone = {
             animations: gltf.animations,
             scene     : gltf.scene.clone(true)
@@ -549,16 +707,162 @@ class AssetManager {
 
          clone.scene.traverse(function (child) {
             if ((child in THREE.SkinnedMesh) && (child.name in cloneBones)) {
-                cloneSkinnedMeshes[child.name] = child;
+               cloneSkinnedMeshes[child.name] = child;
             }
-          });
+         });
 
-          for (let name in cloneBones) {
+         for (let name in cloneBones) {
             cloneSkinnedMeshes[name].bind(
               new THREE.Skeleton(cloneBones[name], cloneSkinnedMeshes[name].skeleton.boneInverses),
               cloneSkinnedMeshes[name].matrixWorld
             );
-          }
+         }
+
+         const mixer      = new THREE.AnimationMixer(clone.scene);
+         const animations = new Map();
+
+         const deathClip   = clone.animations[0];
+         const deathAction = mixer.clipAction(deathClip);
+         deathAction.play();
+         deathAction.enabled = false;
+
+         const shootClip   = clone.animations[1];
+         const shootAction = mixer.clipAction(shootClip);
+         shootAction.play();
+         shootAction.enabled = false;
+
+         const hitClip   = clone.animations[2];
+         const hitAction = mixer.clipAction(hitClip);
+         hitAction.play();
+         hitAction.enabled = false;
+
+         const idleClip   = clone.animations[6];
+         const idleAction = mixer.clipAction(idleClip);
+         idleAction.play();
+         idleAction.enabled = false;
+
+         const idleGunPointClip   = clone.animations[4];
+         const idleGunPointAction = mixer.clipAction(idleGunPointClip);
+         idleGunPointAction.play();
+         idleGunPointAction.enabled = false;
+
+         const idleGunShootClip   = clone.animations[5];
+         const idleGunShootAction = mixer.clipAction(idleGunShootClip);
+         idleGunShootAction.play();
+         idleGunShootAction.enabled = false;
+
+         const idleMeleeClip   = clone.animations[7];
+         const idleMeleeAction = mixer.clipAction(idleMeleeClip);
+         idleMeleeAction.play();
+         idleMeleeAction.enabled = false;
+
+         const interactClip   = clone.animations[8];
+         const interactAction = mixer.clipAction(interactClip);
+         interactAction.play();
+         interactAction.enabled = false;
+
+         const rollClip   = clone.animations[13];
+         const rollAction = mixer.clipAction(rollClip);
+         rollAction.play();
+         rollAction.enabled = false;
+
+         const runClip   = clone.animations[14];
+         const runAction = mixer.clipAction(runClip);
+         runAction.play();
+         runAction.enabled = false;
+
+         const runBackClip   = clone.animations[15];
+         const runBackAction = mixer.clipAction(runBackClip);
+         runBackAction.play();
+         runBackAction.enabled = false;
+
+         const runLeftClip   = clone.animations[16];
+         const runLeftAction = mixer.clipAction(runLeftClip);
+         runLeftAction.play();
+         runLeftAction.enabled = false;
+
+         const runRightClip   = clone.animations[17];
+         const runRightAction = mixer.clipAction(runRightClip);
+         runRightAction.play();
+         runRightAction.enabled = false;
+
+         const runShootClip   = clone.animations[18];
+         const runShootAction = mixer.clipAction(runShootClip);
+         runShootAction.play();
+         runShootAction.enabled = false;
+
+         const slashClip   = clone.animations[19];
+         const slashAction = mixer.clipAction(slashClip);
+         slashAction.play();
+         slashAction.enabled = false;
+
+         const walkClip   = clone.animations[20];
+         const walkAction = mixer.clipAction(walkClip);
+         walkAction.play();
+         walkAction.enabled = false;
+
+         animations.set('idle', {clip: idleClip, action: idleAction});
+         animations.set('shoot', {clip: shootClip, action: shootAction});
+         animations.set('die', {clip: deathClip, action: deathAction});
+         animations.set('hit', {clip: hitClip, action: hitAction});
+         animations.set('idleGunPoint', {clip: idleGunPointClip, action: idleGunPointAction});
+         animations.set('idleGunShoot', {clip: idleGunShootClip, action: idleGunShootAction});
+         animations.set('idleMelee', {clip: idleMeleeClip, action: idleMeleeAction});
+         animations.set('interact', {clip: interactClip, action: interactAction});
+         animations.set('roll', {clip: rollClip, action: rollAction});
+         animations.set('run', {clip: runClip, action: runAction});
+         animations.set('runBack', {clip: runBackClip, action: runBackAction});
+         animations.set('runLeft', {clip: runLeftClip, action: runLeftAction});
+         animations.set('runRight', {clip: runRightClip, action: runRightAction});
+         animations.set('runShoot', {clip: runShootClip, action: runShootAction});
+         animations.set('slash', {clip: slashClip, action: slashAction});
+         animations.set('walk', {clip: walkClip, action: walkAction});
+
+         clone.name = 'WomanSurvivor';
+         this.animations.set('WomanSurvivor', animations);
+         this.mixers.set('WomanSurvivor', mixer);
+         this.characterModels.set('WomanSurvivor', clone.scene);
+      })
+
+
+      // Android Player model
+      gltfLoader.load('./models/player/Android.gltf', (gltf) => {
+         const clone = {
+            animations: gltf.animations,
+            scene     : gltf.scene.clone(true)
+         }
+
+         const cloneBones         = {};
+         const cloneSkinnedMeshes = {};
+
+         clone.scene.traverse(node => {
+            if (node.isBone) {
+               cloneBones[node.name] = node;
+            }
+
+            if (node.isSkinnedMesh) {
+               cloneSkinnedMeshes[node.name] = node;
+            }
+         });
+
+         for (let name in cloneSkinnedMeshes) {
+            const cloneSMesh = cloneSkinnedMeshes[name];
+            const skeleton   = cloneSMesh.skeleton;
+
+            const orderedCloneBone = [];
+
+            for (let i = 0; i < skeleton.bones.length; i++) {
+               const cloneBone = cloneBones[skeleton.bones[i].name];
+               orderedCloneBone.push(cloneBone);
+            }
+
+            cloneSMesh.bind(
+              new THREE.Skeleton(orderedCloneBone, skeleton.boneInverses),
+              cloneSMesh.matrixWorld
+            );
+         }
+
+         clone.scene.scale.set(0.4, 0.4, 0.4);
 
          const mixer      = new THREE.AnimationMixer(clone.scene);
          const animations = new Map();
@@ -703,27 +1007,6 @@ class AssetManager {
       const gltfLoader = this.gltfLoader;
       const weapons    = this.weapons;
 
-      // Energy Pistol
-      gltfLoader.load('./models/weapons/EnergyPistol.glb', (gltf) => {
-         const pistolMesh            = gltf.scene;
-         pistolMesh.matrixAutoUpdate = false;
-         weapons.set('pistol', pistolMesh);
-      });
-
-      // Long Pistol
-      gltfLoader.load('./models/weapons/LongPistol.glb', (gltf) => {
-         const longPistolMesh            = gltf.scene;
-         longPistolMesh.matrixAutoUpdate = false;
-         weapons.set('longPistol', longPistolMesh);
-      });
-
-      // Lightning Gun
-      gltfLoader.load('./models/weapons/LightningGun.glb', (gltf) => {
-         const lightningGunMesh            = gltf.scene;
-         lightningGunMesh.matrixAutoUpdate = false;
-         weapons.set('lightningGun', lightningGunMesh);
-      });
-
    }
 
 
@@ -746,73 +1029,15 @@ class AssetManager {
       const objectLoader = this.objectLoader;
       const interiors    = this.interiors;
 
-      const floorPath = './materials/floor/FloorTile_';
-
-      // Floors 1
-      objectLoader.load('./materials/floor/FloorTile_Basic.obj', (object) => {
-
-         object.matrixAutoUpdate = false;
-         interiors.set('BasicFloor', object);
-      });
-
-      // Floors 2
-      objectLoader.load(floorPath + 'Basic2.obj', (object) => {
-
-         object.matrixAutoUpdate = false;
-         interiors.set('BasicFloor2', object);
-      });
-
-      // Floors Empty
-      objectLoader.load(floorPath + 'Empty.obj', (object) => {
-
-         object.matrixAutoUpdate = false;
-         interiors.set('EmptyFloor', object);
-      });
-
-      // Floors Corner
-      objectLoader.load(floorPath + 'Corner.obj', (object) => {
-
-         object.matrixAutoUpdate = false;
-         interiors.set('CornerFloor', object);
-      });
-
-      // Floors Inner Corner
-      objectLoader.load(floorPath + 'InnerCorner.obj', (object) => {
-
-         object.matrixAutoUpdate = false;
-         interiors.set('InnerCornerFloor', object);
-      });
-
-      // Floors Double Hallway
-      objectLoader.load(floorPath + 'Double_Hallway.obj', (object) => {
-
-         object.matrixAutoUpdate = false;
-         interiors.set('DoubleHallwayFloor', object);
-      });
-
-
-      // Walls
-      const wallPath = './materials/wall/Wall_';
-
-      let i = 1;
-      for (i; i <= 5; i++) {
-         objectLoader.load(wallPath + i + '.obj', (object) => {
-
-            object.matrixAutoUpdate = false;
-            interiors.set('BasicWall' + i, object);
-         });
-      }
-
-      // Wall Empty
-      objectLoader.load(wallPath + 'Empty.obj', (object) => {
-
-
-         object.matrixAutoUpdate = false;
-         interiors.set('EmptyWall', object);
-      });
-
    }
 
+
+   _loadExteriorModels() {
+      const gltfLoader = this.gltfLoader;
+      const exteriors  = this.exteriors;
+
+
+   }
 
 
 }

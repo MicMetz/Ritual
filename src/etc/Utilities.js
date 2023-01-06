@@ -67,7 +67,7 @@ const _NORMAL_MAP_BOUNDRY_LIMIT_ = {
 
 const GUARDTYPE = {
 
-   DEFAULT: 'default_guard', HEAVY: 'heavy_guard', ASSAULT: 'assault_guard',
+   DEFAULT: 'default_guard', HEAVY: 'task_force', ASSAULT: 'assault_guard',
 
 };
 
