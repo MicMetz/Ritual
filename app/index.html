@@ -1,0 +1,135 @@
+<html lang="en">
+  <head>
+    <title>Fight On</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+    <link rel="stylesheet" type="text/css" href="./style/main.css">
+    <link rel="shortcut icon" type="image/x-icon" href="./icon/favicon.ico">
+    <style>
+    
+    </style>
+  </head>
+  <body class="loading-screen">
+    <section id="splash-screen">
+      
+      <div id="splash-text">
+        <div id="splash-text-clipping">
+          Fight On
+        </div>
+        <div id="splash-text-title">
+          Fight On
+        </div>
+        <div id="splash-text-subtitle">
+          Survive
+        </div>
+      </div>
+      
+      <div id="#splash-buttons">
+        <button class="splash-button">
+          <span id="start-button">Start</span>
+        </button>
+        <br>
+        <button class="splash-button">
+          <span id="menu-button">Menu</span>
+        </button>
+        <br>
+        <button class="splash-button">
+          <span id="credits-button">Credits</span>
+        </button>
+      </div>
+    </section>
+    
+    <section id="menu" class="full-screen">
+      <div class="row header">
+        <h2>ShipRekt</h2>
+      </div>
+      <div class="row content">
+        
+        <button id="menu-continue" class="cybr-btn">■ Play
+          <span>_</span>
+          <span class="cybr-btn_glitch">Play_</span>
+          <span class="cybr-btn_tag">01</span>
+        </button>
+        
+        <button id="menu-restart" class="cybr-btn hidden">■ Restart
+          <span>_</span>
+          <span class="cybr-btn_glitch">Restart_</span>
+          <span class="cybr-btn_tag">02</span>
+        </button>
+        
+        <button id="menu-quit" class="cybr-btn hidden">■ Quit
+          <span>_</span>
+          <span class="cybr-btn_glitch">Quit_</span>
+          <span class="cybr-btn_tag">03</span>
+        </button>
+      </div>
+      <div class="row footer">
+        <div id="stage-counter">Total Stages Cleared:
+          <span id="stages-cleared">0</span>
+        </div>
+      </div>
+    </section>
+    
+    
+    <section id="user-interface" class="interfaceContainer hidden">
+      
+      <section id="uiAmmo" class="interfaceContainer ">
+        <div>
+          <span id="ammoRemaining"></span>
+          <span>|</span>
+          <span id="ammo"></span>
+        </div>
+      </section>
+      
+      <section id="uiMinimap" class="interfaceContainer ">
+        <canvas id="minimap"></canvas>
+      </section>
+      
+      <section id="uiHealth" class="interfaceContainer ">
+        <div id="health-bar">
+          <div id="health"></div>
+        </div>
+      </section>
+      
+      <section id="uiTimer" class="interfaceContainer ">
+        <div>
+          <span id="timer">00:00</span>
+        </div>
+      </section>
+      
+      <section id="uiNadeList" class="interfaceContainer ">
+        <div>
+          <ul id="nades"></ul>
+        </div>
+      </section>
+    
+    </section>
+    
+    <section id="level-complete" class="hidden full-screen info">
+      <h3>> LEVEL COMPLETE <</h3>
+    </section>
+    
+    <section id="game-complete" class="hidden full-screen info">
+      <h3>> GAME COMPLETE <</h3>
+      <p>
+        <button id="complete-restart">■ Restart</button>
+      </p>
+      <p>
+        <button id="complete-quit">■ Quit</button>
+      </p>
+    </section>
+    
+    <section id="game-over" class="hidden full-screen info">
+      <h3>> GAME OVER <</h3>
+      <p>
+        <button id="gameover-restart">■ Restart</button>
+      </p>
+      <p>
+        <button id="gameover-quit">■ Quit</button>
+      </p>
+    </section>
+    
+    <script src="../build/bundle.js"></script>
+  
+  </body>
+</html>

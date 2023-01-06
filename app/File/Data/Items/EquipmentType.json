@@ -1,0 +1,32 @@
+{
+    "0": {
+        "name": "Head"
+    },
+    "1": {
+        "name": "Shoulders"
+    },
+    "2": {
+        "name": "Chest"
+    },
+    "3": {
+        "name": "Hands"
+    },
+    "4": {
+        "name": "Legs"
+    },
+    "5": {
+        "name": "Feet"
+    },
+    "6": {
+        "name": "MainHand"
+    },
+    "7": {
+        "name": "OffHand"
+    },
+    "8": {
+        "name": "TwoHands"
+    },
+    "9": {
+        "name": "Bag"
+    }
+}

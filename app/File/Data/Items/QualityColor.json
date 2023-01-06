@@ -1,0 +1,18 @@
+{
+  "0": {
+    "color": "#ffffffff",
+    "name": "Common"
+  },
+  "1": {
+    "color": "#00ff00ff",
+    "name": "Uncommon"
+  },
+  "2": {
+    "color": "#0E6BECFF",
+    "name": "Rare"
+  },
+  "3": {
+    "color": "#A712DBFF",
+    "name": "Epic"
+  }
+}
