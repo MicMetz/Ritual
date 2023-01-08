@@ -136,7 +136,7 @@ class World {
 
    init() {
 
-      this.assetManager = new AssetManager();
+      this.assetManager = new AssetManager(this);
       this.assetManager.init().then(() => {
 
          this._initEnvironment();
@@ -161,6 +161,7 @@ class World {
          this.controls.update(delta);
          this.entityManager.update(delta);
          this.userInterface.update(delta);
+         this.environmentManager.animate(delta);
 
          this._enforceNonPenetrationConstraint();
          this._checkPlayerCollision();
@@ -345,9 +346,10 @@ class World {
 
 
       // player
-      this.playerMesh                  = this.assetManager.characterModels.get('WomanSurvivor');
+      this.playerMesh                  = this.assetManager.characterModels.get('Adventurer');
       this.playerMesh.matrixAutoUpdate = false;
       this.scene.add(this.playerMesh);
+      // console.log(dumpObject(this.playerMesh));
 
       // player projectiles
       const playerProjectileGeometry = new PlaneBufferGeometry(0.2, 1);
@@ -466,8 +468,8 @@ class World {
       // this.player                = new Player(this, this.playerMesh, this.assetManager.mixers.get('WomanSurvivor'), this.assetManager.animations.get('WomanSurvivor'));
       // this.player                = new Player(this, this.playerMesh, this.assetManager.mixers.get('WomanSurvivor'),
       //   this.assetManager.animations.get('WomanSurvivor'));
-      this.player                = new Player(this, this.playerMesh, this.assetManager.mixers.get('WomanSurvivor'),
-        this.assetManager.animations.get('WomanSurvivor'));
+      this.player                = new Player(this, this.playerMesh, this.assetManager.mixers.get('Adventurer'),
+        this.assetManager.animations.get('Adventurer'));
       this.player.protectionMesh = protectionMesh
 
       // particle system

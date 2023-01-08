@@ -2,6 +2,7 @@
  * @author MicMetzger /
  */
 
+import {LoopOnce}            from "three";
 import * as THREE            from 'three';
 import {FBXLoader}           from "three/examples/jsm/loaders/FBXLoader.js";
 import {OBJLoader}           from "three/examples/jsm/loaders/OBJLoader.js";
@@ -16,8 +17,9 @@ class AssetManager {
     *
     *
     */
-   constructor() {
+   constructor(world) {
 
+      this.world          = world;
       this.loadingManager = new THREE.LoadingManager();
 
       this.objectLoader  = new OBJLoader(this.loadingManager);
@@ -141,59 +143,82 @@ class AssetManager {
 
    _loadTextures() {
 
-      const textureLoader = this.textureLoader;
-      const textures      = this.textures;
+      const textureLoader             = this.textureLoader;
+      const textures                  = this.textures;
+      const timesToRepeatHorizontally = 0
+      const timesToRepeatVertically   = 0
 
       textureLoader.load('./textures/star.png', (texture) => {
-         texture.wrapS = THREE.RepeatWrapping;
-         texture.wrapT = THREE.RepeatWrapping;
+         texture.repeat.x = 1;
+         texture.repeat.y = 1;
+
          textures.set('star', texture);
       });
 
       textureLoader.load('./textures/quad.png', (texture) => {
-         texture.wrapS = THREE.RepeatWrapping;
-         texture.wrapT = THREE.RepeatWrapping;
+         texture.repeat.x = 1;
+         texture.repeat.y = 1;
+
          textures.set('quad', texture);
       });
 
       textureLoader.load('./textures/carbon/WoodFloor.png', (texture) => {
-         texture.wrapS = THREE.RepeatWrapping;
-         texture.wrapT = THREE.RepeatWrapping;
+         texture.repeat.x = 1;
+         texture.repeat.y = 1;
+
          textures.set('woodFloor', texture);
       });
 
       textureLoader.load('./textures/Summer_Grass_A.png', (texture) => {
-         texture.wrapS = THREE.RepeatWrapping;
-         texture.wrapT = THREE.RepeatWrapping;
-         texture.repeat.set(100, 100);
-         textures.set('grass', texture);
+         texture.repeat.x = 1;
+         texture.repeat.y = 1;
+
+         textures.set('SummerGrass', texture);
       });
 
       textureLoader.load('./textures/Summer_Dirt_A.png', (texture) => {
-         texture.wrapS = THREE.RepeatWrapping;
-         texture.wrapT = THREE.RepeatWrapping;
-         texture.repeat.set(100, 100);
-         textures.set('dirt', texture);
+         texture.repeat.x = 1;
+         texture.repeat.y = 1;
+
+         textures.set('SummerDirt', texture);
       });
 
       textureLoader.load('./textures/Summer_Moss.png', (texture) => {
-         texture.wrapS = THREE.RepeatWrapping;
-         texture.wrapT = THREE.RepeatWrapping;
-         texture.repeat.set(100, 100);
+         texture.repeat.x = 1;
+         texture.repeat.y = 1;
+
          textures.set('moss', texture);
       });
 
+      textureLoader.load('./textures/Summer_Mud_A.png', (textureA) => {
+         textureLoader.load('./textures/Summer_Mud_B.png', (textureB) => {
+            const texture        = new THREE.Texture();
+            texture.image        = textureA.image;
+            texture.image.height = textureA.image.height + textureB.image.height;
+            texture.image.width  = textureA.image.width;
+            texture.image.data   = new Uint8Array(texture.image.width * texture.image.height * 4);
+            texture.image.data.set(textureA.image.data);
+            // texture.image.data.set(textureB.image.data, textureA.image.data.length);
+            texture.needsUpdate = true;
+
+            texture.repeat.x = 1;
+            texture.repeat.y = 1;
+
+            textures.set('moss', texture);
+         });
+      });
+
       textureLoader.load('./textures/carbon/Bush_Leaves.png', (texture) => {
-         texture.wrapS = THREE.RepeatWrapping;
-         texture.wrapT = THREE.RepeatWrapping;
-         texture.repeat.set(100, 100);
+         texture.repeat.x = 1;
+         texture.repeat.y = 1;
+
          textures.set('bushLeaves', texture);
       });
 
       textureLoader.load('./textures/Rocks.png', (texture) => {
-         texture.wrapS = THREE.RepeatWrapping;
-         texture.wrapT = THREE.RepeatWrapping;
-         texture.repeat.set(100, 100);
+         texture.repeat.x = 1;
+         texture.repeat.y = 1;
+
          textures.set('rocks', texture);
       });
 
@@ -202,9 +227,11 @@ class AssetManager {
          textureLoader.load('./textures/carbon/NormalTree_Bark_Normal.png', (normalMap) => {
             texture.wrapS = THREE.RepeatWrapping;
             texture.wrapT = THREE.RepeatWrapping;
+
             texture.repeat.set(100, 100);
             normalMap.wrapS = THREE.RepeatWrapping;
             normalMap.wrapT = THREE.RepeatWrapping;
+
             normalMap.repeat.set(100, 100);
             textures.set('treeBark', {
                map      : texture,
@@ -347,30 +374,30 @@ class AssetManager {
          const mixer      = new THREE.AnimationMixer(clone.scene);
          const animations = new Map();
 
-         const biteClip   = clone.animations[0];
-         const biteAction = mixer.clipAction(biteClip);
-         biteAction.play();
+         const biteClip     = clone.animations[0];
+         const biteAction   = mixer.clipAction(biteClip);
          biteAction.enabled = false;
+         biteAction.play();
 
-         const crawlClip   = clone.animations[1];
-         const crawlAction = mixer.clipAction(crawlClip);
-         crawlAction.play();
+         const crawlClip     = clone.animations[1];
+         const crawlAction   = mixer.clipAction(crawlClip);
          crawlAction.enabled = false;
+         crawlAction.play();
 
-         const idleClip   = clone.animations[2];
-         const idleAction = mixer.clipAction(idleClip);
-         idleAction.play();
+         const idleClip     = clone.animations[2];
+         const idleAction   = mixer.clipAction(idleClip);
          idleAction.enabled = false;
+         idleAction.play();
 
-         const runClip   = clone.animations[3];
-         const runAction = mixer.clipAction(runClip);
-         runAction.play();
+         const runClip     = clone.animations[3];
+         const runAction   = mixer.clipAction(runClip);
          runAction.enabled = false;
+         runAction.play();
 
-         const walkClip   = clone.animations[4];
-         const walkAction = mixer.clipAction(walkClip);
-         walkAction.play();
+         const walkClip     = clone.animations[4];
+         const walkAction   = mixer.clipAction(walkClip);
          walkAction.enabled = false;
+         walkAction.play();
 
          animations.set('bite', {clip: biteClip, action: biteAction});
          animations.set('crawl', {clip: crawlClip, action: crawlAction});
@@ -427,85 +454,85 @@ class AssetManager {
          const animations = new Map();
          // const animations = {};
 
-         const deathClip   = clone.animations[0];
-         const deathAction = mixer.clipAction(deathClip);
-         deathAction.play();
+         const deathClip     = clone.animations[0];
+         const deathAction   = mixer.clipAction(deathClip);
          deathAction.enabled = false;
+         deathAction.play();
 
-         const shootClip   = clone.animations[1];
-         const shootAction = mixer.clipAction(shootClip);
-         shootAction.play();
+         const shootClip     = clone.animations[1];
+         const shootAction   = mixer.clipAction(shootClip);
          shootAction.enabled = false;
+         shootAction.play();
 
-         const hitClip   = clone.animations[2];
-         const hitAction = mixer.clipAction(hitClip);
-         hitAction.play();
+         const hitClip     = clone.animations[2];
+         const hitAction   = mixer.clipAction(hitClip);
          hitAction.enabled = false;
+         hitAction.play();
 
-         const idleClip   = clone.animations[4];
-         const idleAction = mixer.clipAction(idleClip);
-         idleAction.play();
+         const idleClip     = clone.animations[4];
+         const idleAction   = mixer.clipAction(idleClip);
          idleAction.enabled = false;
+         idleAction.play();
 
-         const idleGunPointClip   = clone.animations[6];
-         const idleGunPointAction = mixer.clipAction(idleGunPointClip);
-         idleGunPointAction.play();
+         const idleGunPointClip     = clone.animations[6];
+         const idleGunPointAction   = mixer.clipAction(idleGunPointClip);
          idleGunPointAction.enabled = false;
+         idleGunPointAction.play();
 
-         const idleGunShootClip   = clone.animations[7];
-         const idleGunShootAction = mixer.clipAction(idleGunShootClip);
-         idleGunShootAction.play();
+         const idleGunShootClip     = clone.animations[7];
+         const idleGunShootAction   = mixer.clipAction(idleGunShootClip);
          idleGunShootAction.enabled = false;
+         idleGunShootAction.play();
 
-         const idleMeleeClip   = clone.animations[9];
-         const idleMeleeAction = mixer.clipAction(idleMeleeClip);
-         idleMeleeAction.play();
+         const idleMeleeClip     = clone.animations[9];
+         const idleMeleeAction   = mixer.clipAction(idleMeleeClip);
          idleMeleeAction.enabled = false;
+         idleMeleeAction.play();
 
-         const interactClip   = clone.animations[10];
-         const interactAction = mixer.clipAction(interactClip);
-         interactAction.play();
+         const interactClip     = clone.animations[10];
+         const interactAction   = mixer.clipAction(interactClip);
          interactAction.enabled = false;
+         interactAction.play();
 
-         const rollClip   = clone.animations[15];
-         const rollAction = mixer.clipAction(rollClip);
-         rollAction.play();
+         const rollClip     = clone.animations[15];
+         const rollAction   = mixer.clipAction(rollClip);
          rollAction.enabled = false;
+         rollAction.play();
 
-         const runClip   = clone.animations[16];
-         const runAction = mixer.clipAction(runClip);
-         runAction.play();
+         const runClip     = clone.animations[16];
+         const runAction   = mixer.clipAction(runClip);
          runAction.enabled = false;
+         runAction.play();
 
-         const runBackClip   = clone.animations[17];
-         const runBackAction = mixer.clipAction(runBackClip);
-         runBackAction.play();
+         const runBackClip     = clone.animations[17];
+         const runBackAction   = mixer.clipAction(runBackClip);
          runBackAction.enabled = false;
+         runBackAction.play();
 
-         const runLeftClip   = clone.animations[18];
-         const runLeftAction = mixer.clipAction(runLeftClip);
-         runLeftAction.play();
+         const runLeftClip     = clone.animations[18];
+         const runLeftAction   = mixer.clipAction(runLeftClip);
          runLeftAction.enabled = false;
+         runLeftAction.play();
 
-         const runRightClip   = clone.animations[19];
-         const runRightAction = mixer.clipAction(runRightClip);
-         runRightAction.play();
+         const runRightClip     = clone.animations[19];
+         const runRightAction   = mixer.clipAction(runRightClip);
          runRightAction.enabled = false;
+         runRightAction.play();
 
-         const runShootClip   = clone.animations[20];
-         const runShootAction = mixer.clipAction(runShootClip);
-         runShootAction.play();
+         const runShootClip     = clone.animations[20];
+         const runShootAction   = mixer.clipAction(runShootClip);
          runShootAction.enabled = false;
+         runShootAction.play();
 
-         const slashClip   = clone.animations[21];
-         const slashAction = mixer.clipAction(slashClip);
-         slashAction.play();
+         const slashClip     = clone.animations[21];
+         const slashAction   = mixer.clipAction(slashClip);
          slashAction.enabled = false;
+         slashAction.play();
 
-         const walkClip   = clone.animations[22];
-         const walkAction = mixer.clipAction(walkClip);
-         walkAction.play();
+         const walkClip     = clone.animations[22];
+         const walkAction   = mixer.clipAction(walkClip);
          walkAction.enabled = false;
+         walkAction.play();
 
          animations.set('idle', {clip: idleClip, action: idleAction});
          animations.set('shoot', {clip: shootClip, action: shootAction});
@@ -579,83 +606,83 @@ class AssetManager {
 
          // const deathClip   = clone.animations[0];
          // const deathAction = mixer.clipAction(deathClip);
-         // deathAction.play();
          // deathAction.enabled = false;
+         // deathAction.play();
          //
          // const shootClip   = clone.animations[1];
          // const shootAction = mixer.clipAction(shootClip);
-         // shootAction.play();
          // shootAction.enabled = false;
+         // shootAction.play();
          //
          // const hitClip   = clone.animations[2];
          // const hitAction = mixer.clipAction(hitClip);
-         // hitAction.play();
          // hitAction.enabled = false;
+         // hitAction.play();
          //
          // const idleClip   = clone.animations[4];
          // const idleAction = mixer.clipAction(idleClip);
-         // idleAction.play();
          // idleAction.enabled = false;
+         // idleAction.play();
          //
          // const idleGunPointClip   = clone.animations[6];
          // const idleGunPointAction = mixer.clipAction(idleGunPointClip);
-         // idleGunPointAction.play();
          // idleGunPointAction.enabled = false;
+         // idleGunPointAction.play();
          //
          // const idleGunShootClip   = clone.animations[7];
          // const idleGunShootAction = mixer.clipAction(idleGunShootClip);
-         // idleGunShootAction.play();
          // idleGunShootAction.enabled = false;
+         // idleGunShootAction.play();
          //
          // const idleMeleeClip   = clone.animations[9];
          // const idleMeleeAction = mixer.clipAction(idleMeleeClip);
-         // idleMeleeAction.play();
          // idleMeleeAction.enabled = false;
+         // idleMeleeAction.play();
          //
          // const interactClip   = clone.animations[10];
          // const interactAction = mixer.clipAction(interactClip);
-         // interactAction.play();
          // interactAction.enabled = false;
+         // interactAction.play();
          //
          // const rollClip   = clone.animations[15];
          // const rollAction = mixer.clipAction(rollClip);
-         // rollAction.play();
          // rollAction.enabled = false;
+         // rollAction.play();
          //
          // const runClip   = clone.animations[16];
          // const runAction = mixer.clipAction(runClip);
-         // runAction.play();
          // runAction.enabled = false;
+         // runAction.play();
          //
          // const runBackClip   = clone.animations[17];
          // const runBackAction = mixer.clipAction(runBackClip);
-         // runBackAction.play();
          // runBackAction.enabled = false;
+         // runBackAction.play();
          //
          // const runLeftClip   = clone.animations[18];
          // const runLeftAction = mixer.clipAction(runLeftClip);
-         // runLeftAction.play();
          // runLeftAction.enabled = false;
+         // runLeftAction.play();
          //
          // const runRightClip   = clone.animations[19];
          // const runRightAction = mixer.clipAction(runRightClip);
-         // runRightAction.play();
          // runRightAction.enabled = false;
+         // runRightAction.play();
          //
          // const runShootClip   = clone.animations[20];
          // const runShootAction = mixer.clipAction(runShootClip);
-         // runShootAction.play();
          // runShootAction.enabled = false;
+         // runShootAction.play();
          //
          // const slashClip   = clone.animations[21];
          // const slashAction = mixer.clipAction(slashClip);
-         // slashAction.play();
          // slashAction.enabled = false;
+         // slashAction.play();
          //
          // const walkClip   = clone.animations[22];
          // const walkAction = mixer.clipAction(walkClip);
-         // walkAction.play();
          // walkAction.enabled = false;
+         // walkAction.play();
          //
          // animations.set('idle', {clip: idleClip, action: idleAction});
          // animations.set('shoot', {clip: shootClip, action: shootAction});
@@ -689,6 +716,7 @@ class AssetManager {
    _loadCharacterModels() {
 
       const gltfLoader    = this.gltfLoader;
+      const fbxLoader     = this.fbxLoader;
       const textureLoader = this.textureLoader;
       const models        = this.characterModels;
       const animations    = this.animations;
@@ -721,85 +749,85 @@ class AssetManager {
          const mixer      = new THREE.AnimationMixer(clone.scene);
          const animations = new Map();
 
-         const deathClip   = clone.animations[0];
-         const deathAction = mixer.clipAction(deathClip);
-         deathAction.play();
+         const deathClip     = clone.animations[0];
+         const deathAction   = mixer.clipAction(deathClip);
          deathAction.enabled = false;
+         deathAction.play();
 
-         const shootClip   = clone.animations[1];
-         const shootAction = mixer.clipAction(shootClip);
-         shootAction.play();
+         const shootClip     = clone.animations[1];
+         const shootAction   = mixer.clipAction(shootClip);
          shootAction.enabled = false;
+         shootAction.play();
 
-         const hitClip   = clone.animations[2];
-         const hitAction = mixer.clipAction(hitClip);
-         hitAction.play();
+         const hitClip     = clone.animations[2];
+         const hitAction   = mixer.clipAction(hitClip);
          hitAction.enabled = false;
+         hitAction.play();
 
-         const idleClip   = clone.animations[6];
-         const idleAction = mixer.clipAction(idleClip);
-         idleAction.play();
+         const idleClip     = clone.animations[6];
+         const idleAction   = mixer.clipAction(idleClip);
          idleAction.enabled = false;
+         idleAction.play();
 
-         const idleGunPointClip   = clone.animations[4];
-         const idleGunPointAction = mixer.clipAction(idleGunPointClip);
-         idleGunPointAction.play();
+         const idleGunPointClip     = clone.animations[4];
+         const idleGunPointAction   = mixer.clipAction(idleGunPointClip);
          idleGunPointAction.enabled = false;
+         idleGunPointAction.play();
 
-         const idleGunShootClip   = clone.animations[5];
-         const idleGunShootAction = mixer.clipAction(idleGunShootClip);
-         idleGunShootAction.play();
+         const idleGunShootClip     = clone.animations[5];
+         const idleGunShootAction   = mixer.clipAction(idleGunShootClip);
          idleGunShootAction.enabled = false;
+         idleGunShootAction.play();
 
-         const idleMeleeClip   = clone.animations[7];
-         const idleMeleeAction = mixer.clipAction(idleMeleeClip);
-         idleMeleeAction.play();
+         const idleMeleeClip     = clone.animations[7];
+         const idleMeleeAction   = mixer.clipAction(idleMeleeClip);
          idleMeleeAction.enabled = false;
+         idleMeleeAction.play();
 
-         const interactClip   = clone.animations[8];
-         const interactAction = mixer.clipAction(interactClip);
-         interactAction.play();
+         const interactClip     = clone.animations[8];
+         const interactAction   = mixer.clipAction(interactClip);
          interactAction.enabled = false;
+         interactAction.play();
 
-         const rollClip   = clone.animations[13];
-         const rollAction = mixer.clipAction(rollClip);
-         rollAction.play();
+         const rollClip     = clone.animations[13];
+         const rollAction   = mixer.clipAction(rollClip);
          rollAction.enabled = false;
+         rollAction.play();
 
-         const runClip   = clone.animations[14];
-         const runAction = mixer.clipAction(runClip);
-         runAction.play();
+         const runClip     = clone.animations[14];
+         const runAction   = mixer.clipAction(runClip);
          runAction.enabled = false;
+         runAction.play();
 
-         const runBackClip   = clone.animations[15];
-         const runBackAction = mixer.clipAction(runBackClip);
-         runBackAction.play();
+         const runBackClip     = clone.animations[15];
+         const runBackAction   = mixer.clipAction(runBackClip);
          runBackAction.enabled = false;
+         runBackAction.play();
 
-         const runLeftClip   = clone.animations[16];
-         const runLeftAction = mixer.clipAction(runLeftClip);
-         runLeftAction.play();
+         const runLeftClip     = clone.animations[16];
+         const runLeftAction   = mixer.clipAction(runLeftClip);
          runLeftAction.enabled = false;
+         runLeftAction.play();
 
-         const runRightClip   = clone.animations[17];
-         const runRightAction = mixer.clipAction(runRightClip);
-         runRightAction.play();
+         const runRightClip     = clone.animations[17];
+         const runRightAction   = mixer.clipAction(runRightClip);
          runRightAction.enabled = false;
+         runRightAction.play();
 
-         const runShootClip   = clone.animations[18];
-         const runShootAction = mixer.clipAction(runShootClip);
-         runShootAction.play();
+         const runShootClip     = clone.animations[18];
+         const runShootAction   = mixer.clipAction(runShootClip);
          runShootAction.enabled = false;
+         runShootAction.play();
 
-         const slashClip   = clone.animations[19];
-         const slashAction = mixer.clipAction(slashClip);
-         slashAction.play();
+         const slashClip     = clone.animations[19];
+         const slashAction   = mixer.clipAction(slashClip);
          slashAction.enabled = false;
+         slashAction.play();
 
-         const walkClip   = clone.animations[20];
-         const walkAction = mixer.clipAction(walkClip);
-         walkAction.play();
+         const walkClip     = clone.animations[20];
+         const walkAction   = mixer.clipAction(walkClip);
          walkAction.enabled = false;
+         walkAction.play();
 
          animations.set('idle', {clip: idleClip, action: idleAction});
          animations.set('shoot', {clip: shootClip, action: shootAction});
@@ -867,85 +895,85 @@ class AssetManager {
          const mixer      = new THREE.AnimationMixer(clone.scene);
          const animations = new Map();
 
-         const deathClip   = clone.animations[0];
-         const deathAction = mixer.clipAction(deathClip);
-         deathAction.play();
+         const deathClip     = clone.animations[0];
+         const deathAction   = mixer.clipAction(deathClip);
          deathAction.enabled = false;
+         deathAction.play();
 
-         const shootClip   = clone.animations[1];
-         const shootAction = mixer.clipAction(shootClip);
-         shootAction.play();
+         const shootClip     = clone.animations[1];
+         const shootAction   = mixer.clipAction(shootClip);
          shootAction.enabled = false;
+         shootAction.play();
 
-         const hitClip   = clone.animations[2];
-         const hitAction = mixer.clipAction(hitClip);
-         hitAction.play();
+         const hitClip     = clone.animations[2];
+         const hitAction   = mixer.clipAction(hitClip);
          hitAction.enabled = false;
+         hitAction.play();
 
-         const idleClip   = clone.animations[6];
-         const idleAction = mixer.clipAction(idleClip);
-         idleAction.play();
+         const idleClip     = clone.animations[6];
+         const idleAction   = mixer.clipAction(idleClip);
          idleAction.enabled = false;
+         idleAction.play();
 
-         const idleGunPointClip   = clone.animations[4];
-         const idleGunPointAction = mixer.clipAction(idleGunPointClip);
-         idleGunPointAction.play();
+         const idleGunPointClip     = clone.animations[4];
+         const idleGunPointAction   = mixer.clipAction(idleGunPointClip);
          idleGunPointAction.enabled = false;
+         idleGunPointAction.play();
 
-         const idleGunShootClip   = clone.animations[5];
-         const idleGunShootAction = mixer.clipAction(idleGunShootClip);
-         idleGunShootAction.play();
+         const idleGunShootClip     = clone.animations[5];
+         const idleGunShootAction   = mixer.clipAction(idleGunShootClip);
          idleGunShootAction.enabled = false;
+         idleGunShootAction.play();
 
-         const idleMeleeClip   = clone.animations[7];
-         const idleMeleeAction = mixer.clipAction(idleMeleeClip);
-         idleMeleeAction.play();
+         const idleMeleeClip     = clone.animations[7];
+         const idleMeleeAction   = mixer.clipAction(idleMeleeClip);
          idleMeleeAction.enabled = false;
+         idleMeleeAction.play();
 
-         const interactClip   = clone.animations[8];
-         const interactAction = mixer.clipAction(interactClip);
-         interactAction.play();
+         const interactClip     = clone.animations[8];
+         const interactAction   = mixer.clipAction(interactClip);
          interactAction.enabled = false;
+         interactAction.play();
 
-         const rollClip   = clone.animations[13];
-         const rollAction = mixer.clipAction(rollClip);
-         rollAction.play();
+         const rollClip     = clone.animations[13];
+         const rollAction   = mixer.clipAction(rollClip);
          rollAction.enabled = false;
+         rollAction.play();
 
-         const runClip   = clone.animations[14];
-         const runAction = mixer.clipAction(runClip);
-         runAction.play();
+         const runClip     = clone.animations[14];
+         const runAction   = mixer.clipAction(runClip);
          runAction.enabled = false;
+         runAction.play();
 
-         const runBackClip   = clone.animations[15];
-         const runBackAction = mixer.clipAction(runBackClip);
-         runBackAction.play();
+         const runBackClip     = clone.animations[15];
+         const runBackAction   = mixer.clipAction(runBackClip);
          runBackAction.enabled = false;
+         runBackAction.play();
 
-         const runLeftClip   = clone.animations[16];
-         const runLeftAction = mixer.clipAction(runLeftClip);
-         runLeftAction.play();
+         const runLeftClip     = clone.animations[16];
+         const runLeftAction   = mixer.clipAction(runLeftClip);
          runLeftAction.enabled = false;
+         runLeftAction.play();
 
-         const runRightClip   = clone.animations[17];
-         const runRightAction = mixer.clipAction(runRightClip);
-         runRightAction.play();
+         const runRightClip     = clone.animations[17];
+         const runRightAction   = mixer.clipAction(runRightClip);
          runRightAction.enabled = false;
+         runRightAction.play();
 
-         const runShootClip   = clone.animations[18];
-         const runShootAction = mixer.clipAction(runShootClip);
-         runShootAction.play();
+         const runShootClip     = clone.animations[18];
+         const runShootAction   = mixer.clipAction(runShootClip);
          runShootAction.enabled = false;
+         runShootAction.play();
 
-         const slashClip   = clone.animations[19];
-         const slashAction = mixer.clipAction(slashClip);
-         slashAction.play();
+         const slashClip     = clone.animations[19];
+         const slashAction   = mixer.clipAction(slashClip);
          slashAction.enabled = false;
+         slashAction.play();
 
-         const walkClip   = clone.animations[20];
-         const walkAction = mixer.clipAction(walkClip);
-         walkAction.play();
+         const walkClip     = clone.animations[20];
+         const walkAction   = mixer.clipAction(walkClip);
          walkAction.enabled = false;
+         walkAction.play();
 
          animations.set('idle', {clip: idleClip, action: idleAction});
          animations.set('shoot', {clip: shootClip, action: shootAction});
@@ -971,6 +999,308 @@ class AssetManager {
       })
 
 
+      // Wanderer
+      gltfLoader.load('./models/player/Soldier.glb', (gltf) => {
+         const clone = {
+            animations: gltf.animations,
+            scene     : gltf.scene.clone(true)
+         }
+         const mixer = new THREE.AnimationMixer(clone.scene);
+
+         const cloneBones         = {};
+         const cloneSkinnedMeshes = {};
+
+         clone.scene.traverse(node => {
+            if (node.isBone) {
+               cloneBones[node.name] = node;
+            }
+
+            if (node.isSkinnedMesh) {
+               cloneSkinnedMeshes[node.name] = node;
+            }
+         });
+
+         for (let name in cloneSkinnedMeshes) {
+            const cloneSMesh = cloneSkinnedMeshes[name];
+            const skeleton   = cloneSMesh.skeleton;
+
+            const orderedCloneBone = [];
+
+            for (let i = 0; i < skeleton.bones.length; i++) {
+               const cloneBone = cloneBones[skeleton.bones[i].name];
+               orderedCloneBone.push(cloneBone);
+            }
+
+            cloneSMesh.bind(
+              new THREE.Skeleton(orderedCloneBone, skeleton.boneInverses),
+              cloneSMesh.matrixWorld
+            );
+         }
+
+         clone.scene.scale.set(0.4, 0.4, 0.4);
+
+         const deathClip     = clone.animations.find(clip => clip.name.includes('Death'));
+         const deathAction   = mixer.clipAction(deathClip);
+         deathAction.enabled = false;
+         deathAction.play();
+
+         const shootClip     = clone.animations.find(clip => clip.name.includes('Gun_Shoot'));
+         const shootAction   = mixer.clipAction(shootClip);
+         shootAction.enabled = false;
+         shootAction.play();
+
+         const hitClip     = clone.animations.find(clip => clip.name.includes('HitRecieve'));
+         const hitAction   = mixer.clipAction(hitClip);
+         hitAction.enabled = false;
+         hitAction.play();
+
+         const idleClip     = clone.animations.find(clip => clip.name.includes('Idle'));
+         const idleAction   = mixer.clipAction(idleClip);
+         idleAction.enabled = false;
+         idleAction.play();
+
+         const idleGunPointClip     = clone.animations.find(clip => clip.name.includes('Gun_Pointing'));
+         const idleGunPointAction   = mixer.clipAction(idleGunPointClip);
+         idleGunPointAction.enabled = false;
+         idleGunPointAction.play();
+
+         const idleGunShootClip     = clone.animations.find(clip => clip.name.includes('Idle_Gun_Shoot'));
+         const idleGunShootAction   = mixer.clipAction(idleGunShootClip);
+         idleGunShootAction.enabled = false;
+         idleGunShootAction.play();
+
+         const idleMeleeClip     = clone.animations.find(clip => clip.name.includes('Idle_Sword'));
+         const idleMeleeAction   = mixer.clipAction(idleMeleeClip);
+         idleMeleeAction.enabled = false;
+         idleMeleeAction.play();
+
+         const interactClip     = clone.animations.find(clip => clip.name.includes('Interact'));
+         const interactAction   = mixer.clipAction(interactClip);
+         interactAction.enabled = false;
+         interactAction.play();
+
+         const rollClip     = clone.animations.find(clip => clip.name.includes('Roll'));
+         const rollAction   = mixer.clipAction(rollClip);
+         rollAction.enabled = false;
+         rollAction.play();
+
+         const runClip     = clone.animations.find(clip => clip.name.includes('Run'));
+         const runAction   = mixer.clipAction(runClip);
+         runAction.enabled = false;
+         runAction.play();
+
+         const runBackClip     = clone.animations.find(clip => clip.name.includes('Run_Back'));
+         const runBackAction   = mixer.clipAction(runBackClip);
+         runBackAction.enabled = false;
+         runBackAction.play();
+
+         const runLeftClip     = clone.animations.find(clip => clip.name.includes('Run_Left'));
+         const runLeftAction   = mixer.clipAction(runLeftClip);
+         runLeftAction.enabled = false;
+         runLeftAction.play();
+
+         const runRightClip     = clone.animations.find(clip => clip.name.includes('Run_Right'));
+         const runRightAction   = mixer.clipAction(runRightClip);
+         runRightAction.enabled = false;
+         runRightAction.play();
+
+         const runShootClip     = clone.animations.find(clip => clip.name.includes('Run_Shoot'));
+         const runShootAction   = mixer.clipAction(runShootClip);
+         runShootAction.enabled = false;
+         runShootAction.play();
+
+         const slashClip     = clone.animations.find(clip => clip.name.includes('Sword_Slash'));
+         const slashAction   = mixer.clipAction(slashClip);
+         slashAction.enabled = false;
+         slashAction.play();
+
+         const walkClip     = clone.animations.find(clip => clip.name.includes('Walk'));
+         const walkAction   = mixer.clipAction(walkClip);
+         walkAction.enabled = false;
+         walkAction.play();
+
+         animations.set('idle', {clip: idleClip, action: idleAction});
+         animations.set('shoot', {clip: shootClip, action: shootAction});
+         animations.set('die', {clip: deathClip, action: deathAction});
+         animations.set('hit', {clip: hitClip, action: hitAction});
+         animations.set('idleGunPoint', {clip: idleGunPointClip, action: idleGunPointAction});
+         animations.set('idleGunShoot', {clip: idleGunShootClip, action: idleGunShootAction});
+         animations.set('idleMelee', {clip: idleMeleeClip, action: idleMeleeAction});
+         animations.set('interact', {clip: interactClip, action: interactAction});
+         animations.set('roll', {clip: rollClip, action: rollAction});
+         animations.set('run', {clip: runClip, action: runAction});
+         animations.set('runBack', {clip: runBackClip, action: runBackAction});
+         animations.set('runLeft', {clip: runLeftClip, action: runLeftAction});
+         animations.set('runRight', {clip: runRightClip, action: runRightAction});
+         animations.set('runShoot', {clip: runShootClip, action: runShootAction});
+         animations.set('slash', {clip: slashClip, action: slashAction});
+         animations.set('walk', {clip: walkClip, action: walkAction});
+
+         clone.name = 'Wanderer';
+         this.animations.set('Wanderer', animations);
+         this.mixers.set('Wanderer', mixer);
+         this.characterModels.set('Wanderer', clone.scene);
+      })
+
+
+      // Adventurer
+      gltfLoader.load('./models/player/Adventurer.glb', (gltf) => {
+         const clone = {
+            animations: gltf.animations,
+            scene     : gltf.scene.clone(true)
+         }
+         const mixer = new THREE.AnimationMixer(clone.scene);
+
+         const cloneBones         = {};
+         const cloneSkinnedMeshes = {};
+
+         clone.scene.traverse(node => {
+            if (node.isBone) {
+               cloneBones[node.name] = node;
+            }
+
+            if (node.isSkinnedMesh) {
+               cloneSkinnedMeshes[node.name] = node;
+            }
+         });
+
+         for (let name in cloneSkinnedMeshes) {
+            const cloneSMesh = cloneSkinnedMeshes[name];
+            const skeleton   = cloneSMesh.skeleton;
+
+            const orderedCloneBone = [];
+
+            for (let i = 0; i < skeleton.bones.length; i++) {
+               const cloneBone = cloneBones[skeleton.bones[i].name];
+               orderedCloneBone.push(cloneBone);
+            }
+
+            cloneSMesh.bind(
+              new THREE.Skeleton(orderedCloneBone, skeleton.boneInverses),
+              cloneSMesh.matrixWorld
+            );
+         }
+
+         clone.scene.scale.set(0.4, 0.4, 0.4);
+
+         const deathClip   = clone.animations.find(clip => clip.name.includes('Death'));
+         const deathAction = mixer.clipAction(deathClip);
+         deathAction.timeScale = 3.5;
+         deathAction.enabled = false;
+         deathAction.play();
+
+         const shootClip   = clone.animations.find(clip => clip.name.includes('Gun_Shoot'));
+         const shootAction = mixer.clipAction(shootClip);
+         shootAction.timeScale = 3.5;
+         shootAction.enabled = false;
+         shootAction.play();
+
+         const hitClip   = clone.animations.find(clip => clip.name.includes('HitRecieve'));
+         const hitAction = mixer.clipAction(hitClip);
+         hitAction.timeScale = 3.5;
+         hitAction.enabled = false;
+         hitAction.play();
+
+         const idleClip   = clone.animations.find(clip => clip.name.includes('Idle'));
+         const idleAction = mixer.clipAction(idleClip);
+         idleAction.timeScale = 3.5;
+         idleAction.enabled = false;
+         idleAction.play();
+
+         const idleGunPointClip   = clone.animations.find(clip => clip.name.includes('Gun_Pointing'));
+         const idleGunPointAction = mixer.clipAction(idleGunPointClip);
+         idleGunPointAction.timeScale = 3.5;
+         idleGunPointAction.enabled = false;
+         idleGunPointAction.play();
+
+         const idleGunShootClip   = clone.animations.find(clip => clip.name.includes('Idle_Gun_Shoot'));
+         const idleGunShootAction = mixer.clipAction(idleGunShootClip);
+         idleGunShootAction.timeScale = 3.5;
+         idleGunShootAction.enabled = false;
+         idleGunShootAction.play();
+
+         const idleMeleeClip   = clone.animations.find(clip => clip.name.includes('Idle_Sword'));
+         const idleMeleeAction = mixer.clipAction(idleMeleeClip);
+         idleMeleeAction.timeScale = 3.5;
+         idleMeleeAction.enabled = false;
+         idleMeleeAction.play();
+
+         const interactClip   = clone.animations.find(clip => clip.name.includes('Interact'));
+         const interactAction = mixer.clipAction(interactClip);
+         interactAction.timeScale = 3.5;
+         interactAction.enabled = false;
+         interactAction.play();
+
+         const rollClip   = clone.animations.find(clip => clip.name.includes('Roll'));
+         const rollAction = mixer.clipAction(rollClip);
+         rollAction.timeScale = 3.5;
+         rollAction.enabled = false;
+         rollAction.play();
+
+         const runClip   = clone.animations.find(clip => clip.name.includes('Run'));
+         const runAction = mixer.clipAction(runClip);
+         runClip.timeScale = 3.5;
+         runAction.enabled = false;
+         runAction.play();
+
+         const runBackClip   = clone.animations.find(clip => clip.name.includes('Run_Back'));
+         const runBackAction = mixer.clipAction(runBackClip);
+         runBackAction.timeScale = 3.5;
+         runBackAction.enabled = false;
+         runBackAction.play();
+
+         const runLeftClip   = clone.animations.find(clip => clip.name.includes('Run_Left'));
+         const runLeftAction = mixer.clipAction(runLeftClip);
+         runLeftAction.timeScale = 3.5;
+         runLeftAction.enabled = false;
+         runLeftAction.play();
+
+         const runRightClip   = clone.animations.find(clip => clip.name.includes('Run_Right'));
+         const runRightAction = mixer.clipAction(runRightClip);
+         runRightAction.timeScale = 3.5;
+         runRightAction.enabled = false;
+         runRightAction.play();
+
+         const runShootClip   = clone.animations.find(clip => clip.name.includes('Run_Shoot'));
+         const runShootAction = mixer.clipAction(runShootClip);
+         runShootAction.timeScale = 3.5;
+         runShootAction.enabled = false;
+         runShootAction.play();
+
+         const slashClip   = clone.animations.find(clip => clip.name.includes('Sword_Slash'));
+         const slashAction = mixer.clipAction(slashClip);
+         slashAction.timeScale = 3.5;
+         slashAction.enabled = false;
+         slashAction.play();
+
+         const walkClip   = clone.animations.find(clip => clip.name.includes('Walk'));
+         const walkAction = mixer.clipAction(walkClip);
+         walkAction.timeScale = 3.5;
+         walkAction.enabled = false;
+         walkAction.play();
+
+         animations.set('idle', {clip: idleClip, action: idleAction});
+         animations.set('shoot', {clip: shootClip, action: shootAction});
+         animations.set('die', {clip: deathClip, action: deathAction});
+         animations.set('hit', {clip: hitClip, action: hitAction});
+         animations.set('idleGunPoint', {clip: idleGunPointClip, action: idleGunPointAction});
+         animations.set('idleGunShoot', {clip: idleGunShootClip, action: idleGunShootAction});
+         animations.set('idleMelee', {clip: idleMeleeClip, action: idleMeleeAction});
+         animations.set('interact', {clip: interactClip, action: interactAction});
+         animations.set('roll', {clip: rollClip, action: rollAction});
+         animations.set('run', {clip: runClip, action: runAction});
+         animations.set('runBack', {clip: runBackClip, action: runBackAction});
+         animations.set('runLeft', {clip: runLeftClip, action: runLeftAction});
+         animations.set('runRight', {clip: runRightClip, action: runRightAction});
+         animations.set('runShoot', {clip: runShootClip, action: runShootAction});
+         animations.set('slash', {clip: slashClip, action: slashAction});
+         animations.set('walk', {clip: walkClip, action: walkAction});
+
+         clone.name = 'Adventurer';
+         this.animations.set('Adventurer', animations);
+         this.mixers.set('Adventurer', mixer);
+         this.characterModels.set('Adventurer', clone.scene);
+      })
 
    }
 

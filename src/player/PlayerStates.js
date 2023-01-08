@@ -48,32 +48,43 @@ export class IdleState extends PlayerState {
 
 
    update(_, input, moving) {
-
-      if (input.shift && moving) {
-         this.parent.changeTo('walk');
-         return;
-      } else if (input.forward) {
-         this.parent.changeTo('run');
-         return;
-      } else if (input.backward) {
-         this.parent.changeTo('runBack');
-         return;
-      } else if (input.left) {
-         this.parent.changeTo('runLeft');
-         return;
-      } else if (input.right) {
-         this.parent.changeTo('runRight');
+      if (input.forward || input.backward || input.left || input.right) {
+         if (input.shift) {
+            this.parent.changeTo('walk')
+         } else
+            this.parent.changeTo('run');
          return;
       }
 
-
-      this.parent.changeTo('idle');
+      this.parent.changeTo('idle')
    }
+
+
+   /*    if (input.shift && moving) {
+    this.parent.changeTo('walk');
+    return;
+    } else if (input.forward || input.backward || input.left || input.right) {
+    this.parent.changeTo('run');
+    return;
+    } else if (input.backward) {
+    this.parent.changeTo('runBack');
+    return;
+    } else if (input.left) {
+    this.parent.changeTo('runLeft');
+    return;
+    } else if (input.right) {
+    this.parent.changeTo('runRight');
+    return;
+    }
+
+
+    this.parent.changeTo('idle'); */
+
 
 
    cleanup() {
 
-      this._action = null;
+      // this._action = null;
 
    }
 
@@ -180,7 +191,7 @@ export class DeathState extends PlayerState {
 
    cleanup() {
 
-      this._action = null;
+      // this._action = null;
 
    }
 
@@ -255,7 +266,7 @@ export class WalkState extends PlayerState {
 
    cleanup() {
 
-      this._action = null;
+      // this._action = null;
 
    }
 
@@ -298,6 +309,7 @@ export class RunState extends PlayerState {
 
    enter(prevState) {
       this._action = this.parent.proxy.animations.get('run').action;
+      this._action.setEffectiveTimeScale(2.0);
 
       if (prevState) {
          const previousAction = this.parent.proxy.animations.get(prevState.name).action;
@@ -310,35 +322,16 @@ export class RunState extends PlayerState {
       }
 
       this._action.enabled = true;
-      // this._action.play();
+      this._action.play();
    }
 
 
    update(_, input, moving) {
-      if (input.forward || input.backward) {
+      if (input.forward || input.backward || input.left || input.right) {
          if (input.shift) {
             this.parent.changeTo('walk')
-         } else {
-            if (input.forward) {
-               this.parent.changeTo('run')
-            } else if (input.backward) {
-               this.parent.changeTo('runBack')
-            }
-         }
-
-         return;
-      }
-      if (input.left || input.right) {
-         if (input.shift) {
-            this.parent.changeTo('walk')
-         } else {
-            if (input.left) {
-               this.parent.changeTo('runLeft')
-            } else if (input.right) {
-               this.parent.changeTo('runRight')
-            }
-         }
-
+         } else
+            this.parent.changeTo('run');
          return;
       }
 
@@ -350,7 +343,7 @@ export class RunState extends PlayerState {
    cleanup() {
       if (this._action) {
 
-         this._action = null;
+         // this._action = null;
 
       }
    }
@@ -394,46 +387,38 @@ export class RunLeftState extends PlayerState {
       }
 
       this._action.enabled = true;
-      // this._action.play();
+      this._action.play();
    }
 
 
-   update(_, input, moving) {
-      if (input.forward || input.backward) {
-         if (input.shift) {
-            this.parent.changeTo('walk')
-         } else {
-            if (input.forward) {
-               this.parent.changeTo('run')
-            } else if (input.backward) {
-               this.parent.changeTo('runBack')
-            }
-         }
+   // update(_, input, moving) {
+   //    if (moving) {
+   //       if (input.shift && moving) {
+   //          this.parent.changeTo('walk');
+   //          return;
+   //       } else if (input.forward) {
+   //          this.parent.changeTo('run');
+   //          return;
+   //       } else if (input.backward) {
+   //          this.parent.changeTo('runBack');
+   //          return;
+   //       } else if (input.left) {
+   //          this.parent.changeTo('runLeft');
+   //          return;
+   //       } else if (input.right) {
+   //          this.parent.changeTo('runRight');
+   //          return;
+   //       }
+   //    }
+   //    this.parent.changeTo('idle')
+   // }
 
-         return;
-      }
-      if (input.left || input.right) {
-         if (input.shift) {
-            this.parent.changeTo('walk')
-         } else {
-            if (input.left) {
-               this.parent.changeTo('runLeft')
-            } else if (input.right) {
-               this.parent.changeTo('runRight')
-            }
-         }
-
-         return;
-      }
-
-      this.parent.changeTo('idle')
-   }
 
 
    cleanup() {
       if (this._action) {
 
-         this._action = null;
+         // this._action = null;
 
       }
    }
@@ -477,47 +462,38 @@ export class RunRightState extends PlayerState {
       }
 
       this._action.enabled = true;
-      // this._action.play();
+      this._action.play();
    }
 
 
-   update(_, input, moving) {
-      if (input.forward || input.backward) {
-         if (input.shift) {
-            this.parent.changeTo('walk')
-         } else {
-            if (input.forward) {
-               this.parent.changeTo('run')
-            } else if (input.backward) {
-               this.parent.changeTo('runBack')
-            }
-         }
-
-         return;
-      }
-      if (input.left || input.right) {
-         if (input.shift) {
-            this.parent.changeTo('walk')
-         } else {
-            if (input.left) {
-               this.parent.changeTo('runLeft')
-            } else if (input.right) {
-               this.parent.changeTo('runRight')
-            }
-         }
-
-         return;
-      }
-
-      this.parent.changeTo('idle')
-   }
+   // update(_, input, moving) {
+   //    if (moving) {
+   //       if (input.shift && moving) {
+   //          this.parent.changeTo('walk');
+   //          return;
+   //       } else if (input.forward) {
+   //          this.parent.changeTo('run');
+   //          return;
+   //       } else if (input.backward) {
+   //          this.parent.changeTo('runBack');
+   //          return;
+   //       } else if (input.left) {
+   //          this.parent.changeTo('runLeft');
+   //          return;
+   //       } else if (input.right) {
+   //          this.parent.changeTo('runRight');
+   //          return;
+   //       }
+   //    }
+   //    this.parent.changeTo('idle')
+   // }
 
 
 
    cleanup() {
       if (this._action) {
 
-         this._action = null;
+         // this._action = null;
 
       }
    }
@@ -557,44 +533,37 @@ export class RunBackState extends PlayerState {
             this._action.time = 0.0;
 
             this._action.crossFadeFrom(previousAction, 0.7, true);
+
+
          }
       }
 
       this._action.enabled = true;
-      // this._action.play();
+      this._action.play();
    }
 
 
-   update(_, input, moving) {
-      if (input.forward || input.backward) {
-         if (input.shift) {
-            this.parent.changeTo('walk')
-         } else {
-            if (input.forward) {
-               this.parent.changeTo('run')
-            } else if (input.backward) {
-               this.parent.changeTo('runBack')
-            }
-         }
-
-         return;
-      }
-      if (input.left || input.right) {
-         if (input.shift) {
-            this.parent.changeTo('walk')
-         } else {
-            if (input.left) {
-               this.parent.changeTo('runLeft')
-            } else if (input.right) {
-               this.parent.changeTo('runRight')
-            }
-         }
-
-         return;
-      }
-
-      this.parent.changeTo('idle')
-   }
+   // update(_, input, moving) {
+   //    if (moving) {
+   //       if (input.shift && moving) {
+   //          this.parent.changeTo('walk');
+   //          return;
+   //       } else if (input.forward) {
+   //          this.parent.changeTo('run');
+   //          return;
+   //       } else if (input.backward) {
+   //          this.parent.changeTo('runBack');
+   //          return;
+   //       } else if (input.left) {
+   //          this.parent.changeTo('runLeft');
+   //          return;
+   //       } else if (input.right) {
+   //          this.parent.changeTo('runRight');
+   //          return;
+   //       }
+   //    }
+   //    this.parent.changeTo('idle')
+   // }
 
 
 
@@ -679,7 +648,7 @@ export class ShootAttackState extends PlayerState {
    cleanup() {
       if (this._action) {
          this._action.getMixer().removeEventListener('finished', this.finishedCallback);
-         this._action = null;
+         // this._action = null;
 
       }
    }
@@ -749,7 +718,7 @@ export class MeleeAttackState extends PlayerState {
       if (this._action) {
 
          this._action.getMixer().removeEventListener('finished', this.finishedCallback);
-         this._action = null;
+         // this._action = null;
 
       }
    }
@@ -803,20 +772,14 @@ export class RollState extends PlayerState {
          this._action.play();
       }
 
-      /* const previousAction = this.parent.proxy.animations.get(prevState.name).action;
-       if (prevState) {
-       if (prevState.name === 'roll') {
-       if (previousAction.isRunning()) {
-       return;
-       }
-       }
-       }
-       this._action.reset()
-       this._action.setDuration = 0.2;
-       this._action.setLoop(LoopOnce, 1)
-       this._action.clampWhenFinished = false
-       this._action.crossFadeFrom(previousAction, 0.2, true)
-       this._action.play() */
+
+   }
+
+
+   finished() {
+
+      this.cleanup();
+      this.parent.changeTo('idle');
 
    }
 
@@ -832,7 +795,6 @@ export class RollState extends PlayerState {
    exit() {
 
       this.cleanup();
-      this.parent.changeTo('idle');
 
    }
 
