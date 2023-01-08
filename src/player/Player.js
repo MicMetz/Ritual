@@ -10,7 +10,7 @@ import PlayerStateMachine                                         from "./Player
 import PlayerControllerProxy                                      from "./PlayerControllerProxy.js";
 import {PlayerProjectile}                                         from './PlayerProjectile.js';
 import PlayerProxy                                                from "./PlayerProxy.js";
-import {EventDispatcher, Raycaster}                               from 'three';
+import {EventDispatcher, Object3D, Raycaster}                     from 'three';
 
 
 
@@ -26,15 +26,13 @@ const offset             = new Vector3();
 
 class Player extends MovingEntity {
    /**
-    *
-    *
     * @param world
     * @param body
+    * @param weaponMesh
     * @param mixer
     * @param animations
-    * @param weapon
     */
-   constructor(world, body, mixer, animations, weapon) {
+   constructor(world, body, weaponMesh, mixer, animations) {
       super();
 
       console.log(process.env.NODE_ENV);
@@ -64,26 +62,38 @@ class Player extends MovingEntity {
 
       // TODO: pospone attack until roll animation is finished
       this.attackPosponeTime = 0.5;
-
       // TODO: Get this data from the weapon
-      this.swipesPerSecond = 2;
-      this.lastswipeTime   = 0;
-      this.shotsPerSecond  = 10;
-      this.lastShotTime    = 0;
+      this.swipesPerSecond   = 2;
+      this.lastswipeTime     = 0;
+      this.shotsPerSecond    = 10;
+      this.lastShotTime      = 0;
 
       this.obb = new OBB();
       this.obb.halfSizes.set(0.1, 0.1, 0.5);
 
       this.audios = new Map();
 
-      this.hand    = this.bodyMesh.getObjectByName('Middle4.R_end');
-      // this.hand    = this.bodyMesh.getObjectByName('HandR');
-      this.offHand = this.bodyMesh.getObjectByName('HandL');
-      console.log(this.hand);
+      this.mainHand = this.bodyMesh.getObjectByName('PTR');
+      this.offHand  = this.bodyMesh.getObjectByName('PTL');
+      console.log(this.bodyMesh);
+      console.log(this.mainHand);
+      console.log(this.offHand);
 
-      this.weaponSystem               = new WeaponSystem();
-      this.weapon                     = new Weapon(this);
-      this.weaponSystem.currentWeapon = this.weapon;
+      this.weaponDelegateTip            = new Object3D();
+      this.weaponDelegate               = new Object3D();
+      this.weaponDelegate.position.x    = this.mainHand.x;
+      this.weaponDelegate.position.y    = this.mainHand.y;
+      this.weaponDelegate.position.z    = this.mainHand.z;
+      this.weaponDelegate.rotation.x    = this.mainHand.rotation.x;
+      this.weaponDelegate.rotation.y    = this.mainHand.rotation.y;
+      this.weaponDelegate.rotation.z    = this.mainHand.rotation.z;
+      this.weaponDelegateTip.position.z = 1.5;
+      this.weaponDelegate.add(this.weaponDelegateTip);
+      this.mainHand.add(this.weaponDelegate);
+
+      // this.weaponSystem               = new WeaponSystem(this);
+      // this.weapon                     = new Weapon(this, weaponMesh);
+      // this.weaponSystem.currentWeapon = this.weapon;
 
       // this.offWeapon = this.offHand.children[0];
       this.strategy = 'melee';

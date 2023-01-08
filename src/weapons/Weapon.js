@@ -11,10 +11,11 @@ import {WEAPON_STATUS_READY, WEAPON_STATUS_NOT_READY, WEAPON_STATUS_EQUIPPED, WE
 
 class Weapon extends Item {
 
-   constructor(owner) {
+   constructor(owner, mesh) {
       super(owner);
 
-      this._owner = owner;
+      this._owner  = owner;
+      this._weapon = mesh;
 
       this._canActivateTrigger = false;
 
@@ -54,6 +55,22 @@ class Weapon extends Item {
    }
 
 
+   set owner(owner) {
+
+      this._owner = owner;
+      super.owner = owner;
+
+   }
+
+
+   get owner() {
+
+      return this._owner;
+
+   }
+
+
+
    /**
     * Adds the given amount of rounds to the ammo.
     *
@@ -74,6 +91,7 @@ class Weapon extends Item {
       return this._ammo;
 
    }
+
 
 
    /**

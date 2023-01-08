@@ -15,7 +15,7 @@ class WeaponSystem {
    constructor(owner) {
 
       this.owner         = owner;
-      this.currentWeapon = null;
+      this._currentWeapon = null;
       this.weaponsStore  = new Map();
 
       this.nextWeapon = null;
@@ -25,6 +25,12 @@ class WeaponSystem {
       this.weaponsStore.set(WEAPON_TYPES_MELEE, null);
       this.weaponsStore.set(WEAPON_TYPES_ABILITY, null);
 
+   }
+
+
+   set currentWeapon(weapon) {
+      this._currentWeapon = weapon;
+      this._currentWeapon.position.copy(this.owner.mainHand.position);
    }
 
 

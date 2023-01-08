@@ -10,6 +10,7 @@ import {
 }                                    from "three";
 import * as THREE                    from 'three';
 import * as YUKA                     from 'yuka';
+import {Weapon}                      from "../weapons/Weapon.js";
 import {AssetManager}                from './AssetManager.js';
 import {PlayerControls}              from '../player/PlayerControls.js';
 import {Player}                      from '../player/Player.js';
@@ -464,11 +465,13 @@ class World {
       const protectionMesh    = this.protectionMesh.clone();
       protectionMesh.material = this.protectionMesh.material.clone(); // cloning a mesh does not clone its material (but we need unique uniforms!)
 
+      const initialWeaponMesh = this.assetManager.weapons.get('FireAxe').clone();
+      // this.playerMesh.add(initialWeaponMesh);
       this.playerMesh.add(protectionMesh)
       // this.player                = new Player(this, this.playerMesh, this.assetManager.mixers.get('WomanSurvivor'), this.assetManager.animations.get('WomanSurvivor'));
       // this.player                = new Player(this, this.playerMesh, this.assetManager.mixers.get('WomanSurvivor'),
       //   this.assetManager.animations.get('WomanSurvivor'));
-      this.player                = new Player(this, this.playerMesh, this.assetManager.mixers.get('Adventurer'),
+      this.player                = new Player(this, this.playerMesh, initialWeaponMesh, this.assetManager.mixers.get('Adventurer'),
         this.assetManager.animations.get('Adventurer'));
       this.player.protectionMesh = protectionMesh
 
