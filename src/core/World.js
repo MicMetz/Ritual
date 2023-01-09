@@ -144,6 +144,7 @@ class World {
          this._initBackground();
          this._initPlayer();
          this._initControls();
+         this.environmentManager.init();
          this._loadStage(this.currentStage);
 
          this.ui.startScreen.remove();
@@ -161,7 +162,7 @@ class World {
          this.animationSystem.update(delta);
          this.controls.update(delta);
          this.entityManager.update(delta);
-         this.userInterface.update(delta);
+         // this.userInterface.update(delta);
          this.environmentManager.animate(delta);
 
          this._enforceNonPenetrationConstraint();
@@ -447,7 +448,6 @@ class World {
       this.ui.quitButtonComplete.addEventListener('click', this._onQuit, false);
       this.ui.quitButtonGameOver.addEventListener('click', this._onQuit, false);
 
-      this.environmentManager.init();
       this.userInterface = new InterfaceManager(this);
 
    }

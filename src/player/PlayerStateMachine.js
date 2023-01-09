@@ -14,46 +14,33 @@ class PlayerStateMachine {
    }
 
 
-   changeTo(id) {
+   changeTo(name) {
 
-      const state = this.states[id];
-
-      this._change(state);
-
-      return this;
-
-   }
-
-
-   _change(state) {
+      this.previousState = this.currentState;
 
       if (this.previousState) {
-         if (this.currentState.name.includes('Attack')) {
-
-         } else {
-            this.previousState = this.currentState;
+         if (this.currentState.name === name) {
+            return;
          }
-      } else {
-         this.previousState = this.currentState;
+         this.previousState.exit();
       }
 
-      if (this.currentState !== null) {
+      const state = new this.states[name](this);
+      this.currentState = state;``
 
-         this.currentState.exit();
-
-      }
-
-      this.currentState = state;
-
-      this.currentState.enter(this.previousState);
+      state.enter(this.previousState);
 
    }
 
 
 
-   update(timeElapsed, input, moving) {
-      this.currentState?.update(timeElapsed, input, moving);
+   update(timeElapsed, input) {
+      if (this.currentState) {
+         this.currentState.update(timeElapsed, input);
+      }
    }
+
+
 }
 
 

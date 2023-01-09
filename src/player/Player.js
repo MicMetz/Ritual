@@ -9,8 +9,8 @@ import {Weapon}                                                   from "../weapo
 import PlayerStateMachine                                         from "./PlayerStateMachine.js";
 import PlayerControllerProxy                                      from "./PlayerControllerProxy.js";
 import {PlayerProjectile}                                         from './PlayerProjectile.js';
-import PlayerProxy                                                from "./PlayerProxy.js";
 import {EventDispatcher, Object3D, Raycaster}                     from 'three';
+import {PlayerProxy}                                              from "./PlayerStates.js";
 
 
 
@@ -263,13 +263,16 @@ class Player extends MovingEntity {
 
    update(delta) {
 
-      // console.log(this.velocity);
+      if (!this.stateMachine) {
+         return;
+      }
 
       const world = this.world;
       this.currentTime += delta;
+      const input = world.controls.input;
 
-      this.stateMachine.update(delta, this.world.controls.input, this._isMoving());
-      this.mixer.update(delta);
+      this.stateMachine.update(delta, this.world.controls.input);
+      if (this.mixer) this.mixer.update(delta);
 
       this.obb.center.copy(this.position);
       this.obb.rotation.fromQuaternion(this.rotation);
@@ -286,6 +289,11 @@ class Player extends MovingEntity {
       }
 
       this.updateParticles(delta);
+
+      const currentState = this.stateMachine.currentState;
+      if (currentState.name !== 'walk' && !currentState.name.includes('run') && currentState.name !== 'idle') {
+         return;
+      }
 
       return this;
 

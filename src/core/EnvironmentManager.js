@@ -2,8 +2,9 @@ import {
    Color, Geometry, Group, Object3D, Points, PointsMaterial, MathUtils,
    BoxBufferGeometry, MeshLambertMaterial, Mesh, AmbientLight, DirectionalLight,
    CameraHelper, MeshBasicMaterial, Fog, PlaneGeometry, InstancedMesh, DoubleSide, ShaderMaterial
-}                from "three";
-import * as YUKA from "yuka";
+}                      from "three";
+import * as YUKA       from "yuka";
+import {FogController} from "../environment/FogController.js";
 
 
 
@@ -56,18 +57,16 @@ class EnvironmentManager {
       this.props          = [];
       this.environmentmap = new Map();
 
-      this.floorMesh   = new Group();
-      this.wallsMeshes = new Group();
-
-      this.grass    = null;
-      this.uniforms = {
+      this.floorMesh     = new Group();
+      this.wallsMeshes   = new Group();
+      this.background    = new Color('black');
+      this.fogController = null;
+      this.grass         = null;
+      this.uniforms      = {
          time: {
             value: 0
          }
       };
-
-      this.outBoundFog = new Fog('lightblue', 0, 100);
-      this.background  = new Color('black');
 
       this.width  = 0;
       this.depth  = 0;
@@ -106,6 +105,7 @@ class EnvironmentManager {
       this.generateLights(null, true);
       this.generateFloor();
       this.generateWalls();
+      this.fogController = new FogController(this.world);
 
    }
 
@@ -286,7 +286,7 @@ class EnvironmentManager {
          vertexShader,
          fragmentShader,
          uniforms: this.uniforms,
-         side: DoubleSide
+         side    : DoubleSide
       });
 
       const instanceNumber = this.width * this.depth * 2;

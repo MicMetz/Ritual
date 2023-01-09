@@ -14,12 +14,6 @@ class PlayerState {
    exit() {}
 
 
-   finish() {}
-
-
-   cleanup() {}
-
-
    update() {}
 
 }

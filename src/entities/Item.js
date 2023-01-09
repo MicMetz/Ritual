@@ -2,11 +2,11 @@
  * @author MicMetzger /
  */
 
-import {Quaternion, Vector3} from "yuka";
+import {GameEntity, Quaternion, Vector3} from "yuka";
 
 
 
-class Item {
+class Item extends GameEntity {
    /**
     *
     *
@@ -21,9 +21,9 @@ class Item {
     * @param rotation
     */
    constructor(world, name, type, parent, active, triggers, description, position, rotation) {
+      super();
 
       this._world    = world;
-      this._name     = name ? name : 'unknown';
       this._type     = type ? type : 'unknown';
       this._parent   = parent ? parent : null;
       this._active   = active ? active : false;
@@ -33,16 +33,6 @@ class Item {
       this._position    = position ? new Vector3(position) : new Vector3();
       this._rotation    = rotation ? new Quaternion(rotation) : new Quaternion();
 
-   }
-
-
-   get name() {
-      return this._name
-   }
-
-
-   set name(value) {
-      this._name = value;
    }
 
 
@@ -86,16 +76,6 @@ class Item {
    }
 
 
-   get parent() {
-      return this._parent;
-   }
-
-
-   set parent(value) {
-      this._parent = value;
-   }
-
-
    get trigger() {
       return this._triggers;
    }
@@ -121,7 +101,7 @@ class Item {
    }
 
 
-   update(delta) {
+   update() {
       // temporary
    }
 

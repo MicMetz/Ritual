@@ -2,17 +2,39 @@
  * @author MicMetzger /
  */
 
-import {LoopOnce}  from "three";
-import PlayerState from "./PlayerState.js";
+import {LoopOnce}         from "three";
+import PlayerState        from "./PlayerState.js";
+import PlayerStateMachine from "./PlayerStateMachine.js";
 
 
 
-export class IdleState extends PlayerState {
+export class PlayerProxy extends PlayerStateMachine {
+   constructor(proxy) {
+      super()
+
+      this.proxy = proxy
+
+      this.addState('idle', IdleState);
+      this.addState('walk', WalkState);
+      this.addState('run', RunState);
+      this.addState('runBack', RunBackState);
+      this.addState('runLeft', RunLeftState);
+      this.addState('runRight', RunRightState);
+      this.addState('roll', RollState);
+      this.addState('stun', StunState);
+      this.addState('die', DeathState);
+      this.addState('shootAttack', ShootAttackState);
+      this.addState('meleeAttack', MeleeAttackState);
+
+   }
+}
+
+
+
+class IdleState extends PlayerState {
    constructor(parent) {
       super(parent);
-
       this._action = null;
-
    }
 
 
@@ -47,59 +69,39 @@ export class IdleState extends PlayerState {
    }
 
 
-   update(_, input, moving) {
-      if (input.forward || input.backward || input.left || input.right) {
-         if (input.shift) {
-            this.parent.changeTo('walk')
-         } else
-            this.parent.changeTo('run');
+   update(_, input) {
+      if (!input) {
          return;
       }
 
-      this.parent.changeTo('idle')
+      if (input.shift && (input.forward || input.backward || input.left || input.right)) {
+         this.parent.changeTo('walk');
+         return;
+      }
+
+      if (!input.shift && (input.forward || input.backward || input.left || input.right)) {
+         this.parent.changeTo('run');
+         return;
+      }
+
+      this.parent.changeTo('idle');
    }
 
 
-   /*    if (input.shift && moving) {
-    this.parent.changeTo('walk');
-    return;
-    } else if (input.forward || input.backward || input.left || input.right) {
-    this.parent.changeTo('run');
-    return;
-    } else if (input.backward) {
-    this.parent.changeTo('runBack');
-    return;
-    } else if (input.left) {
-    this.parent.changeTo('runLeft');
-    return;
-    } else if (input.right) {
-    this.parent.changeTo('runRight');
-    return;
-    }
+   cleanup() {}
 
 
-    this.parent.changeTo('idle'); */
-
-
-
-   cleanup() {
-
-      // this._action = null;
-
-   }
-
-
-   exit() { this.cleanup(); }
+   exit() {}
 
 }
 
 
 
-export class RespawnState extends PlayerState {
+class RespawnState extends PlayerState {
    constructor(parent) {
       super(parent);
 
-      this._action = null;
+
 
    }
 
@@ -143,21 +145,22 @@ export class RespawnState extends PlayerState {
 
 
    exit() {
-
       this.cleanup();
-
    }
 
 }
 
 
 
-export class DeathState extends PlayerState {
+class DeathState extends PlayerState {
    constructor(parent) {
       super(parent);
 
-      this._action = null;
 
+
+      this._FinishedCallback = () => {
+         this.finished();
+      }
    }
 
 
@@ -189,10 +192,14 @@ export class DeathState extends PlayerState {
    }
 
 
+   finished() {
+      this.cleanup();
+      this.parent.changeTo('idle');
+   }
+
+
    cleanup() {
-
-      // this._action = null;
-
+      this._action.getMixer().removeEventListener('finished', this._FinishedCallback);
    }
 
 
@@ -204,20 +211,18 @@ export class DeathState extends PlayerState {
 
 
    exit() {
-
       this.cleanup();
-
    }
 
 };
 
 
 
-export class WalkState extends PlayerState {
+class WalkState extends PlayerState {
    constructor(parent) {
       super(parent);
 
-      this._action = null;
+
 
    }
 
@@ -266,34 +271,44 @@ export class WalkState extends PlayerState {
 
    cleanup() {
 
-      // this._action = null;
+      //
 
    }
 
 
-   exit() { this.cleanup(); }
+   exit() {
+      this.cleanup();
+   }
 
 
-   update(_, input, moving) {
-      if (input.forward || input.backward) {
-         if (!input.shift) {
-            this.parent.changeTo('run');
-         }
+   update(_, input) {
+      if (!input) {
+         return;
+      }
 
+      if (input.shift && (input.forward || input.backward || input.left || input.right)) {
+         this.parent.changeTo('walk');
+         return;
+      }
+
+      if (!input.shift && (input.forward || input.backward || input.left || input.right)) {
+         this.parent.changeTo('run');
          return;
       }
 
       this.parent.changeTo('idle');
    }
+
+
 };
 
 
 
-export class RunState extends PlayerState {
+class RunState extends PlayerState {
    constructor(parent) {
       super(parent);
 
-      this._action = null;
+
 
       this.finishedCallback = () => {
          this.finished();
@@ -311,31 +326,27 @@ export class RunState extends PlayerState {
       this._action = this.parent.proxy.animations.get('run').action;
       this._action.setEffectiveTimeScale(2.0);
 
-      if (prevState) {
-         const previousAction = this.parent.proxy.animations.get(prevState.name).action;
-
-         if (prevState.name.includes('Attack')) {
-            this._action.time = 0.0;
-
-            this._action.crossFadeFrom(previousAction, 0.7, true);
-         }
-      }
-
       this._action.enabled = true;
       this._action.play();
    }
 
 
-   update(_, input, moving) {
-      if (input.forward || input.backward || input.left || input.right) {
-         if (input.shift) {
-            this.parent.changeTo('walk')
-         } else
-            this.parent.changeTo('run');
+   update(_, input) {
+      if (!input) {
          return;
       }
 
-      this.parent.changeTo('idle')
+      if (input.shift && (input.forward || input.backward || input.left || input.right)) {
+         this.parent.changeTo('walk');
+         return;
+      }
+
+      if (!input.shift && (input.forward || input.backward || input.left || input.right)) {
+         this.parent.changeTo('run');
+         return;
+      }
+
+      this.parent.changeTo('idle');
    }
 
 
@@ -343,23 +354,25 @@ export class RunState extends PlayerState {
    cleanup() {
       if (this._action) {
 
-         // this._action = null;
+         //
 
       }
    }
 
 
-   exit() { this.cleanup(); }
+   exit() {
+      this.cleanup();
+   }
 
 }
 
 
 
-export class RunLeftState extends PlayerState {
+class RunLeftState extends PlayerState {
    constructor(parent) {
       super(parent);
 
-      this._action = null;
+
 
       this.finishedCallback = () => {
          this.finished();
@@ -376,65 +389,54 @@ export class RunLeftState extends PlayerState {
    enter(prevState) {
       this._action = this.parent.proxy.animations.get('runLeft').action;
 
-      if (prevState) {
-         const previousAction = this.parent.proxy.animations.get(prevState.name).action;
-
-         if (prevState.name.includes('Attack')) {
-            this._action.time = 0.0;
-
-            this._action.crossFadeFrom(previousAction, 0.7, true);
-         }
-      }
 
       this._action.enabled = true;
       this._action.play();
    }
 
 
-   // update(_, input, moving) {
-   //    if (moving) {
-   //       if (input.shift && moving) {
-   //          this.parent.changeTo('walk');
-   //          return;
-   //       } else if (input.forward) {
-   //          this.parent.changeTo('run');
-   //          return;
-   //       } else if (input.backward) {
-   //          this.parent.changeTo('runBack');
-   //          return;
-   //       } else if (input.left) {
-   //          this.parent.changeTo('runLeft');
-   //          return;
-   //       } else if (input.right) {
-   //          this.parent.changeTo('runRight');
-   //          return;
-   //       }
-   //    }
-   //    this.parent.changeTo('idle')
-   // }
+   update(_, input) {
+      if (!input) {
+         return;
+      }
+
+      if (input.shift && (input.forward || input.backward || input.left || input.right)) {
+         this.parent.changeTo('walk');
+         return;
+      }
+
+      if (!input.shift && (input.forward || input.backward || input.left || input.right)) {
+         this.parent.changeTo('run');
+         return;
+      }
+
+      this.parent.changeTo('idle');
+   }
 
 
 
    cleanup() {
       if (this._action) {
 
-         // this._action = null;
+
 
       }
    }
 
 
-   exit() { this.cleanup(); }
+   exit() {
+      this.cleanup();
+   }
 
 }
 
 
 
-export class RunRightState extends PlayerState {
+class RunRightState extends PlayerState {
    constructor(parent) {
       super(parent);
 
-      this._action = null;
+
 
       this.finishedCallback = () => {
          this.finished();
@@ -451,65 +453,54 @@ export class RunRightState extends PlayerState {
    enter(prevState) {
       this._action = this.parent.proxy.animations.get('runRight').action;
 
-      if (prevState) {
-         const previousAction = this.parent.proxy.animations.get(prevState.name).action;
-
-         if (prevState.name.includes('Attack')) {
-            this._action.time = 0.0;
-
-            this._action.crossFadeFrom(previousAction, 0.7, true);
-         }
-      }
 
       this._action.enabled = true;
       this._action.play();
    }
 
 
-   // update(_, input, moving) {
-   //    if (moving) {
-   //       if (input.shift && moving) {
-   //          this.parent.changeTo('walk');
-   //          return;
-   //       } else if (input.forward) {
-   //          this.parent.changeTo('run');
-   //          return;
-   //       } else if (input.backward) {
-   //          this.parent.changeTo('runBack');
-   //          return;
-   //       } else if (input.left) {
-   //          this.parent.changeTo('runLeft');
-   //          return;
-   //       } else if (input.right) {
-   //          this.parent.changeTo('runRight');
-   //          return;
-   //       }
-   //    }
-   //    this.parent.changeTo('idle')
-   // }
+   update(_, input) {
+      if (!input) {
+         return;
+      }
+
+      if (input.shift && (input.forward || input.backward || input.left || input.right)) {
+         this.parent.changeTo('walk');
+         return;
+      }
+
+      if (!input.shift && (input.forward || input.backward || input.left || input.right)) {
+         this.parent.changeTo('run');
+         return;
+      }
+
+      this.parent.changeTo('idle');
+   }
 
 
 
    cleanup() {
       if (this._action) {
 
-         // this._action = null;
+
 
       }
    }
 
 
-   exit() { this.cleanup(); }
+   exit() {
+      this.cleanup();
+   }
 
 }
 
 
 
-export class RunBackState extends PlayerState {
+class RunBackState extends PlayerState {
    constructor(parent) {
       super(parent);
 
-      this._action = null;
+
 
       this.finishedCallback = () => {
          this.finished();
@@ -526,67 +517,53 @@ export class RunBackState extends PlayerState {
    enter(prevState) {
       this._action = this.parent.proxy.animations.get('runBack').action;
 
-      if (prevState) {
-         const previousAction = this.parent.proxy.animations.get(prevState.name).action;
-
-         if (prevState.name.includes('Attack')) {
-            this._action.time = 0.0;
-
-            this._action.crossFadeFrom(previousAction, 0.7, true);
-
-
-         }
-      }
-
       this._action.enabled = true;
       this._action.play();
    }
 
 
-   // update(_, input, moving) {
-   //    if (moving) {
-   //       if (input.shift && moving) {
-   //          this.parent.changeTo('walk');
-   //          return;
-   //       } else if (input.forward) {
-   //          this.parent.changeTo('run');
-   //          return;
-   //       } else if (input.backward) {
-   //          this.parent.changeTo('runBack');
-   //          return;
-   //       } else if (input.left) {
-   //          this.parent.changeTo('runLeft');
-   //          return;
-   //       } else if (input.right) {
-   //          this.parent.changeTo('runRight');
-   //          return;
-   //       }
-   //    }
-   //    this.parent.changeTo('idle')
-   // }
+   update(_, input) {
+      if (!input) {
+         return;
+      }
+
+      if (input.shift && (input.forward || input.backward || input.left || input.right)) {
+         this.parent.changeTo('walk');
+         return;
+      }
+
+      if (!input.shift && (input.forward || input.backward || input.left || input.right)) {
+         this.parent.changeTo('run');
+         return;
+      }
+
+      this.parent.changeTo('idle');
+   }
 
 
 
    cleanup() {
       if (this._action) {
 
-         this._action = null;
+
 
       }
    }
 
 
-   exit() { this.cleanup(); }
+   exit() {
+      this.cleanup();
+   }
 
 }
 
 
 
-export class ShootAttackState extends PlayerState {
+class ShootAttackState extends PlayerState {
    constructor(parent) {
       super(parent);
 
-      this._action = null;
+
 
       this.finishedCallback = () => {
          this.finished();
@@ -619,21 +596,31 @@ export class ShootAttackState extends PlayerState {
          this._action.play();
       }
 
-      /* const previousAction = this.parent.proxy.animations.get(prevState.name).action;
-       if (prevState) {
-       if (prevState.name === 'roll') {
-       if (previousAction.isRunning()) {
-       return;
-       }
-       }
-       }
-       this._action.reset()
-       this._action.setDuration = 0.2;
-       this._action.setLoop(LoopOnce, 1)
-       this._action.clampWhenFinished = false
-       this._action.crossFadeFrom(previousAction, 0.2, true)
-       this._action.play() */
+   }
 
+
+   update(_, input) {
+      if (input.shift && (input.forward || input.backward || input.left || input.right)) {
+         this.parent.changeTo('walk');
+         return;
+      } else {
+         if (input.forward) {
+            this.parent.changeTo('run');
+            return;
+         } else if (input.backward) {
+            this.parent.changeTo('runBack');
+            return;
+         } else if (input.left) {
+            this.parent.changeTo('runLeft');
+            return;
+         } else if (input.right) {
+            this.parent.changeTo('runRight');
+            return;
+         }
+      }
+
+
+      this.parent.changeTo('idle')
    }
 
 
@@ -648,27 +635,25 @@ export class ShootAttackState extends PlayerState {
    cleanup() {
       if (this._action) {
          this._action.getMixer().removeEventListener('finished', this.finishedCallback);
-         // this._action = null;
+
 
       }
    }
 
 
    exit() {
-
       this.cleanup();
-
    }
 
 }
 
 
 
-export class MeleeAttackState extends PlayerState {
+class MeleeAttackState extends PlayerState {
    constructor(parent) {
       super(parent);
 
-      this._action = null;
+
 
       this.finishedCallback = () => {
          this.finished();
@@ -706,6 +691,31 @@ export class MeleeAttackState extends PlayerState {
    }
 
 
+   update(_, input) {
+      if (input.shift && (input.forward || input.backward || input.left || input.right)) {
+         this.parent.changeTo('walk');
+         return;
+      } else {
+         if (input.forward) {
+            this.parent.changeTo('run');
+            return;
+         } else if (input.backward) {
+            this.parent.changeTo('runBack');
+            return;
+         } else if (input.left) {
+            this.parent.changeTo('runLeft');
+            return;
+         } else if (input.right) {
+            this.parent.changeTo('runRight');
+            return;
+         }
+      }
+
+
+      this.parent.changeTo('idle')
+   }
+
+
    finished() {
 
       this.cleanup();
@@ -718,28 +728,25 @@ export class MeleeAttackState extends PlayerState {
       if (this._action) {
 
          this._action.getMixer().removeEventListener('finished', this.finishedCallback);
-         // this._action = null;
+
 
       }
    }
 
 
-   update(_, input, moving) {
-      return;
+   exit() {
+      this.cleanup();
    }
-
-
-   exit() { this.cleanup(); }
 
 }
 
 
 
-export class RollState extends PlayerState {
+class RollState extends PlayerState {
    constructor(parent) {
       super(parent);
 
-      this._action = null;
+
 
       this.finishedCallback = () => {
          this.finished();
@@ -776,6 +783,32 @@ export class RollState extends PlayerState {
    }
 
 
+   update(_, input) {
+      if (input.shift && (input.forward || input.backward || input.left || input.right)) {
+         this.parent.changeTo('walk');
+         return;
+      } else {
+         if (input.forward) {
+            this.parent.changeTo('run');
+            return;
+         } else if (input.backward) {
+            this.parent.changeTo('runBack');
+            return;
+         } else if (input.left) {
+            this.parent.changeTo('runLeft');
+            return;
+         } else if (input.right) {
+            this.parent.changeTo('runRight');
+            return;
+         }
+      }
+
+
+      this.parent.changeTo('idle')
+   }
+
+
+
    finished() {
 
       this.cleanup();
@@ -787,26 +820,24 @@ export class RollState extends PlayerState {
    cleanup() {
       if (this._action) {
          this._action.getMixer().removeEventListener('finished', this.finishedCallback);
-         this._action = null;
+
       }
    }
 
 
    exit() {
-
       this.cleanup();
-
    }
 
 }
 
 
 
-export class StunState extends PlayerState {
+class StunState extends PlayerState {
    constructor(parent) {
       super(parent);
 
-      this._action = null;
+
 
       this.finishedCallback = () => {
          this.finished();
@@ -838,37 +869,16 @@ export class StunState extends PlayerState {
          this._action.play();
       }
 
-      /* const previousAction = this.parent.proxy.animations.get(prevState.name).action;
-       if (prevState) {
-       if (prevState.name === 'roll') {
-       if (previousAction.isRunning()) {
-       return;
-       }
-       }
-       }
-       this._action.reset()
-       this._action.setDuration = 0.2;
-       this._action.setLoop(LoopOnce, 1)
-       this._action.clampWhenFinished = false
-       this._action.crossFadeFrom(previousAction, 0.2, true)
-       this._action.play() */
-
    }
 
 
    cleanup() {
-      if (this._action) {
-         this._action.getMixer().removeEventListener('finished', this.finishedCallback);
-
-      }
+      this._action.getMixer().removeEventListener('finished', this.finishedCallback);
    }
 
 
    exit() {
-
       this.cleanup();
-      this.parent.changeTo('idle');
-
    }
 
 }
