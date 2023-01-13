@@ -1,3 +1,8 @@
+/**
+ * @author MicMetzger /
+ */
+
+
 import {Fog}     from "three";
 import {Vector3} from "yuka";
 

@@ -5,9 +5,9 @@
 import {AABB, MathUtils, MovingEntity, OBB, Ray, Vector3, Vision} from 'yuka';
 import {Particle, ParticleSystem}                                 from '../core/ParticleSystem.js';
 import {WeaponSystem}                                             from "../weapons/WeaponSystem.js";
-import {Weapon}                                                   from "../weapons/Weapon.js";
-import PlayerStateMachine                                         from "./PlayerStateMachine.js";
-import PlayerControllerProxy                                      from "./PlayerControllerProxy.js";
+import {Weapon}              from "../weapons/Weapon.js";
+import StateMachine          from "./StateMachine.js";
+import PlayerControllerProxy from "./PlayerControllerProxy.js";
 import {PlayerProjectile}                                         from './PlayerProjectile.js';
 import {EventDispatcher, Object3D, Raycaster}                     from 'three';
 import {PlayerProxy}                                              from "./PlayerStates.js";
@@ -110,7 +110,7 @@ class Player extends MovingEntity {
       this.stateMachine = new PlayerProxy(new PlayerControllerProxy(this.animations));
       this.stateMachine.changeTo('idle');
 
-      this._evaluate = this._evaluateActions.bind(this);
+      // this._evaluate = this._evaluateActions.bind(this);
 
       this._connect();
 
@@ -178,7 +178,7 @@ class Player extends MovingEntity {
 
    slash() {
 
-      if (!this.stateMachine.currentState.name.includes('roll')) {
+      if (!this.stateMachine.currentState.Name.includes('roll')) {
 
          const world       = this.world;
          const elapsedTime = world.time.getElapsed();
@@ -189,7 +189,7 @@ class Player extends MovingEntity {
 
             this.getDirection(direction);
 
-            this.stateMachine.changeTo('meleeAttack');
+            this.stateMachine.changeTo('melee');
 
             // this.weapon.trigger = function () {}
 
@@ -236,7 +236,7 @@ class Player extends MovingEntity {
 
          this.getDirection(direction);
 
-         this.stateMachine.changeTo('shootAttack');
+         this.stateMachine.changeTo('shoot');
 
          const projectile = new PlayerProjectile(this, direction);
 
@@ -290,10 +290,10 @@ class Player extends MovingEntity {
 
       this.updateParticles(delta);
 
-      const currentState = this.stateMachine.currentState;
-      if (currentState.name !== 'walk' && !currentState.name.includes('run') && currentState.name !== 'idle') {
-         return;
-      }
+      // const currentState = this.stateMachine.currentState;
+      // if (currentState.Name !== 'walk' && !currentState.Name.includes('run') && currentState.Name !== 'idle') {
+      //    return;
+      // }
 
       return this;
 
@@ -383,13 +383,13 @@ class Player extends MovingEntity {
    _evaluateActions(event) {
       switch (event.keyCode) {
          case 32: {
-            /* if (this.stateMachine.currentState.name !== 'roll') {
-             if (this.stateMachine.currentState.name.includes('run') || this.stateMachine.currentState.name.includes('walk') || this.stateMachine.currentState.name.includes('idle')) {
+            /* if (this.stateMachine.currentState.Name !== 'roll') {
+             if (this.stateMachine.currentState.Name.includes('run') || this.stateMachine.currentState.Name.includes('walk') || this.stateMachine.currentState.Name.includes('idle')) {
 
              // TODO
              let currentpos = new Vector3();
              let nextpos    = new Vector3();
-             switch (this.stateMachine.currentState.name) {
+             switch (this.stateMachine.currentState.Name) {
              case 'idle':
              break;
              case 'walk': {

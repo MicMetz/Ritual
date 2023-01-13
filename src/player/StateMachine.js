@@ -2,10 +2,10 @@
  * @author MicMetzger /
  */
 
-class PlayerStateMachine {
+class StateMachine {
    constructor() {
       this.states       = {};
-      this.currentState = null
+      this.currentState = null;
    }
 
 
@@ -16,19 +16,19 @@ class PlayerStateMachine {
 
    changeTo(name) {
 
-      this.previousState = this.currentState;
+      const previousState = this.currentState;
 
-      if (this.previousState) {
-         if (this.currentState.name === name) {
+      if (previousState) {
+         if (this.currentState.Name === name) {
             return;
          }
-         this.previousState.exit();
+         previousState.exit();
       }
 
       const state = new this.states[name](this);
-      this.currentState = state;``
+      this.currentState = state;
 
-      state.enter(this.previousState);
+      state.enter(previousState);
 
    }
 
@@ -45,4 +45,4 @@ class PlayerStateMachine {
 
 
 
-export default PlayerStateMachine
+export default StateMachine

@@ -348,7 +348,7 @@ class World {
 
 
       // player
-      this.playerMesh                  = this.assetManager.characterModels.get('Adventurer');
+      this.playerMesh                  = this.assetManager.characterModels.get('Android');
       this.playerMesh.matrixAutoUpdate = false;
       this.scene.add(this.playerMesh);
       // console.log(dumpObject(this.playerMesh));
@@ -468,11 +468,8 @@ class World {
       const initialWeaponMesh = this.assetManager.weapons.get('FireAxe').clone();
       // this.playerMesh.add(initialWeaponMesh);
       this.playerMesh.add(protectionMesh)
-      // this.player                = new Player(this, this.playerMesh, this.assetManager.mixers.get('WomanSurvivor'), this.assetManager.animations.get('WomanSurvivor'));
-      // this.player                = new Player(this, this.playerMesh, this.assetManager.mixers.get('WomanSurvivor'),
-      //   this.assetManager.animations.get('WomanSurvivor'));
-      this.player                = new Player(this, this.playerMesh, initialWeaponMesh, this.assetManager.mixers.get('Adventurer'),
-        this.assetManager.animations.get('Adventurer'));
+      this.player                = new Player(this, this.playerMesh, initialWeaponMesh, this.assetManager.mixers.get('Android'),
+        this.assetManager.animations.get('Android'));
       this.player.protectionMesh = protectionMesh
 
       // particle system

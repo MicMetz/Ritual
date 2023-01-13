@@ -524,10 +524,10 @@ class AssetManager {
          // runShootAction.enabled = false;
          // runShootAction.play();
 
-         const slashClip   = clone.animations[21];
-         const slashAction = mixer.clipAction(slashClip);
-         // slashAction.enabled = false;
-         // slashAction.play();
+         const meleeClip   = clone.animations[21];
+         const meleeAction = mixer.clipAction(meleeClip);
+         // meleeAction.enabled = false;
+         // meleeAction.play();
 
          const walkClip   = clone.animations[22];
          const walkAction = mixer.clipAction(walkClip);
@@ -548,7 +548,7 @@ class AssetManager {
          animations.set('runLeft', {clip: runLeftClip, action: runLeftAction});
          animations.set('runRight', {clip: runRightClip, action: runRightAction});
          animations.set('runShoot', {clip: runShootClip, action: runShootAction});
-         animations.set('slash', {clip: slashClip, action: slashAction});
+         animations.set('melee', {clip: meleeClip, action: meleeAction});
          animations.set('walk', {clip: walkClip, action: walkAction});
 
 
@@ -674,10 +674,10 @@ class AssetManager {
          // // runShootAction.enabled = false;
          // // runShootAction.play();
          //
-         // const slashClip   = clone.animations[21];
-         // const slashAction = mixer.clipAction(slashClip);
-         // // slashAction.enabled = false;
-         // // slashAction.play();
+         // const meleeClip   = clone.animations[21];
+         // const meleeAction = mixer.clipAction(meleeClip);
+         // // meleeAction.enabled = false;
+         // // meleeAction.play();
          //
          // const walkClip   = clone.animations[22];
          // const walkAction = mixer.clipAction(walkClip);
@@ -698,7 +698,7 @@ class AssetManager {
          // animations.set('runLeft', {clip: runLeftClip, action: runLeftAction});
          // animations.set('runRight', {clip: runRightClip, action: runRightAction});
          // animations.set('runShoot', {clip: runShootClip, action: runShootAction});
-         // animations.set('slash', {clip: slashClip, action: slashAction});
+         // animations.set('melee', {clip: meleeClip, action: meleeAction});
          // animations.set('walk', {clip: walkClip, action: walkAction});
 
 
@@ -719,7 +719,6 @@ class AssetManager {
       const fbxLoader     = this.fbxLoader;
       const textureLoader = this.textureLoader;
       const models        = this.characterModels;
-      const animations    = this.animations;
 
       // Wanderer Player model
 
@@ -793,8 +792,8 @@ class AssetManager {
          const runShootClip   = clone.animations[18];
          const runShootAction = mixer.clipAction(runShootClip);
 
-         const slashClip   = clone.animations[19];
-         const slashAction = mixer.clipAction(slashClip);
+         const meleeClip   = clone.animations[19];
+         const meleeAction = mixer.clipAction(meleeClip);
 
          const walkClip   = clone.animations[20];
          const walkAction = mixer.clipAction(walkClip);
@@ -813,7 +812,7 @@ class AssetManager {
          animations.set('runLeft', {clip: runLeftClip, action: runLeftAction});
          animations.set('runRight', {clip: runRightClip, action: runRightAction});
          animations.set('runShoot', {clip: runShootClip, action: runShootAction});
-         animations.set('slash', {clip: slashClip, action: slashAction});
+         animations.set('melee', {clip: meleeClip, action: meleeAction});
          animations.set('walk', {clip: walkClip, action: walkAction});
 
          clone.scene.visible = true;
@@ -908,8 +907,8 @@ class AssetManager {
          const runShootClip   = clone.animations[18];
          const runShootAction = mixer.clipAction(runShootClip);
 
-         const slashClip   = clone.animations[19];
-         const slashAction = mixer.clipAction(slashClip);
+         const meleeClip   = clone.animations[19];
+         const meleeAction = mixer.clipAction(meleeClip);
 
          const walkClip   = clone.animations[20];
          const walkAction = mixer.clipAction(walkClip);
@@ -928,11 +927,11 @@ class AssetManager {
          animations.set('runLeft', {clip: runLeftClip, action: runLeftAction});
          animations.set('runRight', {clip: runRightClip, action: runRightAction});
          animations.set('runShoot', {clip: runShootClip, action: runShootAction});
-         animations.set('slash', {clip: slashClip, action: slashAction});
+         animations.set('melee', {clip: meleeClip, action: meleeAction});
          animations.set('walk', {clip: walkClip, action: walkAction});
 
          clone.scene.visible = true;
-         clone.name = 'Android';
+         clone.name          = 'Android';
          this.animations.set('Android', animations);
          this.mixers.set('Android', mixer);
          this.characterModels.set('Android', clone.scene);
@@ -941,11 +940,12 @@ class AssetManager {
 
       // Wanderer
       gltfLoader.load('./models/player/Soldier.glb', (gltf) => {
-         const clone = {
+         const clone      = {
             animations: gltf.animations,
-            scene     : gltf.scene.clone(true)
+            scene     : gltf.scene
          }
-         const mixer = new THREE.AnimationMixer(clone.scene);
+         const mixer      = new THREE.AnimationMixer(clone.scene);
+         const animations = new Map();
 
          const cloneBones         = {};
          const cloneSkinnedMeshes = {};
@@ -1021,8 +1021,8 @@ class AssetManager {
          const runShootClip   = clone.animations.find(clip => clip.name.includes('Run_Shoot'));
          const runShootAction = mixer.clipAction(runShootClip);
 
-         const slashClip   = clone.animations.find(clip => clip.name.includes('Sword_Slash'));
-         const slashAction = mixer.clipAction(slashClip);
+         const meleeClip   = clone.animations.find(clip => clip.name.includes('Sword_Slash'));
+         const meleeAction = mixer.clipAction(meleeClip);
 
          const walkClip   = clone.animations.find(clip => clip.name.includes('Walk'));
          const walkAction = mixer.clipAction(walkClip);
@@ -1041,11 +1041,11 @@ class AssetManager {
          animations.set('runLeft', {clip: runLeftClip, action: runLeftAction});
          animations.set('runRight', {clip: runRightClip, action: runRightAction});
          animations.set('runShoot', {clip: runShootClip, action: runShootAction});
-         animations.set('slash', {clip: slashClip, action: slashAction});
+         animations.set('melee', {clip: meleeClip, action: meleeAction});
          animations.set('walk', {clip: walkClip, action: walkAction});
 
          clone.scene.visible = true;
-         clone.name = 'Wanderer';
+         clone.name          = 'Wanderer';
          this.animations.set('Wanderer', animations);
          this.mixers.set('Wanderer', mixer);
          this.characterModels.set('Wanderer', clone.scene);
@@ -1054,11 +1054,12 @@ class AssetManager {
 
       // Adventurer
       gltfLoader.load('./models/player/Adventurer.glb', (gltf) => {
-         const clone = {
+         const clone      = {
             animations: gltf.animations,
             scene     : gltf.scene.clone(true)
          }
-         const mixer = new THREE.AnimationMixer(clone.scene);
+         const mixer      = new THREE.AnimationMixer(clone.scene);
+         const animations = new Map();
 
          const cloneBones         = {};
          const cloneSkinnedMeshes = {};
@@ -1090,7 +1091,6 @@ class AssetManager {
               cloneSMesh.matrixWorld
             );
          }
-
 
          clone.scene.traverse(child => {
             if (child.isMesh) {
@@ -1143,8 +1143,8 @@ class AssetManager {
          const runShootClip   = clone.animations.find(clip => clip.name.includes('Run_Shoot'));
          const runShootAction = mixer.clipAction(runShootClip);
 
-         const slashClip   = clone.animations.find(clip => clip.name.includes('Sword_Slash'));
-         const slashAction = mixer.clipAction(slashClip);
+         const meleeClip   = clone.animations.find(clip => clip.name.includes('Sword_Slash'));
+         const meleeAction = mixer.clipAction(meleeClip);
 
          const walkClip   = clone.animations.find(clip => clip.name.includes('Walk'));
          const walkAction = mixer.clipAction(walkClip);
@@ -1163,11 +1163,11 @@ class AssetManager {
          animations.set('runLeft', {clip: runLeftClip, action: runLeftAction});
          animations.set('runRight', {clip: runRightClip, action: runRightAction});
          animations.set('runShoot', {clip: runShootClip, action: runShootAction});
-         animations.set('slash', {clip: slashClip, action: slashAction});
+         animations.set('melee', {clip: meleeClip, action: meleeAction});
          animations.set('walk', {clip: walkClip, action: walkAction});
 
          clone.scene.visible = true;
-         clone.name = 'Adventurer';
+         clone.name          = 'Adventurer';
          this.animations.set('Adventurer', animations);
          this.mixers.set('Adventurer', mixer);
          this.characterModels.set('Adventurer', clone.scene);

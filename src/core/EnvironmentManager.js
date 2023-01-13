@@ -1,3 +1,8 @@
+/**
+ * @author MicMetzger /
+ */
+
+
 import {
    Color, Geometry, Group, Object3D, Points, PointsMaterial, MathUtils,
    BoxBufferGeometry, MeshLambertMaterial, Mesh, AmbientLight, DirectionalLight,
