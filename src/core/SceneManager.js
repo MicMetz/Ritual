@@ -102,7 +102,7 @@ class SceneManager {
       world.controls.resetRotation();
 
       // enemies
-      const guard = world._createGuard(GUARDTYPE.HEAVY);
+      const guard = world._createGuard(GUARDTYPE.ASSAULT);
       console.log(dumpObject(guard));
       // console.log(guard);
       guard.position.set(0, 0.5, -4);
