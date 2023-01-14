@@ -5,9 +5,9 @@
 import {AABB, MathUtils, MovingEntity, OBB, Ray, Vector3, Vision} from 'yuka';
 import {Particle, ParticleSystem}                                 from '../core/ParticleSystem.js';
 import {WeaponSystem}                                             from "../weapons/WeaponSystem.js";
-import {Weapon}              from "../weapons/Weapon.js";
-import StateMachine          from "./StateMachine.js";
-import PlayerControllerProxy from "./PlayerControllerProxy.js";
+import {Weapon}                                                   from "../weapons/Weapon.js";
+import StateMachine                                               from "./StateMachine.js";
+import PlayerControllerProxy                                      from "./PlayerControllerProxy.js";
 import {PlayerProjectile}                                         from './PlayerProjectile.js';
 import {EventDispatcher, Object3D, Raycaster}                     from 'three';
 import {PlayerProxy}                                              from "./PlayerStates.js";
@@ -43,6 +43,9 @@ class Player extends MovingEntity {
       this.mixer      = mixer;
       this.animations = animations;
       this.controls   = world.controls;
+
+      this.attacking = false;
+      this.resting   = false;
 
       this.vision             = new Vision(this);
       this.vision.fieldOfView = 90;
@@ -110,7 +113,7 @@ class Player extends MovingEntity {
       this.stateMachine = new PlayerProxy(new PlayerControllerProxy(this.animations));
       this.stateMachine.changeTo('idle');
 
-      // this._evaluate = this._evaluateActions.bind(this);
+      this._evaluate = this._evaluateActions.bind(this);
 
       this._connect();
 

@@ -25,7 +25,7 @@ class StateMachine {
          previousState.exit();
       }
 
-      const state = new this.states[name](this);
+      const state       = new this.states[name](this);
       this.currentState = state;
 
       state.enter(previousState);

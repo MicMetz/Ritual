@@ -1104,12 +1104,6 @@ class AssetManager {
          const deathClip   = clone.animations.find(clip => clip.name.includes('Death'));
          const deathAction = mixer.clipAction(deathClip);
 
-         const shootClip   = clone.animations.find(clip => clip.name.includes('Gun_Shoot'));
-         const shootAction = mixer.clipAction(shootClip);
-
-         const hitClip   = clone.animations.find(clip => clip.name.includes('HitRecieve'));
-         const hitAction = mixer.clipAction(hitClip);
-
          const idleClip   = clone.animations.find(clip => clip.name.includes('Idle'));
          const idleAction = mixer.clipAction(idleClip);
 
@@ -1122,32 +1116,50 @@ class AssetManager {
          const idleMeleeClip   = clone.animations.find(clip => clip.name.includes('Idle_Sword'));
          const idleMeleeAction = mixer.clipAction(idleMeleeClip);
 
-         const interactClip   = clone.animations.find(clip => clip.name.includes('Interact'));
-         const interactAction = mixer.clipAction(interactClip);
-
-         const rollClip   = clone.animations.find(clip => clip.name.includes('Roll'));
-         const rollAction = mixer.clipAction(rollClip);
+         const walkClip   = clone.animations.find(clip => clip.name.includes('Walk'));
+         walkClip.loop    = LoopOnce;
+         const walkAction = mixer.clipAction(walkClip);
 
          const runClip   = clone.animations.find(clip => clip.name.includes('Run'));
+         runClip.loop    = LoopOnce;
          const runAction = mixer.clipAction(runClip);
 
          const runBackClip   = clone.animations.find(clip => clip.name.includes('Run_Back'));
+         runBackClip.loop    = LoopOnce;
          const runBackAction = mixer.clipAction(runBackClip);
 
          const runLeftClip   = clone.animations.find(clip => clip.name.includes('Run_Left'));
+         runLeftClip.loop    = LoopOnce;
          const runLeftAction = mixer.clipAction(runLeftClip);
 
          const runRightClip   = clone.animations.find(clip => clip.name.includes('Run_Right'));
+         runRightClip.loop    = LoopOnce;
          const runRightAction = mixer.clipAction(runRightClip);
 
+         const shootClip   = clone.animations.find(clip => clip.name.includes('Gun_Shoot'));
+         shootClip.loop    = LoopOnce;
+         const shootAction = mixer.clipAction(shootClip);
+
+         const hitClip   = clone.animations.find(clip => clip.name.includes('HitRecieve'));
+         hitClip.loop    = LoopOnce;
+         const hitAction = mixer.clipAction(hitClip);
+
+         const interactClip   = clone.animations.find(clip => clip.name.includes('Interact'));
+         interactClip.loop    = LoopOnce;
+         const interactAction = mixer.clipAction(interactClip);
+
          const runShootClip   = clone.animations.find(clip => clip.name.includes('Run_Shoot'));
+         runShootClip.loop    = LoopOnce;
          const runShootAction = mixer.clipAction(runShootClip);
 
+         const rollClip   = clone.animations.find(clip => clip.name.includes('Roll'));
+         rollClip.loop    = LoopOnce;
+         const rollAction = mixer.clipAction(rollClip);
+
          const meleeClip   = clone.animations.find(clip => clip.name.includes('Sword_Slash'));
+         meleeClip.loop    = LoopOnce;
          const meleeAction = mixer.clipAction(meleeClip);
 
-         const walkClip   = clone.animations.find(clip => clip.name.includes('Walk'));
-         const walkAction = mixer.clipAction(walkClip);
 
          animations.set('idle', {clip: idleClip, action: idleAction});
          animations.set('shoot', {clip: shootClip, action: shootAction});
@@ -1166,8 +1178,7 @@ class AssetManager {
          animations.set('melee', {clip: meleeClip, action: meleeAction});
          animations.set('walk', {clip: walkClip, action: walkAction});
 
-         clone.scene.visible = true;
-         clone.name          = 'Adventurer';
+         clone.name = 'Adventurer';
          this.animations.set('Adventurer', animations);
          this.mixers.set('Adventurer', mixer);
          this.characterModels.set('Adventurer', clone.scene);
