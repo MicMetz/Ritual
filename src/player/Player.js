@@ -194,31 +194,9 @@ class Player extends MovingEntity {
 
             this.stateMachine.changeTo('melee');
 
-            // this.weapon.trigger = function () {}
-
             const swipe = new PlayerProjectile(this, direction);
 
-            // this.weapon.collisionDetected = function (nextPos) {
-            //    var vect             = nextPos.clone().sub(this.getPosition());
-            //    //check for collisions at foot level
-            //    var origin           = this.weapon.getPosition();
-            //    var ray              = new Raycaster(origin, vect.clone().normalize(), 0, vect.length());
-            //    var collisionResults = ray.intersectObjects(this.world.en, true);
-            //    if (collisionResults.length > 0) {
-            //       let t = collisionResults[0].object
-            //       if (t.trigger) t.trigger()
-            //    }
-            //    collisionResults = ray.intersectObjects(this.world.getEnemies([origin, nextPos]), true);
-            //    if (collisionResults.length > 0) {
-            //       return true;
-            //    }
-            //    return false;
-            // };
-
             world.addProjectile(swipe);
-
-            // const audio = this.audios.get('playerSwing');
-            // world.playAudio(audio);
 
          }
       }
@@ -267,6 +245,7 @@ class Player extends MovingEntity {
    update(delta) {
 
       if (!this.stateMachine) {
+         console.log(this + ': no state machine');
          return;
       }
 
@@ -293,10 +272,6 @@ class Player extends MovingEntity {
 
       this.updateParticles(delta);
 
-      // const currentState = this.stateMachine.currentState;
-      // if (currentState.Name !== 'walk' && !currentState.Name.includes('run') && currentState.Name !== 'idle') {
-      //    return;
-      // }
 
       return this;
 
@@ -386,50 +361,6 @@ class Player extends MovingEntity {
    _evaluateActions(event) {
       switch (event.keyCode) {
          case 32: {
-            /* if (this.stateMachine.currentState.Name !== 'roll') {
-             if (this.stateMachine.currentState.Name.includes('run') || this.stateMachine.currentState.Name.includes('walk') || this.stateMachine.currentState.Name.includes('idle')) {
-
-             // TODO
-             let currentpos = new Vector3();
-             let nextpos    = new Vector3();
-             switch (this.stateMachine.currentState.Name) {
-             case 'idle':
-             break;
-             case 'walk': {
-
-             // new TWEEN.Tween(this.position).to( , ).start();
-
-             break;
-             }
-             case 'runRight': {
-
-             // new TWEEN.Tween(this.position).to( , ).start();
-
-             break;
-             }
-             case 'runLeft': {
-
-             // new TWEEN.Tween(this.position).to( , ).start();
-
-             break;
-             }
-             case 'runBack': {
-
-             // new TWEEN.Tween(this.position).to( , ).start();
-
-             break;
-             }
-
-             case 'run': {
-
-             // new TWEEN.Tween(this.position).to( , ).start();
-
-             break;
-             }
-
-             }
-
-             } */
 
             this.stateMachine.changeTo('roll');
             // }
