@@ -7,8 +7,8 @@ import {Vector3}                                                                
 import {dumpObject, GUARDTYPE}                                                                                from "../etc/Utilities.js";
 import {DefaultCombatPattern, SpreadCombatPattern, FocusCombatPattern, RandomCombatPattern}                   from '../patterns/CombatPatterns';
 import {LeftRightMovementPattern, WavyMovementPattern, CircleMovementPattern, PursuitBehaviorMovementPattern} from '../patterns/MovementPatterns';
-import {Obstacle}                                                                                             from '../entities/Obstacle';
-import {PropertyAnimation}                                                                                    from './AnimationSystem';
+import {Obstacle}          from '../entities/Obstacle';
+import {PropertyAnimation} from '../system/AnimationSystem.js';
 
 
 

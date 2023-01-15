@@ -1,3 +1,4 @@
+/*
 import {Enemy} from "./Enemy.js";
 
 
@@ -67,3 +68,4 @@ class Humanoid extends Enemy {
       }
    }
 }
+*/

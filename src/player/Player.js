@@ -3,7 +3,7 @@
  */
 
 import {AABB, MathUtils, MovingEntity, OBB, Ray, Vector3, Vision} from 'yuka';
-import {Particle, ParticleSystem}                                 from '../core/ParticleSystem.js';
+import {Particle, ParticleSystem}                                 from '../system/ParticleSystem.js';
 import {WeaponSystem}                                             from "../weapons/WeaponSystem.js";
 import {Weapon}                                                   from "../weapons/Weapon.js";
 import StateMachine                                               from "./StateMachine.js";

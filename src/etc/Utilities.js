@@ -64,10 +64,14 @@ const _NORMAL_MAP_BOUNDRY_LIMIT_ = {
 }
 
 
+const ZOMBIETYPE = {
+   NORMAL: 'normal_zombie',
+}
+
 
 const GUARDTYPE = {
 
-   DEFAULT: 'default_guard', HEAVY: 'task_force', ASSAULT: 'assault_guard',
+   NORMAL: 'default_guard', HEAVY: 'task_force', ASSAULT: 'assault_guard',
 
 };
 
@@ -144,5 +148,5 @@ function randomExExcept(arr, exceptArr) {
 export {
    _SMALL_MAP_BOUNDRY_LIMIT_, _LARGE_MAP_BOUNDRY_LIMIT_, _HUGE_MAP_BOUNDRY_LIMIT_, _NORMAL_MAP_BOUNDRY_LIMIT_,
    dumpObject, randomString, randomInt, randomBool, randomExcept, randomExExcept,
-   GUARDTYPE, PURSUERTYPE, TOWERTYPE, QUALITY, WEAPONTYPE
+   ZOMBIETYPE, GUARDTYPE, PURSUERTYPE, TOWERTYPE, QUALITY, WEAPONTYPE
 };
