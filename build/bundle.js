@@ -25281,6 +25281,40 @@
 
     } );
 
+    class Fog {
+
+    	constructor( color, near, far ) {
+
+    		Object.defineProperty( this, 'isFog', { value: true } );
+
+    		this.name = '';
+
+    		this.color = new Color( color );
+
+    		this.near = ( near !== undefined ) ? near : 1;
+    		this.far = ( far !== undefined ) ? far : 1000;
+
+    	}
+
+    	clone() {
+
+    		return new Fog( this.color, this.near, this.far );
+
+    	}
+
+    	toJSON( /* meta */ ) {
+
+    		return {
+    			type: 'Fog',
+    			color: this.color.getHex(),
+    			near: this.near,
+    			far: this.far
+    		};
+
+    	}
+
+    }
+
     class Scene extends Object3D {
 
     	constructor() {
@@ -30990,6 +31024,28 @@
 
     ParametricGeometry.prototype = Object.create( Geometry.prototype );
     ParametricGeometry.prototype.constructor = ParametricGeometry;
+
+    class PlaneGeometry extends Geometry {
+
+    	constructor( width, height, widthSegments, heightSegments ) {
+
+    		super();
+
+    		this.type = 'PlaneGeometry';
+
+    		this.parameters = {
+    			width: width,
+    			height: height,
+    			widthSegments: widthSegments,
+    			heightSegments: heightSegments
+    		};
+
+    		this.fromBufferGeometry( new PlaneBufferGeometry( width, height, widthSegments, heightSegments ) );
+    		this.mergeVertices();
+
+    	}
+
+    }
 
     class ShapeBufferGeometry extends BufferGeometry {
 
@@ -54588,7 +54644,7 @@
     *
     * @author {@link https://github.com/Mugen87|Mugen87}
     */
-    class State {
+    class State$1 {
 
     	/**
     	* This method is called once during a state transition when the {@link StateMachine} makes
@@ -54656,7 +54712,7 @@
     *
     * @author {@link https://github.com/Mugen87|Mugen87}
     */
-    class StateMachine {
+    class StateMachine$1 {
 
     	/**
     	* Constructs a new state machine with the given values.
@@ -54733,7 +54789,7 @@
     	*/
     	add( id, state ) {
 
-    		if ( state instanceof State ) {
+    		if ( state instanceof State$1 ) {
 
     			this.states.set( id, state );
 
@@ -57899,11 +57955,215 @@
     new AABB();
     new Array();
 
-    new Vector3();
-    new Vector3();
-    new Ray();
-    new Vector3();
-    new Vector3();
+    const toPoint = new Vector3();
+    const direction$1$1 = new Vector3();
+    const ray$1$1 = new Ray();
+    const intersectionPoint$1$1 = new Vector3();
+    const worldPosition = new Vector3();
+
+    /**
+     * Class for representing the vision component of a game entity.
+     *
+     * @author {@link https://github.com/Mugen87|Mugen87}
+     */
+    class Vision {
+
+    	/**
+    	 * Constructs a new vision object.
+    	 *
+    	 * @param {GameEntity} owner - The owner of this vision instance.
+    	 */
+    	constructor( owner = null ) {
+
+    		/**
+    		 * The game entity that owns this vision instance.
+    		 * @type {GameEntity}
+    		 */
+    		this.owner = owner;
+
+    		/**
+    		 * The field of view in radians.
+    		 * @type {Number}
+    		 * @default π
+    		 */
+    		this.fieldOfView = Math.PI;
+
+    		/**
+    		 * The visual range in world units.
+    		 * @type {Number}
+    		 * @default Infinity
+    		 */
+    		this.range = Infinity;
+
+    		/**
+    		 * An array of obstacles. An obstacle is a game entity that
+    		 * implements the {@link GameEntity#lineOfSightTest} method.
+    		 * @type {Array<GameEntity>}
+    		 */
+    		this.obstacles = new Array();
+
+    	}
+
+    	/**
+    	 * Adds an obstacle to this vision instance.
+    	 *
+    	 * @param {GameEntity} obstacle - The obstacle to add.
+    	 * @return {Vision} A reference to this vision instance.
+    	 */
+    	addObstacle( obstacle ) {
+
+    		this.obstacles.push( obstacle );
+
+    		return this;
+
+    	}
+
+    	/**
+    	 * Removes an obstacle from this vision instance.
+    	 *
+    	 * @param {GameEntity} obstacle - The obstacle to remove.
+    	 * @return {Vision} A reference to this vision instance.
+    	 */
+    	removeObstacle( obstacle ) {
+
+    		const index = this.obstacles.indexOf( obstacle );
+    		this.obstacles.splice( index, 1 );
+
+    		return this;
+
+    	}
+
+    	/**
+    	 * Performs a line of sight test in order to determine if the given point
+    	 * in 3D space is visible for the game entity.
+    	 *
+    	 * @param {Vector3} point - The point to test.
+    	 * @return {Boolean} Whether the given point is visible or not.
+    	 */
+    	visible( point ) {
+
+    		const owner = this.owner;
+    		const obstacles = this.obstacles;
+
+    		owner.getWorldPosition( worldPosition );
+
+    		// check if point lies within the game entity's visual range
+
+    		toPoint.subVectors( point, worldPosition );
+    		const distanceToPoint = toPoint.length();
+
+    		if ( distanceToPoint > this.range ) return false;
+
+    		// next, check if the point lies within the game entity's field of view
+
+    		owner.getWorldDirection( direction$1$1 );
+
+    		const angle = direction$1$1.angleTo( toPoint );
+
+    		if ( angle > ( this.fieldOfView * 0.5 ) ) return false;
+
+    		// the point lies within the game entity's visual range and field
+    		// of view. now check if obstacles block the game entity's view to the given point.
+
+    		ray$1$1.origin.copy( worldPosition );
+    		ray$1$1.direction.copy( toPoint ).divideScalar( distanceToPoint || 1 ); // normalize
+
+    		for ( let i = 0, l = obstacles.length; i < l; i ++ ) {
+
+    			const obstacle = obstacles[ i ];
+
+    			const intersection = obstacle.lineOfSightTest( ray$1$1, intersectionPoint$1$1 );
+
+    			if ( intersection !== null ) {
+
+    				// if an intersection point is closer to the game entity than the given point,
+    				// something is blocking the game entity's view
+
+    				const squaredDistanceToIntersectionPoint = intersectionPoint$1$1.squaredDistanceTo( worldPosition );
+
+    				if ( squaredDistanceToIntersectionPoint <= ( distanceToPoint * distanceToPoint ) ) return false;
+
+    			}
+
+    		}
+
+    		return true;
+
+    	}
+
+    	/**
+    	 * Transforms this instance into a JSON object.
+    	 *
+    	 * @return {Object} The JSON object.
+    	 */
+    	toJSON() {
+
+    		const json = {
+    			type: this.constructor.name,
+    			owner: this.owner.uuid,
+    			fieldOfView: this.fieldOfView,
+    			range: this.range.toString()
+    		};
+
+    		json.obstacles = new Array();
+
+    		for ( let i = 0, l = this.obstacles.length; i < l; i ++ ) {
+
+    			const obstacle = this.obstacles[ i ];
+    			json.obstacles.push( obstacle.uuid );
+
+    		}
+
+    		return json;
+
+    	}
+
+    	/**
+    	 * Restores this instance from the given JSON object.
+    	 *
+    	 * @param {Object} json - The JSON object.
+    	 * @return {Vision} A reference to this vision.
+    	 */
+    	fromJSON( json ) {
+
+    		this.owner = json.owner;
+    		this.fieldOfView = json.fieldOfView;
+    		this.range = parseFloat( json.range );
+
+    		for ( let i = 0, l = json.obstacles.length; i < l; i ++ ) {
+
+    			const obstacle = json.obstacles[ i ];
+    			this.obstacles.push( obstacle );
+
+    		}
+
+    		return this;
+
+    	}
+
+    	/**
+    	 * Restores UUIDs with references to GameEntity objects.
+    	 *
+    	 * @param {Map} entities - Maps game entities to UUIDs.
+    	 * @return {Vision} A reference to this vision.
+    	 */
+    	resolveReferences( entities ) {
+
+    		this.owner = entities.get( this.owner ) || null;
+
+    		const obstacles = this.obstacles;
+
+    		for ( let i = 0, l = obstacles.length; i < l; i ++ ) {
+
+    			obstacles[ i ] = entities.get( obstacles[ i ] );
+
+    		}
+
+    		return this;
+
+    	}
+
+    }
 
     new Vector3();
     new Vector3();
@@ -67418,16 +67678,28 @@
     };
     const GUARDTYPE = {
       DEFAULT: 'default_guard',
-      HEAVY: 'heavy_guard',
+      HEAVY: 'task_force',
       ASSAULT: 'assault_guard'
     };
+    function dumpObject(obj, lines = [], isLast = true, prefix = '') {
+      const localPrefix = isLast ? '└─' : '├─';
+      lines.push(`${prefix}${prefix ? localPrefix : ''}${obj.name || '*no-name*'} [${obj.type}]`);
+      const newPrefix = prefix + (isLast ? '  ' : '│ ');
+      const lastNdx = obj.children.length - 1;
+      obj.children.forEach((child, ndx) => {
+        const isLast = ndx === lastNdx;
+        dumpObject(child, lines, isLast, newPrefix);
+      });
+      return lines;
+    }
 
     class AssetManager {
       /**
        *
        *
        */
-      constructor() {
+      constructor(world) {
+        this.world = world;
         this.loadingManager = new LoadingManager();
         this.objectLoader = new OBJLoader(this.loadingManager);
         this.gltfLoader = new GLTFLoader(this.loadingManager);
@@ -67449,6 +67721,7 @@
         this.weapons = new Map();
         this.props = new Map();
         this.interiors = new Map();
+        this.exteriors = new Map();
         this.descriptors = new Map();
       }
       init() {
@@ -67511,48 +67784,64 @@
         const textureLoader = this.textureLoader;
         const textures = this.textures;
         textureLoader.load('./textures/star.png', texture => {
-          texture.wrapS = RepeatWrapping;
-          texture.wrapT = RepeatWrapping;
+          texture.repeat.x = 1;
+          texture.repeat.y = 1;
           textures.set('star', texture);
         });
         textureLoader.load('./textures/quad.png', texture => {
-          texture.wrapS = RepeatWrapping;
-          texture.wrapT = RepeatWrapping;
+          texture.repeat.x = 1;
+          texture.repeat.y = 1;
           textures.set('quad', texture);
         });
-        textureLoader.load('./textures/WoodFloor.png', texture => {
-          texture.wrapS = RepeatWrapping;
-          texture.wrapT = RepeatWrapping;
+        textureLoader.load('./textures/carbon/WoodFloor.png', texture => {
+          texture.repeat.x = 1;
+          texture.repeat.y = 1;
           textures.set('woodFloor', texture);
         });
-        textureLoader.load('./textures/Grass.png', texture => {
-          texture.wrapS = RepeatWrapping;
-          texture.wrapT = RepeatWrapping;
-          texture.repeat.set(100, 100);
-          textures.set('grass', texture);
+        textureLoader.load('./textures/Summer_Grass_A.png', texture => {
+          texture.repeat.x = 1;
+          texture.repeat.y = 1;
+          textures.set('SummerGrass', texture);
         });
-        textureLoader.load('./textures/Grass_1.png', texture => {
-          texture.wrapS = RepeatWrapping;
-          texture.wrapT = RepeatWrapping;
-          texture.repeat.set(100, 100);
-          textures.set('grass1', texture);
+        textureLoader.load('./textures/Summer_Dirt_A.png', texture => {
+          texture.repeat.x = 1;
+          texture.repeat.y = 1;
+          textures.set('SummerDirt', texture);
         });
-        textureLoader.load('./textures/Bush_Leaves.png', texture => {
-          texture.wrapS = RepeatWrapping;
-          texture.wrapT = RepeatWrapping;
-          texture.repeat.set(100, 100);
+        textureLoader.load('./textures/Summer_Moss.png', texture => {
+          texture.repeat.x = 1;
+          texture.repeat.y = 1;
+          textures.set('moss', texture);
+        });
+        textureLoader.load('./textures/Summer_Mud_A.png', textureA => {
+          textureLoader.load('./textures/Summer_Mud_B.png', textureB => {
+            const texture = new Texture();
+            texture.image = textureA.image;
+            texture.image.height = textureA.image.height + textureB.image.height;
+            texture.image.width = textureA.image.width;
+            texture.image.data = new Uint8Array(texture.image.width * texture.image.height * 4);
+            texture.image.data.set(textureA.image.data);
+            // texture.image.data.set(textureB.image.data, textureA.image.data.length);
+            texture.needsUpdate = true;
+            texture.repeat.x = 1;
+            texture.repeat.y = 1;
+            textures.set('moss', texture);
+          });
+        });
+        textureLoader.load('./textures/carbon/Bush_Leaves.png', texture => {
+          texture.repeat.x = 1;
+          texture.repeat.y = 1;
           textures.set('bushLeaves', texture);
         });
         textureLoader.load('./textures/Rocks.png', texture => {
-          texture.wrapS = RepeatWrapping;
-          texture.wrapT = RepeatWrapping;
-          texture.repeat.set(100, 100);
+          texture.repeat.x = 1;
+          texture.repeat.y = 1;
           textures.set('rocks', texture);
         });
 
         // Tree Bark
-        textureLoader.load('./textures/NormalTree_Bark.png', texture => {
-          textureLoader.load('./textures/NormalTree_Bark_Normal.png', normalMap => {
+        textureLoader.load('./textures/carbon/NormalTree_Bark.png', texture => {
+          textureLoader.load('./textures/carbon/NormalTree_Bark_Normal.png', normalMap => {
             texture.wrapS = RepeatWrapping;
             texture.wrapT = RepeatWrapping;
             texture.repeat.set(100, 100);
@@ -67650,7 +67939,11 @@
             animations: gltf.animations,
             scene: gltf.scene.clone(true)
           };
-          clone.scene.scale.set(0.3, 0.3, 0.3);
+
+          // clone.scene.scale.set(0.2, 0.2, 0.2);
+
+          const mixer = new AnimationMixer(clone.scene);
+          const animations = new Map();
           const cloneBones = {};
           const cloneSkinnedMeshes = {};
           clone.scene.traverse(node => {
@@ -67671,28 +67964,24 @@
             }
             cloneSMesh.bind(new Skeleton(orderedCloneBone, skeleton.boneInverses), cloneSMesh.matrixWorld);
           }
-          const mixer = new AnimationMixer(clone.scene);
-          const animations = new Map();
+          clone.scene.traverse(child => {
+            if (child.isMesh) {
+              child.castShadow = true;
+              child.receiveShadow = true;
+              child.material.skinning = true;
+              child.frustumCulled = false;
+            }
+          });
           const biteClip = clone.animations[0];
           const biteAction = mixer.clipAction(biteClip);
-          biteAction.play();
-          biteAction.enabled = false;
           const crawlClip = clone.animations[1];
           const crawlAction = mixer.clipAction(crawlClip);
-          crawlAction.play();
-          crawlAction.enabled = false;
           const idleClip = clone.animations[2];
           const idleAction = mixer.clipAction(idleClip);
-          idleAction.play();
-          idleAction.enabled = false;
           const runClip = clone.animations[3];
           const runAction = mixer.clipAction(runClip);
-          runAction.play();
-          runAction.enabled = false;
           const walkClip = clone.animations[4];
           const walkAction = mixer.clipAction(walkClip);
-          walkAction.play();
-          walkAction.enabled = false;
           animations.set('bite', {
             clip: biteClip,
             action: biteAction
@@ -67725,6 +68014,11 @@
             animations: gltf.animations,
             scene: gltf.scene.clone(true)
           };
+
+          // clone.scene.scale.set(0.2, 0.2, 0.2);
+
+          const mixer = new AnimationMixer(clone.scene);
+          const animations = new Map();
           const cloneBones = {};
           const cloneSkinnedMeshes = {};
           clone.scene.traverse(node => {
@@ -67736,7 +68030,6 @@
             }
           });
           for (let name in cloneSkinnedMeshes) {
-            // const SMesh      = skinnedMeshes[name];
             const cloneSMesh = cloneSkinnedMeshes[name];
             const skeleton = cloneSMesh.skeleton;
             const orderedCloneBone = [];
@@ -67746,74 +68039,46 @@
             }
             cloneSMesh.bind(new Skeleton(orderedCloneBone, skeleton.boneInverses), cloneSMesh.matrixWorld);
           }
-          const mixer = new AnimationMixer(clone.scene);
-          const animations = new Map();
-          // const animations = {};
-
+          clone.scene.traverse(child => {
+            if (child.isMesh) {
+              child.castShadow = true;
+              child.receiveShadow = true;
+              child.material.skinning = true;
+              child.frustumCulled = false;
+            }
+          });
           const deathClip = clone.animations[0];
           const deathAction = mixer.clipAction(deathClip);
-          deathAction.play();
-          deathAction.enabled = false;
           const shootClip = clone.animations[1];
           const shootAction = mixer.clipAction(shootClip);
-          shootAction.play();
-          shootAction.enabled = false;
           const hitClip = clone.animations[2];
           const hitAction = mixer.clipAction(hitClip);
-          hitAction.play();
-          hitAction.enabled = false;
           const idleClip = clone.animations[4];
           const idleAction = mixer.clipAction(idleClip);
-          idleAction.play();
-          idleAction.enabled = false;
           const idleGunPointClip = clone.animations[6];
           const idleGunPointAction = mixer.clipAction(idleGunPointClip);
-          idleGunPointAction.play();
-          idleGunPointAction.enabled = false;
           const idleGunShootClip = clone.animations[7];
           const idleGunShootAction = mixer.clipAction(idleGunShootClip);
-          idleGunShootAction.play();
-          idleGunShootAction.enabled = false;
           const idleMeleeClip = clone.animations[9];
           const idleMeleeAction = mixer.clipAction(idleMeleeClip);
-          idleMeleeAction.play();
-          idleMeleeAction.enabled = false;
           const interactClip = clone.animations[10];
           const interactAction = mixer.clipAction(interactClip);
-          interactAction.play();
-          interactAction.enabled = false;
           const rollClip = clone.animations[15];
           const rollAction = mixer.clipAction(rollClip);
-          rollAction.play();
-          rollAction.enabled = false;
           const runClip = clone.animations[16];
           const runAction = mixer.clipAction(runClip);
-          runAction.play();
-          runAction.enabled = false;
           const runBackClip = clone.animations[17];
           const runBackAction = mixer.clipAction(runBackClip);
-          runBackAction.play();
-          runBackAction.enabled = false;
           const runLeftClip = clone.animations[18];
           const runLeftAction = mixer.clipAction(runLeftClip);
-          runLeftAction.play();
-          runLeftAction.enabled = false;
           const runRightClip = clone.animations[19];
           const runRightAction = mixer.clipAction(runRightClip);
-          runRightAction.play();
-          runRightAction.enabled = false;
           const runShootClip = clone.animations[20];
           const runShootAction = mixer.clipAction(runShootClip);
-          runShootAction.play();
-          runShootAction.enabled = false;
-          const slashClip = clone.animations[21];
-          const slashAction = mixer.clipAction(slashClip);
-          slashAction.play();
-          slashAction.enabled = false;
+          const meleeClip = clone.animations[21];
+          const meleeAction = mixer.clipAction(meleeClip);
           const walkClip = clone.animations[22];
           const walkAction = mixer.clipAction(walkClip);
-          walkAction.play();
-          walkAction.enabled = false;
           animations.set('idle', {
             clip: idleClip,
             action: idleAction
@@ -67870,9 +68135,9 @@
             clip: runShootClip,
             action: runShootAction
           });
-          animations.set('slash', {
-            clip: slashClip,
-            action: slashAction
+          animations.set('melee', {
+            clip: meleeClip,
+            action: meleeAction
           });
           animations.set('walk', {
             clip: walkClip,
@@ -67883,97 +68148,125 @@
           this.mixers.set('assault_guard', mixer);
           this.enemyModels.set('assault_guard', clone.scene);
         });
-      }
-      _loadCharacterModels() {
-        const gltfLoader = this.gltfLoader;
-        this.textureLoader;
-        this.characterModels;
-        this.animations;
 
-        // Wanderer Player model
-
-        // Android Player model
-        gltfLoader.load('./models/player/Android.gltf', gltf => {
+        // Task Force Operator
+        gltfLoader.load('./models/enemies/TaskForceOperator.glb', gltf => {
           const clone = {
             animations: gltf.animations,
             scene: gltf.scene.clone(true)
           };
-          const cloneBones = {};
-          const cloneSkinnedMeshes = {};
-          clone.scene.traverse(function (child) {
-            if (child in SkinnedMesh && child.name in cloneBones) {
-              cloneSkinnedMeshes[child.name] = child;
-            }
-          });
-          for (let name in cloneBones) {
-            cloneSkinnedMeshes[name].bind(new Skeleton(cloneBones[name], cloneSkinnedMeshes[name].skeleton.boneInverses), cloneSkinnedMeshes[name].matrixWorld);
-          }
+
+          // clone.scene.scale.set(0.2, 0.2, 0.2);
+
           const mixer = new AnimationMixer(clone.scene);
           const animations = new Map();
+          const cloneBones = {};
+          const cloneSkinnedMeshes = {};
+          clone.scene.traverse(node => {
+            if (node.isBone) {
+              cloneBones[node.name] = node;
+            }
+            if (node.isSkinnedMesh) {
+              cloneSkinnedMeshes[node.name] = node;
+            }
+          });
+          for (let name in cloneSkinnedMeshes) {
+            const cloneSMesh = cloneSkinnedMeshes[name];
+            const skeleton = cloneSMesh.skeleton;
+            const orderedCloneBone = [];
+            for (let i = 0; i < skeleton.bones.length; i++) {
+              const cloneBone = cloneBones[skeleton.bones[i].name];
+              orderedCloneBone.push(cloneBone);
+            }
+            cloneSMesh.bind(new Skeleton(orderedCloneBone, skeleton.boneInverses), cloneSMesh.matrixWorld);
+          }
+          clone.scene.traverse(child => {
+            if (child.isMesh) {
+              child.castShadow = true;
+              child.receiveShadow = true;
+              child.material.skinning = true;
+              child.frustumCulled = false;
+            }
+          });
+          clone.name = 'task_force';
+          this.animations.set('task_force', animations);
+          this.mixers.set('task_force', mixer);
+          this.enemyModels.set('task_force', clone.scene);
+        });
+      }
+      _loadCharacterModels() {
+        const gltfLoader = this.gltfLoader;
+        this.fbxLoader;
+        gltfLoader.load('./models/player/Woman2.glb', gltf => {
+          const clone = {
+            animations: gltf.animations,
+            scene: gltf.scene.clone(true)
+          };
+
+          // clone.scene.scale.set(0.2, 0.2, 0.2);
+
+          const mixer = new AnimationMixer(clone.scene);
+          const animations = new Map();
+          const cloneBones = {};
+          const cloneSkinnedMeshes = {};
+          clone.scene.traverse(node => {
+            if (node.isBone) {
+              cloneBones[node.name] = node;
+            }
+            if (node.isSkinnedMesh) {
+              cloneSkinnedMeshes[node.name] = node;
+            }
+          });
+          for (let name in cloneSkinnedMeshes) {
+            const cloneSMesh = cloneSkinnedMeshes[name];
+            const skeleton = cloneSMesh.skeleton;
+            const orderedCloneBone = [];
+            for (let i = 0; i < skeleton.bones.length; i++) {
+              const cloneBone = cloneBones[skeleton.bones[i].name];
+              orderedCloneBone.push(cloneBone);
+            }
+            cloneSMesh.bind(new Skeleton(orderedCloneBone, skeleton.boneInverses), cloneSMesh.matrixWorld);
+          }
+          clone.scene.traverse(child => {
+            if (child.isMesh) {
+              child.castShadow = true;
+              child.receiveShadow = true;
+              child.material.skinning = true;
+              child.frustumCulled = false;
+            }
+          });
           const deathClip = clone.animations[0];
           const deathAction = mixer.clipAction(deathClip);
-          deathAction.play();
-          deathAction.enabled = false;
           const shootClip = clone.animations[1];
           const shootAction = mixer.clipAction(shootClip);
-          shootAction.play();
-          shootAction.enabled = false;
           const hitClip = clone.animations[2];
           const hitAction = mixer.clipAction(hitClip);
-          hitAction.play();
-          hitAction.enabled = false;
           const idleClip = clone.animations[6];
           const idleAction = mixer.clipAction(idleClip);
-          idleAction.play();
-          idleAction.enabled = false;
           const idleGunPointClip = clone.animations[4];
           const idleGunPointAction = mixer.clipAction(idleGunPointClip);
-          idleGunPointAction.play();
-          idleGunPointAction.enabled = false;
           const idleGunShootClip = clone.animations[5];
           const idleGunShootAction = mixer.clipAction(idleGunShootClip);
-          idleGunShootAction.play();
-          idleGunShootAction.enabled = false;
           const idleMeleeClip = clone.animations[7];
           const idleMeleeAction = mixer.clipAction(idleMeleeClip);
-          idleMeleeAction.play();
-          idleMeleeAction.enabled = false;
           const interactClip = clone.animations[8];
           const interactAction = mixer.clipAction(interactClip);
-          interactAction.play();
-          interactAction.enabled = false;
           const rollClip = clone.animations[13];
           const rollAction = mixer.clipAction(rollClip);
-          rollAction.play();
-          rollAction.enabled = false;
           const runClip = clone.animations[14];
           const runAction = mixer.clipAction(runClip);
-          runAction.play();
-          runAction.enabled = false;
           const runBackClip = clone.animations[15];
           const runBackAction = mixer.clipAction(runBackClip);
-          runBackAction.play();
-          runBackAction.enabled = false;
           const runLeftClip = clone.animations[16];
           const runLeftAction = mixer.clipAction(runLeftClip);
-          runLeftAction.play();
-          runLeftAction.enabled = false;
           const runRightClip = clone.animations[17];
           const runRightAction = mixer.clipAction(runRightClip);
-          runRightAction.play();
-          runRightAction.enabled = false;
           const runShootClip = clone.animations[18];
           const runShootAction = mixer.clipAction(runShootClip);
-          runShootAction.play();
-          runShootAction.enabled = false;
-          const slashClip = clone.animations[19];
-          const slashAction = mixer.clipAction(slashClip);
-          slashAction.play();
-          slashAction.enabled = false;
+          const meleeClip = clone.animations[19];
+          const meleeAction = mixer.clipAction(meleeClip);
           const walkClip = clone.animations[20];
           const walkAction = mixer.clipAction(walkClip);
-          walkAction.play();
-          walkAction.enabled = false;
           animations.set('idle', {
             clip: idleClip,
             action: idleAction
@@ -68030,9 +68323,150 @@
             clip: runShootClip,
             action: runShootAction
           });
-          animations.set('slash', {
-            clip: slashClip,
-            action: slashAction
+          animations.set('melee', {
+            clip: meleeClip,
+            action: meleeAction
+          });
+          animations.set('walk', {
+            clip: walkClip,
+            action: walkAction
+          });
+          clone.name = 'WomanSurvivor';
+          this.animations.set('WomanSurvivor', animations);
+          this.mixers.set('WomanSurvivor', mixer);
+          this.characterModels.set('WomanSurvivor', clone.scene);
+        });
+
+        // Android Player model
+        gltfLoader.load('./models/player/Android.gltf', gltf => {
+          const clone = {
+            animations: gltf.animations,
+            scene: gltf.scene.clone(true)
+          };
+
+          // clone.scene.scale.set(0.2, 0.2, 0.2);
+
+          const mixer = new AnimationMixer(clone.scene);
+          const animations = new Map();
+          const cloneBones = {};
+          const cloneSkinnedMeshes = {};
+          clone.scene.traverse(node => {
+            if (node.isBone) {
+              cloneBones[node.name] = node;
+            }
+            if (node.isSkinnedMesh) {
+              cloneSkinnedMeshes[node.name] = node;
+            }
+          });
+          for (let name in cloneSkinnedMeshes) {
+            const cloneSMesh = cloneSkinnedMeshes[name];
+            const skeleton = cloneSMesh.skeleton;
+            const orderedCloneBone = [];
+            for (let i = 0; i < skeleton.bones.length; i++) {
+              const cloneBone = cloneBones[skeleton.bones[i].name];
+              orderedCloneBone.push(cloneBone);
+            }
+            cloneSMesh.bind(new Skeleton(orderedCloneBone, skeleton.boneInverses), cloneSMesh.matrixWorld);
+          }
+          clone.scene.traverse(child => {
+            if (child.isMesh) {
+              child.castShadow = true;
+              child.receiveShadow = true;
+              child.material.skinning = true;
+              child.frustumCulled = false;
+            }
+          });
+          const deathClip = clone.animations[0];
+          const deathAction = mixer.clipAction(deathClip);
+          const shootClip = clone.animations[1];
+          const shootAction = mixer.clipAction(shootClip);
+          const hitClip = clone.animations[2];
+          const hitAction = mixer.clipAction(hitClip);
+          const idleClip = clone.animations[6];
+          const idleAction = mixer.clipAction(idleClip);
+          const idleGunPointClip = clone.animations[4];
+          const idleGunPointAction = mixer.clipAction(idleGunPointClip);
+          const idleGunShootClip = clone.animations[5];
+          const idleGunShootAction = mixer.clipAction(idleGunShootClip);
+          const idleMeleeClip = clone.animations[7];
+          const idleMeleeAction = mixer.clipAction(idleMeleeClip);
+          const interactClip = clone.animations[8];
+          const interactAction = mixer.clipAction(interactClip);
+          const rollClip = clone.animations[13];
+          const rollAction = mixer.clipAction(rollClip);
+          const runClip = clone.animations[14];
+          const runAction = mixer.clipAction(runClip);
+          const runBackClip = clone.animations[15];
+          const runBackAction = mixer.clipAction(runBackClip);
+          const runLeftClip = clone.animations[16];
+          const runLeftAction = mixer.clipAction(runLeftClip);
+          const runRightClip = clone.animations[17];
+          const runRightAction = mixer.clipAction(runRightClip);
+          const runShootClip = clone.animations[18];
+          const runShootAction = mixer.clipAction(runShootClip);
+          const meleeClip = clone.animations[19];
+          const meleeAction = mixer.clipAction(meleeClip);
+          const walkClip = clone.animations[20];
+          const walkAction = mixer.clipAction(walkClip);
+          animations.set('idle', {
+            clip: idleClip,
+            action: idleAction
+          });
+          animations.set('shoot', {
+            clip: shootClip,
+            action: shootAction
+          });
+          animations.set('die', {
+            clip: deathClip,
+            action: deathAction
+          });
+          animations.set('hit', {
+            clip: hitClip,
+            action: hitAction
+          });
+          animations.set('idleGunPoint', {
+            clip: idleGunPointClip,
+            action: idleGunPointAction
+          });
+          animations.set('idleGunShoot', {
+            clip: idleGunShootClip,
+            action: idleGunShootAction
+          });
+          animations.set('idleMelee', {
+            clip: idleMeleeClip,
+            action: idleMeleeAction
+          });
+          animations.set('interact', {
+            clip: interactClip,
+            action: interactAction
+          });
+          animations.set('roll', {
+            clip: rollClip,
+            action: rollAction
+          });
+          animations.set('run', {
+            clip: runClip,
+            action: runAction
+          });
+          animations.set('runBack', {
+            clip: runBackClip,
+            action: runBackAction
+          });
+          animations.set('runLeft', {
+            clip: runLeftClip,
+            action: runLeftAction
+          });
+          animations.set('runRight', {
+            clip: runRightClip,
+            action: runRightAction
+          });
+          animations.set('runShoot', {
+            clip: runShootClip,
+            action: runShootAction
+          });
+          animations.set('melee', {
+            clip: meleeClip,
+            action: meleeAction
           });
           animations.set('walk', {
             clip: walkClip,
@@ -68042,6 +68476,299 @@
           this.animations.set('Android', animations);
           this.mixers.set('Android', mixer);
           this.characterModels.set('Android', clone.scene);
+        });
+
+        // Wanderer
+        gltfLoader.load('./models/player/Soldier.glb', gltf => {
+          const clone = {
+            animations: gltf.animations,
+            scene: gltf.scene.clone(true)
+          };
+
+          // clone.scene.scale.set(0.2, 0.2, 0.2);
+
+          const mixer = new AnimationMixer(clone.scene);
+          const animations = new Map();
+          const cloneBones = {};
+          const cloneSkinnedMeshes = {};
+          clone.scene.traverse(node => {
+            if (node.isBone) {
+              cloneBones[node.name] = node;
+            }
+            if (node.isSkinnedMesh) {
+              cloneSkinnedMeshes[node.name] = node;
+            }
+          });
+          for (let name in cloneSkinnedMeshes) {
+            const cloneSMesh = cloneSkinnedMeshes[name];
+            const skeleton = cloneSMesh.skeleton;
+            const orderedCloneBone = [];
+            for (let i = 0; i < skeleton.bones.length; i++) {
+              const cloneBone = cloneBones[skeleton.bones[i].name];
+              orderedCloneBone.push(cloneBone);
+            }
+            cloneSMesh.bind(new Skeleton(orderedCloneBone, skeleton.boneInverses), cloneSMesh.matrixWorld);
+          }
+          clone.scene.traverse(child => {
+            if (child.isMesh) {
+              child.castShadow = true;
+              child.receiveShadow = true;
+              child.material.skinning = true;
+              child.frustumCulled = false;
+            }
+          });
+          const deathClip = clone.animations.find(clip => clip.name.includes('Death'));
+          const deathAction = mixer.clipAction(deathClip);
+          const shootClip = clone.animations.find(clip => clip.name.includes('Gun_Shoot'));
+          const shootAction = mixer.clipAction(shootClip);
+          const hitClip = clone.animations.find(clip => clip.name.includes('HitRecieve'));
+          const hitAction = mixer.clipAction(hitClip);
+          const idleClip = clone.animations.find(clip => clip.name.includes('Idle'));
+          const idleAction = mixer.clipAction(idleClip);
+          const idleGunPointClip = clone.animations.find(clip => clip.name.includes('Gun_Pointing'));
+          const idleGunPointAction = mixer.clipAction(idleGunPointClip);
+          const idleGunShootClip = clone.animations.find(clip => clip.name.includes('Idle_Gun_Shoot'));
+          const idleGunShootAction = mixer.clipAction(idleGunShootClip);
+          const idleMeleeClip = clone.animations.find(clip => clip.name.includes('Idle_Sword'));
+          const idleMeleeAction = mixer.clipAction(idleMeleeClip);
+          const interactClip = clone.animations.find(clip => clip.name.includes('Interact'));
+          const interactAction = mixer.clipAction(interactClip);
+          const rollClip = clone.animations.find(clip => clip.name.includes('Roll'));
+          const rollAction = mixer.clipAction(rollClip);
+          const runClip = clone.animations.find(clip => clip.name.includes('Run'));
+          const runAction = mixer.clipAction(runClip);
+          const runBackClip = clone.animations.find(clip => clip.name.includes('Run_Back'));
+          const runBackAction = mixer.clipAction(runBackClip);
+          const runLeftClip = clone.animations.find(clip => clip.name.includes('Run_Left'));
+          const runLeftAction = mixer.clipAction(runLeftClip);
+          const runRightClip = clone.animations.find(clip => clip.name.includes('Run_Right'));
+          const runRightAction = mixer.clipAction(runRightClip);
+          const runShootClip = clone.animations.find(clip => clip.name.includes('Run_Shoot'));
+          const runShootAction = mixer.clipAction(runShootClip);
+          const meleeClip = clone.animations.find(clip => clip.name.includes('Sword_Slash'));
+          const meleeAction = mixer.clipAction(meleeClip);
+          const walkClip = clone.animations.find(clip => clip.name.includes('Walk'));
+          const walkAction = mixer.clipAction(walkClip);
+          animations.set('idle', {
+            clip: idleClip,
+            action: idleAction
+          });
+          animations.set('shoot', {
+            clip: shootClip,
+            action: shootAction
+          });
+          animations.set('die', {
+            clip: deathClip,
+            action: deathAction
+          });
+          animations.set('hit', {
+            clip: hitClip,
+            action: hitAction
+          });
+          animations.set('idleGunPoint', {
+            clip: idleGunPointClip,
+            action: idleGunPointAction
+          });
+          animations.set('idleGunShoot', {
+            clip: idleGunShootClip,
+            action: idleGunShootAction
+          });
+          animations.set('idleMelee', {
+            clip: idleMeleeClip,
+            action: idleMeleeAction
+          });
+          animations.set('interact', {
+            clip: interactClip,
+            action: interactAction
+          });
+          animations.set('roll', {
+            clip: rollClip,
+            action: rollAction
+          });
+          animations.set('run', {
+            clip: runClip,
+            action: runAction
+          });
+          animations.set('runBack', {
+            clip: runBackClip,
+            action: runBackAction
+          });
+          animations.set('runLeft', {
+            clip: runLeftClip,
+            action: runLeftAction
+          });
+          animations.set('runRight', {
+            clip: runRightClip,
+            action: runRightAction
+          });
+          animations.set('runShoot', {
+            clip: runShootClip,
+            action: runShootAction
+          });
+          animations.set('melee', {
+            clip: meleeClip,
+            action: meleeAction
+          });
+          animations.set('walk', {
+            clip: walkClip,
+            action: walkAction
+          });
+          clone.name = 'Wanderer';
+          this.animations.set('Wanderer', animations);
+          this.mixers.set('Wanderer', mixer);
+          this.characterModels.set('Wanderer', clone.scene);
+        });
+
+        // Adventurer
+        gltfLoader.load('./models/player/Adventurer.glb', gltf => {
+          const clone = {
+            animations: gltf.animations,
+            scene: gltf.scene.clone(true)
+          };
+
+          // clone.scene.scale.set(0.2, 0.2, 0.2);
+
+          const mixer = new AnimationMixer(clone.scene);
+          const animations = new Map();
+          const cloneBones = {};
+          const cloneSkinnedMeshes = {};
+          clone.scene.traverse(node => {
+            if (node.isBone) {
+              cloneBones[node.name] = node;
+            }
+            if (node.isSkinnedMesh) {
+              cloneSkinnedMeshes[node.name] = node;
+            }
+          });
+          for (let name in cloneSkinnedMeshes) {
+            const cloneSMesh = cloneSkinnedMeshes[name];
+            const skeleton = cloneSMesh.skeleton;
+            const orderedCloneBone = [];
+            for (let i = 0; i < skeleton.bones.length; i++) {
+              const cloneBone = cloneBones[skeleton.bones[i].name];
+              orderedCloneBone.push(cloneBone);
+            }
+            cloneSMesh.bind(new Skeleton(orderedCloneBone, skeleton.boneInverses), cloneSMesh.matrixWorld);
+          }
+          clone.scene.traverse(child => {
+            if (child.isMesh) {
+              child.castShadow = true;
+              child.receiveShadow = true;
+              child.material.skinning = true;
+              child.frustumCulled = false;
+            }
+          });
+          const deathClip = clone.animations.find(clip => clip.name.includes('Death'));
+          const deathAction = mixer.clipAction(deathClip);
+          const idleClip = clone.animations.find(clip => clip.name.includes('Idle'));
+          const idleAction = mixer.clipAction(idleClip);
+          const idleGunPointClip = clone.animations.find(clip => clip.name.includes('Gun_Pointing'));
+          const idleGunPointAction = mixer.clipAction(idleGunPointClip);
+          const idleGunShootClip = clone.animations.find(clip => clip.name.includes('Idle_Gun_Shoot'));
+          const idleGunShootAction = mixer.clipAction(idleGunShootClip);
+          const idleMeleeClip = clone.animations.find(clip => clip.name.includes('Idle_Sword'));
+          const idleMeleeAction = mixer.clipAction(idleMeleeClip);
+          const walkClip = clone.animations.find(clip => clip.name.includes('Walk'));
+          walkClip.loop = LoopOnce;
+          const walkAction = mixer.clipAction(walkClip);
+          const runClip = clone.animations.find(clip => clip.name.includes('Run'));
+          runClip.loop = LoopOnce;
+          const runAction = mixer.clipAction(runClip);
+          const runBackClip = clone.animations.find(clip => clip.name.includes('Run_Back'));
+          runBackClip.loop = LoopOnce;
+          const runBackAction = mixer.clipAction(runBackClip);
+          const runLeftClip = clone.animations.find(clip => clip.name.includes('Run_Left'));
+          runLeftClip.loop = LoopOnce;
+          const runLeftAction = mixer.clipAction(runLeftClip);
+          const runRightClip = clone.animations.find(clip => clip.name.includes('Run_Right'));
+          runRightClip.loop = LoopOnce;
+          const runRightAction = mixer.clipAction(runRightClip);
+          const shootClip = clone.animations.find(clip => clip.name.includes('Gun_Shoot'));
+          shootClip.loop = LoopOnce;
+          const shootAction = mixer.clipAction(shootClip);
+          const hitClip = clone.animations.find(clip => clip.name.includes('HitRecieve'));
+          hitClip.loop = LoopOnce;
+          const hitAction = mixer.clipAction(hitClip);
+          const interactClip = clone.animations.find(clip => clip.name.includes('Interact'));
+          interactClip.loop = LoopOnce;
+          const interactAction = mixer.clipAction(interactClip);
+          const runShootClip = clone.animations.find(clip => clip.name.includes('Run_Shoot'));
+          runShootClip.loop = LoopOnce;
+          const runShootAction = mixer.clipAction(runShootClip);
+          const rollClip = clone.animations.find(clip => clip.name.includes('Roll'));
+          rollClip.loop = LoopOnce;
+          const rollAction = mixer.clipAction(rollClip);
+          const meleeClip = clone.animations.find(clip => clip.name.includes('Sword_Slash'));
+          meleeClip.loop = LoopOnce;
+          const meleeAction = mixer.clipAction(meleeClip);
+          animations.set('idle', {
+            clip: idleClip,
+            action: idleAction
+          });
+          animations.set('shoot', {
+            clip: shootClip,
+            action: shootAction
+          });
+          animations.set('die', {
+            clip: deathClip,
+            action: deathAction
+          });
+          animations.set('hit', {
+            clip: hitClip,
+            action: hitAction
+          });
+          animations.set('idleGunPoint', {
+            clip: idleGunPointClip,
+            action: idleGunPointAction
+          });
+          animations.set('idleGunShoot', {
+            clip: idleGunShootClip,
+            action: idleGunShootAction
+          });
+          animations.set('idleMelee', {
+            clip: idleMeleeClip,
+            action: idleMeleeAction
+          });
+          animations.set('interact', {
+            clip: interactClip,
+            action: interactAction
+          });
+          animations.set('roll', {
+            clip: rollClip,
+            action: rollAction
+          });
+          animations.set('run', {
+            clip: runClip,
+            action: runAction
+          });
+          animations.set('runBack', {
+            clip: runBackClip,
+            action: runBackAction
+          });
+          animations.set('runLeft', {
+            clip: runLeftClip,
+            action: runLeftAction
+          });
+          animations.set('runRight', {
+            clip: runRightClip,
+            action: runRightAction
+          });
+          animations.set('runShoot', {
+            clip: runShootClip,
+            action: runShootAction
+          });
+          animations.set('melee', {
+            clip: meleeClip,
+            action: meleeAction
+          });
+          animations.set('walk', {
+            clip: walkClip,
+            action: walkAction
+          });
+          clone.name = 'Adventurer';
+          this.animations.set('Adventurer', animations);
+          this.mixers.set('Adventurer', mixer);
+          this.characterModels.set('Adventurer', clone.scene);
         });
       }
       _loadItemModels() {
@@ -68073,25 +68800,11 @@
         const gltfLoader = this.gltfLoader;
         const weapons = this.weapons;
 
-        // Energy Pistol
-        gltfLoader.load('./models/weapons/EnergyPistol.glb', gltf => {
-          const pistolMesh = gltf.scene;
-          pistolMesh.matrixAutoUpdate = false;
-          weapons.set('pistol', pistolMesh);
-        });
-
-        // Long Pistol
-        gltfLoader.load('./models/weapons/LongPistol.glb', gltf => {
-          const longPistolMesh = gltf.scene;
-          longPistolMesh.matrixAutoUpdate = false;
-          weapons.set('longPistol', longPistolMesh);
-        });
-
-        // Lightning Gun
-        gltfLoader.load('./models/weapons/LightningGun.glb', gltf => {
-          const lightningGunMesh = gltf.scene;
-          lightningGunMesh.matrixAutoUpdate = false;
-          weapons.set('lightningGun', lightningGunMesh);
+        // Fire Axe
+        gltfLoader.load('./models/weapons/FireAxe.glb', gltf => {
+          const fireAxeMesh = gltf.scene;
+          fireAxeMesh.matrixAutoUpdate = false;
+          weapons.set('FireAxe', fireAxeMesh);
         });
       }
       _loadPropModels() {
@@ -68106,61 +68819,12 @@
         });
       }
       _loadInteriorModels() {
-        const objectLoader = this.objectLoader;
-        const interiors = this.interiors;
-        const floorPath = './materials/floor/FloorTile_';
-
-        // Floors 1
-        objectLoader.load('./materials/floor/FloorTile_Basic.obj', object => {
-          object.matrixAutoUpdate = false;
-          interiors.set('BasicFloor', object);
-        });
-
-        // Floors 2
-        objectLoader.load(floorPath + 'Basic2.obj', object => {
-          object.matrixAutoUpdate = false;
-          interiors.set('BasicFloor2', object);
-        });
-
-        // Floors Empty
-        objectLoader.load(floorPath + 'Empty.obj', object => {
-          object.matrixAutoUpdate = false;
-          interiors.set('EmptyFloor', object);
-        });
-
-        // Floors Corner
-        objectLoader.load(floorPath + 'Corner.obj', object => {
-          object.matrixAutoUpdate = false;
-          interiors.set('CornerFloor', object);
-        });
-
-        // Floors Inner Corner
-        objectLoader.load(floorPath + 'InnerCorner.obj', object => {
-          object.matrixAutoUpdate = false;
-          interiors.set('InnerCornerFloor', object);
-        });
-
-        // Floors Double Hallway
-        objectLoader.load(floorPath + 'Double_Hallway.obj', object => {
-          object.matrixAutoUpdate = false;
-          interiors.set('DoubleHallwayFloor', object);
-        });
-
-        // Walls
-        const wallPath = './materials/wall/Wall_';
-        let i = 1;
-        for (i; i <= 5; i++) {
-          objectLoader.load(wallPath + i + '.obj', object => {
-            object.matrixAutoUpdate = false;
-            interiors.set('BasicWall' + i, object);
-          });
-        }
-
-        // Wall Empty
-        objectLoader.load(wallPath + 'Empty.obj', object => {
-          object.matrixAutoUpdate = false;
-          interiors.set('EmptyWall', object);
-        });
+        this.objectLoader;
+        this.interiors;
+      }
+      _loadExteriorModels() {
+        this.gltfLoader;
+        this.exteriors;
       }
     }
 
@@ -68597,258 +69261,7 @@
      * @author MicMetzger /
      */
 
-    const WEAPON_TYPES_RANGE = 'range';
-    const WEAPON_TYPES_MELEE = 'melee';
-    const WEAPON_TYPES_ABILITY = 'ability';
-    const WEAPON_STATUS_READY = 'ready';
-    const WEAPON_STATUS_NOT_READY = 'not_ready';
-    const WEAPON_STATUS_HIDDEN = 'hidden';
-    const WEAPON_STATUS_EQUIPPED = 'equipped';
-
-    class WeaponSystem {
-      /**
-       *
-       *
-       * @param owner
-       */
-      constructor(owner) {
-        this.owner = owner;
-        this.currentWeapon = null;
-        this.weaponsStore = new Map();
-        this.nextWeapon = null;
-        this.prevWeapon = null;
-        this.weaponsStore.set(WEAPON_TYPES_RANGE, null);
-        this.weaponsStore.set(WEAPON_TYPES_MELEE, null);
-        this.weaponsStore.set(WEAPON_TYPES_ABILITY, null);
-      }
-    }
-
-    class Item {
-      /**
-       *
-       *
-       * @param world
-       * @param name
-       * @param type
-       * @param parent
-       * @param active
-       * @param triggers
-       * @param description
-       * @param position
-       * @param rotation
-       */
-      constructor(world, name, type, parent, active, triggers, description, position, rotation) {
-        this._world = world;
-        this._name = name ? name : 'unknown';
-        this._type = type ? type : 'unknown';
-        this._parent = parent ? parent : null;
-        this._active = active ? active : false;
-        this._triggers = triggers ? triggers : [];
-        this._description = description ? description : 'This is a ' + name + ' of type ' + type;
-        this._position = position ? new Vector3(position) : new Vector3();
-        this._rotation = rotation ? new Quaternion(rotation) : new Quaternion();
-      }
-      get name() {
-        return this._name;
-      }
-      set name(value) {
-        this._name = value;
-      }
-      get type() {
-        return this._type;
-      }
-      set type(type) {
-        this._type = type;
-      }
-      get description() {
-        return this._description;
-      }
-      set description(value) {
-        this._description = value;
-      }
-      get position() {
-        return this._position;
-      }
-      set position(value) {
-        this._position.copy(value);
-      }
-      get rotation() {
-        return this._rotation;
-      }
-      set rotaion(value) {
-        this._rotation.copy(value);
-      }
-      get parent() {
-        return this._parent;
-      }
-      set parent(value) {
-        this._parent = value;
-      }
-      get trigger() {
-        return this._triggers;
-      }
-      set trigger(func) {
-        this._triggers.push(func);
-      }
-      handleMessage(telegram) {
-        if (this._triggers.length > 0) {
-          if (!(telegram.type in this._triggers)) {
-            return false;
-          } else {
-            for (let handler of this._triggers[telegram.type]) {
-              handler(telegram);
-            }
-          }
-        }
-      }
-      update(delta) {
-        // temporary
-      }
-    }
-
-    class Weapon extends Item {
-      constructor(owner) {
-        super(owner);
-        this._owner = owner;
-        this._canActivateTrigger = false;
-        this._type = null;
-        this._status = WEAPON_STATUS_NOT_READY;
-
-        // use to restore the state after a weapon change
-        this._previousState = WEAPON_STATUS_READY;
-        this._ammoRemaining = 0;
-        this._ammoPerLoad = 0;
-        this._ammo = 0;
-        this._maxAmmo = 0;
-        this._currentTime = 0;
-        this._shotTime = Infinity;
-        this._reloadTime = Infinity;
-        this._equipTime = Infinity;
-        this._hideTime = Infinity;
-        this._endTimeShot = Infinity;
-        this._endTimeReload = Infinity;
-        this._endTimeEquip = Infinity;
-        this._endTimeHide = Infinity;
-        this._endTimeMuzzleFire = Infinity;
-
-        // used for weapon selection
-        this._fuzzyModule = null;
-
-        // render specific properties
-        this._muzzle = null;
-        this._audios = null;
-        this._mixer = null;
-        this._animations = null;
-      }
-
-      /**
-       * Adds the given amount of rounds to the ammo.
-       *
-       * @param {Number} rounds - The amount of ammo.
-       * @return {Weapon} A reference to this weapon.
-       */
-      addAmmo(rounds) {
-        this._ammo = MathUtils.clamp(this._ammo + rounds, 0, this._maxAmmo);
-        return this;
-      }
-      getAmmoRemaining() {
-        return this._ammo;
-      }
-
-      /**
-       * Returns a value representing the desirability of using the weapon.
-       *
-       * @param {Number} distance - The distance to the target.
-       * @return {Number} A score between 0 and 1 representing the desirability.
-       */
-      getDesirability() {
-        return 0;
-      }
-
-      /**
-       * Equips the weapon.
-       *
-       * @return {Weapon} A reference to this weapon.
-       */
-      equip() {
-        this._status = WEAPON_STATUS_EQUIPPED;
-        this._endTimeEquip = this._currentTime + this._equipTime;
-        if (this._mixer) {
-          let animation = this._animations.get('hide');
-          animation.stop();
-          animation = this._animations.get('equip');
-          animation.stop();
-          animation.play();
-        }
-        if (this._owner.isPlayer()) {
-          this._owner.world.userInterface._updateAmmoStatus();
-        }
-        return this;
-      }
-
-      /**
-       * Hides the weapon.
-       *
-       * @return {Weapon} A reference to this weapon.
-       */
-      hide() {
-        this._previousState = this._status;
-        this._status = WEAPON_STATUS_HIDDEN;
-        this._endTimeHide = this._currentTime + this._hideTime;
-        if (this._mixer) {
-          const animation = this._animations.get('hide');
-          animation.stop();
-          animation.play();
-        }
-        return this;
-      }
-
-      /**
-       * Reloads the weapon.
-       *
-       * @return {Weapon} A reference to this weapon.
-       */
-      reload() {}
-
-      /**
-       * Shoots at the given position.
-       *
-       * @param {Vector3} targetPosition - The target position.
-       * @return {Weapon} A reference to this weapon.
-       */
-      fire() {}
-
-      /**
-       * Update method of this weapon.
-       *
-       * @param {Number} delta - The time delta value;
-       * @return {Weapon} A reference to this weapon.
-       */
-      update(delta) {
-        this._currentTime += delta;
-        if (this._currentTime >= this._endTimeEquip) {
-          this._status = this._previousState; // restore previous state
-          this._endTimeEquip = Infinity;
-        }
-        if (this._currentTime >= this._endTimeHide) {
-          this._status = WEAPON_STATUS_NOT_READY;
-          this._endTimeHide = Infinity;
-        }
-
-        // update animations
-
-        if (this._mixer) {
-          this._mixer.update(delta);
-        }
-        return this;
-      }
-    }
-
-    /**
-     * @author MicMetzger /
-     */
-
-    class PlayerStateMachine {
+    class StateMachine {
       constructor() {
         this.states = {};
         this.currentState = null;
@@ -68856,27 +69269,22 @@
       addState(name, type) {
         this.states[name] = type;
       }
-      changeTo(id) {
-        const state = this.states[id];
-        this._change(state);
-        return this;
-      }
-      _change(state) {
-        if (this.previousState) {
-          if (this.currentState.name.includes('Attack')) ; else {
-            this.previousState = this.currentState;
+      changeTo(name) {
+        const previousState = this.currentState;
+        if (previousState) {
+          if (this.currentState.Name === name) {
+            return;
           }
-        } else {
-          this.previousState = this.currentState;
+          previousState.exit();
         }
-        if (this.currentState !== null) {
-          this.currentState.exit();
-        }
+        const state = new this.states[name](this);
         this.currentState = state;
-        this.currentState.enter(this.previousState);
+        state.enter(previousState);
       }
-      update(timeElapsed, input, moving) {
-        this.currentState?.update(timeElapsed, input, moving);
+      update(timeElapsed, input) {
+        if (this.currentState) {
+          this.currentState.update(timeElapsed, input);
+        }
       }
     }
 
@@ -68953,88 +69361,119 @@
      * @author MicMetzger /
      */
 
-    class PlayerState {
+    class State {
       constructor(parent) {
-        this.parent = parent;
+        this._parent = parent;
       }
       enter() {}
       exit() {}
-      finish() {}
-      cleanup() {}
       update() {}
     }
 
-    class IdleState extends PlayerState {
+    class PlayerProxy extends StateMachine {
+      constructor(proxy) {
+        super();
+        this._proxy = proxy;
+        this.addState('idle', IdleState);
+        this.addState('walk', WalkState);
+        this.addState('run', RunState);
+        this.addState('runBack', RunBackState);
+        this.addState('runLeft', RunLeftState);
+        this.addState('runRight', RunRightState);
+        this.addState('roll', RollState);
+        this.addState('stun', StunState);
+        this.addState('die', DeathState);
+        this.addState('shoot', ShootAttackState);
+        this.addState('melee', MeleeAttackState);
+      }
+    }
+    class IdleState extends State {
       constructor(parent) {
         super(parent);
-        this._action = null;
       }
-      get name() {
+      get Name() {
         return 'idle';
       }
       enter(prevState) {
-        this._action = this.parent.proxy.animations.get('idle').action;
+        const action = this._parent._proxy.animations.get('idle').action;
         if (prevState) {
-          const prevAction = this.parent.proxy.animations.get(prevState.name).action;
-          this._action.time = 0.0;
-          this._action.enabled = true;
-          this._action.setEffectiveTimeScale(1.0);
-          this._action.setEffectiveWeight(1.0);
-          this._action.crossFadeFrom(prevAction, 0.25, true);
-          this._action.play();
+          const prevAction = this._parent._proxy.animations.get(prevState.Name).action;
+          action.time = 0.0;
+          action.enabled = true;
+          action.setEffectiveTimeScale(1.0);
+          action.setEffectiveWeight(1.0);
+          action.crossFadeFrom(prevAction, 0.5, true);
+          action.play();
         } else {
-          this._action.play();
+          action.play();
         }
       }
-      update(_, input, moving) {
-        if (input.shift && moving) {
-          this.parent.changeTo('walk');
-          return;
-        } else if (input.forward) {
-          this.parent.changeTo('run');
-          return;
-        } else if (input.backward) {
-          this.parent.changeTo('runBack');
-          return;
-        } else if (input.left) {
-          this.parent.changeTo('runLeft');
-          return;
-        } else if (input.right) {
-          this.parent.changeTo('runRight');
+      update(_, input) {
+        if (!input.forward && !input.backward && !input.left && !input.right && !input.space) {
+          this._parent.changeTo('idle');
           return;
         }
-        this.parent.changeTo('idle');
+        if (input.shift && (input.forward || input.backward || input.left || input.right)) {
+          this._parent.changeTo('walk');
+          return;
+        } else {
+          if (!input.shift) {
+            if (input.forward) {
+              this._parent.changeTo('run');
+              return;
+            }
+            if (input.right) {
+              this._parent.changeTo('runRight');
+              return;
+            }
+            if (input.left) {
+              this._parent.changeTo('runLeft');
+              return;
+            }
+            if (input.backward) {
+              this._parent.changeTo('runBack');
+              return;
+            }
+          }
+        }
       }
-      cleanup() {
-        this._action = null;
-      }
-      exit() {
-        this.cleanup();
-      }
+      cleanup() {}
+      exit() {}
     }
-    class DeathState extends PlayerState {
+    class DeathState extends State {
       constructor(parent) {
         super(parent);
-        this._action = null;
+        this.finishedCallback = () => {
+          this.finished();
+        };
       }
-      get name() {
+      get Name() {
         return 'die';
       }
       Enter(prevState) {
-        this._action = this.parent.proxy.animations.get('die').action;
+        const action = this._parent._proxy.animations.get('die').action;
+        action.getMixer().addEventListener('finished', this.finishedCallback);
         if (prevState) {
-          const previousAction = this.parent.proxy.animations.get(prevState.name).action;
-          this._action.reset();
-          this._action.setLoop(LoopOnce, 1);
-          this._action.clampWhenFinished = true;
-          this._action.crossFadeFrom(previousAction, 0.2, true);
-          this._action.play();
+          const previousAction = this._parent._proxy.animations.get(prevState.Name).action;
+
+          // action.reset();
+
+          action.setLoop(LoopOnce, 1);
+          action.clampWhenFinished = true;
+          action.crossFadeFrom(previousAction, 0.2, true);
+          action.play();
         } else {
-          this._action.play();
+          action.play();
         }
       }
+      finished() {
+        this.cleanup();
+        // this._parent.changeTo('idle');
+      }
+
       cleanup() {
-        this._action = null;
+        const action = this._parent._proxy.animations.get('die').action;
+        action.getMixer().removeEventListener('finished', this.finishedCallback);
       }
       update(_) {
         return;
@@ -69043,512 +69482,449 @@
         this.cleanup();
       }
     }
-    class WalkState extends PlayerState {
+    class WalkState extends State {
       constructor(parent) {
         super(parent);
-        this._action = null;
       }
-      get name() {
+      get Name() {
         return 'walk';
       }
       enter(prevState) {
-        this._action = this.parent.proxy.animations.get('walk').action;
+        const action = this._parent._proxy.animations.get('walk').action;
         if (prevState) {
-          const previousAction = this.parent.proxy.animations.get(prevState.name).action;
-          this._action.enabled = true;
-          if (prevState.name === 'run') {
-            const ratio = this._action.getClip().duration / previousAction.getClip().duration;
-            this._action.time = previousAction.time * ratio;
+          const previousAction = this._parent._proxy.animations.get(prevState.Name).action;
+          action.enabled = true;
+          if (prevState.Name === 'run') {
+            const ratio = action.getClip().duration / previousAction.getClip().duration;
+            action.time = previousAction.time * ratio;
           } else {
-            this._action.time = 0.0;
-            this._action.setEffectiveTimeScale(1.0);
-            this._action.setEffectiveWeight(1.0);
+            action.time = 0.0;
+            action.setEffectiveTimeScale(1.0);
+            action.setEffectiveWeight(1.0);
           }
-          this._action.crossFadeFrom(previousAction, 0.1, true);
-          this._action.play();
+          action.crossFadeFrom(previousAction, 0.5, true);
+          action.play();
         } else {
-          this._action.play();
+          action.play();
         }
       }
-      cleanup() {
-        this._action = null;
+      update(_, input) {
+        if (!input.forward && !input.backward && !input.left && !input.right && !input.space) {
+          this._parent.changeTo('idle');
+          return;
+        }
+        if (input.shift && (input.forward || input.backward || input.left || input.right)) {
+          this._parent.changeTo('walk');
+          return;
+        } else {
+          if (!input.shift) {
+            if (input.forward) {
+              this._parent.changeTo('run');
+              return;
+            }
+            if (input.right) {
+              this._parent.changeTo('runRight');
+              return;
+            }
+            if (input.left) {
+              this._parent.changeTo('runLeft');
+              return;
+            }
+            if (input.backward) {
+              this._parent.changeTo('runBack');
+              return;
+            }
+          }
+        }
       }
       exit() {
         this.cleanup();
       }
-      update(_, input, moving) {
-        if (input.forward || input.backward) {
-          if (!input.shift) {
-            this.parent.changeTo('run');
-          }
-          return;
-        }
-        this.parent.changeTo('idle');
-      }
     }
-    class RunState extends PlayerState {
+    class RunState extends State {
       constructor(parent) {
         super(parent);
-        this._action = null;
-        this.finishedCallback = () => {
-          this.finished();
-        };
       }
-      get name() {
+      get Name() {
         return 'run';
       }
       enter(prevState) {
-        this._action = this.parent.proxy.animations.get('run').action;
+        const action = this._parent._proxy.animations.get('run').action;
         if (prevState) {
-          const previousAction = this.parent.proxy.animations.get(prevState.name).action;
-          if (prevState.name.includes('Attack')) {
-            this._action.time = 0.0;
-            this._action.crossFadeFrom(previousAction, 0.7, true);
-          }
-        }
-        this._action.enabled = true;
-        // this._action.play();
-      }
-
-      update(_, input, moving) {
-        if (input.forward || input.backward) {
-          if (input.shift) {
-            this.parent.changeTo('walk');
+          const prevAction = this._parent._proxy.animations.get(prevState.Name).action;
+          action.enabled = true;
+          if (prevState.Name === 'walk' || prevState.Name.includes('run')) {
+            const ratio = action.getClip().duration / prevAction.getClip().duration;
+            action.time = prevAction.time * ratio;
           } else {
+            action.time = 0.0;
+            action.setEffectiveTimeScale(1.0);
+            action.setEffectiveWeight(1.0);
+          }
+          action.crossFadeFrom(prevAction, 0.5, true);
+          action.play();
+        } else {
+          action.play();
+        }
+      }
+      update(_, input) {
+        if (!input.forward && !input.backward && !input.left && !input.right && !input.space) {
+          this._parent.changeTo('idle');
+          return;
+        }
+        if (input.shift && (input.forward || input.backward || input.left || input.right)) {
+          this._parent.changeTo('walk');
+          return;
+        } else {
+          if (!input.shift) {
             if (input.forward) {
-              this.parent.changeTo('run');
-            } else if (input.backward) {
-              this.parent.changeTo('runBack');
+              this._parent.changeTo('run');
+              return;
             }
-          }
-          return;
-        }
-        if (input.left || input.right) {
-          if (input.shift) {
-            this.parent.changeTo('walk');
-          } else {
+            if (input.right) {
+              this._parent.changeTo('runRight');
+              return;
+            }
             if (input.left) {
-              this.parent.changeTo('runLeft');
-            } else if (input.right) {
-              this.parent.changeTo('runRight');
+              this._parent.changeTo('runLeft');
+              return;
+            }
+            if (input.backward) {
+              this._parent.changeTo('runBack');
+              return;
             }
           }
-          return;
-        }
-        this.parent.changeTo('idle');
-      }
-      cleanup() {
-        if (this._action) {
-          this._action = null;
         }
       }
-      exit() {
-        this.cleanup();
-      }
+      exit() {}
     }
-    class RunLeftState extends PlayerState {
+    class RunLeftState extends State {
       constructor(parent) {
         super(parent);
-        this._action = null;
-        this.finishedCallback = () => {
-          this.finished();
-        };
       }
-      get name() {
+      get Name() {
         return 'runLeft';
       }
       enter(prevState) {
-        this._action = this.parent.proxy.animations.get('runLeft').action;
+        const action = this._parent._proxy.animations.get('runLeft').action;
         if (prevState) {
-          const previousAction = this.parent.proxy.animations.get(prevState.name).action;
-          if (prevState.name.includes('Attack')) {
-            this._action.time = 0.0;
-            this._action.crossFadeFrom(previousAction, 0.7, true);
+          const prevAction = this._parent._proxy.animations.get(prevState.Name).action;
+          action.enabled = true;
+          if (prevState.Name === 'walk' || prevState.Name.includes('run')) {
+            const ratio = action.getClip().duration / prevAction.getClip().duration;
+            action.time = prevAction.time * ratio;
+          } else {
+            action.time = 0.0;
+            // action.setDuration(1.0);
+            action.setEffectiveTimeScale(1.0);
+            action.setEffectiveWeight(1.0);
           }
-        }
-        this._action.enabled = true;
-        // this._action.play();
-      }
 
-      update(_, input, moving) {
-        if (input.forward || input.backward) {
-          if (input.shift) {
-            this.parent.changeTo('walk');
-          } else {
+          // action.fadeIn(0.1);
+          action.crossFadeFrom(prevAction, 0.5, true);
+          action.play();
+        } else {
+          action.play();
+        }
+      }
+      update(_, input) {
+        if (!input.forward && !input.backward && !input.left && !input.right && !input.space) {
+          this._parent.changeTo('idle');
+          return;
+        }
+        if (input.shift && (input.forward || input.backward || input.left || input.right)) {
+          this._parent.changeTo('walk');
+          return;
+        } else {
+          if (!input.shift) {
             if (input.forward) {
-              this.parent.changeTo('run');
-            } else if (input.backward) {
-              this.parent.changeTo('runBack');
+              this._parent.changeTo('run');
+              return;
             }
-          }
-          return;
-        }
-        if (input.left || input.right) {
-          if (input.shift) {
-            this.parent.changeTo('walk');
-          } else {
+            if (input.right) {
+              this._parent.changeTo('runRight');
+              return;
+            }
             if (input.left) {
-              this.parent.changeTo('runLeft');
-            } else if (input.right) {
-              this.parent.changeTo('runRight');
+              this._parent.changeTo('runLeft');
+              return;
+            }
+            if (input.backward) {
+              this._parent.changeTo('runBack');
+              return;
             }
           }
-          return;
-        }
-        this.parent.changeTo('idle');
-      }
-      cleanup() {
-        if (this._action) {
-          this._action = null;
         }
       }
-      exit() {
-        this.cleanup();
-      }
+      exit() {}
     }
-    class RunRightState extends PlayerState {
+    class RunRightState extends State {
       constructor(parent) {
         super(parent);
-        this._action = null;
-        this.finishedCallback = () => {
-          this.finished();
-        };
       }
-      get name() {
+      get Name() {
         return 'runRight';
       }
       enter(prevState) {
-        this._action = this.parent.proxy.animations.get('runRight').action;
+        const action = this._parent._proxy.animations.get('runRight').action;
         if (prevState) {
-          const previousAction = this.parent.proxy.animations.get(prevState.name).action;
-          if (prevState.name.includes('Attack')) {
-            this._action.time = 0.0;
-            this._action.crossFadeFrom(previousAction, 0.7, true);
-          }
-        }
-        this._action.enabled = true;
-        // this._action.play();
-      }
-
-      update(_, input, moving) {
-        if (input.forward || input.backward) {
-          if (input.shift) {
-            this.parent.changeTo('walk');
+          const prevAction = this._parent._proxy.animations.get(prevState.Name).action;
+          action.enabled = true;
+          if (prevState.Name === 'walk' || prevState.Name.includes('run')) {
+            const ratio = action.getClip().duration / prevAction.getClip().duration;
+            action.time = prevAction.time * ratio;
           } else {
+            action.time = 0.0;
+            action.setEffectiveTimeScale(1.0);
+            action.setEffectiveWeight(1.0);
+          }
+          action.crossFadeFrom(prevAction, 0.5, true);
+          action.play();
+        } else {
+          action.play();
+        }
+      }
+      update(_, input) {
+        if (!input.forward && !input.backward && !input.left && !input.right && !input.space) {
+          this._parent.changeTo('idle');
+          return;
+        }
+        if (input.shift && (input.forward || input.backward || input.left || input.right)) {
+          this._parent.changeTo('walk');
+          return;
+        } else {
+          if (!input.shift) {
             if (input.forward) {
-              this.parent.changeTo('run');
-            } else if (input.backward) {
-              this.parent.changeTo('runBack');
+              this._parent.changeTo('run');
+              return;
             }
-          }
-          return;
-        }
-        if (input.left || input.right) {
-          if (input.shift) {
-            this.parent.changeTo('walk');
-          } else {
+            if (input.right) {
+              this._parent.changeTo('runRight');
+              return;
+            }
             if (input.left) {
-              this.parent.changeTo('runLeft');
-            } else if (input.right) {
-              this.parent.changeTo('runRight');
+              this._parent.changeTo('runLeft');
+              return;
+            }
+            if (input.backward) {
+              this._parent.changeTo('runBack');
+              return;
             }
           }
-          return;
-        }
-        this.parent.changeTo('idle');
-      }
-      cleanup() {
-        if (this._action) {
-          this._action = null;
         }
       }
-      exit() {
-        this.cleanup();
-      }
+      exit() {}
     }
-    class RunBackState extends PlayerState {
+    class RunBackState extends State {
       constructor(parent) {
         super(parent);
-        this._action = null;
-        this.finishedCallback = () => {
-          this.finished();
-        };
       }
-      get name() {
+      get Name() {
         return 'runBack';
       }
       enter(prevState) {
-        this._action = this.parent.proxy.animations.get('runBack').action;
+        const action = this._parent._proxy.animations.get('runBack').action;
         if (prevState) {
-          const previousAction = this.parent.proxy.animations.get(prevState.name).action;
-          if (prevState.name.includes('Attack')) {
-            this._action.time = 0.0;
-            this._action.crossFadeFrom(previousAction, 0.7, true);
-          }
-        }
-        this._action.enabled = true;
-        // this._action.play();
-      }
-
-      update(_, input, moving) {
-        if (input.forward || input.backward) {
-          if (input.shift) {
-            this.parent.changeTo('walk');
+          const prevAction = this._parent._proxy.animations.get(prevState.Name).action;
+          action.enabled = true;
+          if (prevState.Name === 'walk' || prevState.Name.includes('run')) {
+            const ratio = action.getClip().duration / prevAction.getClip().duration;
+            action.time = prevAction.time * ratio;
           } else {
+            action.time = 0.0;
+            action.setEffectiveTimeScale(1.0);
+            action.setEffectiveWeight(1.0);
+          }
+          action.crossFadeFrom(prevAction, 0.5, true);
+          action.play();
+        } else {
+          action.play();
+        }
+      }
+      update(_, input) {
+        if (!input.forward && !input.backward && !input.left && !input.right && !input.space) {
+          this._parent.changeTo('idle');
+          return;
+        }
+        if (input.shift && (input.forward || input.backward || input.left || input.right)) {
+          this._parent.changeTo('walk');
+          return;
+        } else {
+          if (!input.shift) {
             if (input.forward) {
-              this.parent.changeTo('run');
-            } else if (input.backward) {
-              this.parent.changeTo('runBack');
+              this._parent.changeTo('run');
+              return;
             }
-          }
-          return;
-        }
-        if (input.left || input.right) {
-          if (input.shift) {
-            this.parent.changeTo('walk');
-          } else {
+            if (input.right) {
+              this._parent.changeTo('runRight');
+              return;
+            }
             if (input.left) {
-              this.parent.changeTo('runLeft');
-            } else if (input.right) {
-              this.parent.changeTo('runRight');
+              this._parent.changeTo('runLeft');
+              return;
+            }
+            if (input.backward) {
+              this._parent.changeTo('runBack');
+              return;
             }
           }
-          return;
-        }
-        this.parent.changeTo('idle');
-      }
-      cleanup() {
-        if (this._action) {
-          this._action = null;
         }
       }
-      exit() {
-        this.cleanup();
-      }
+      exit() {}
     }
-    class ShootAttackState extends PlayerState {
+    class ShootAttackState extends State {
       constructor(parent) {
         super(parent);
-        this._action = null;
         this.finishedCallback = () => {
           this.finished();
         };
       }
-      get name() {
-        return 'shootAttack';
+      get Name() {
+        return 'shoot';
       }
       enter(prevState) {
-        this._action = this.parent.proxy.animations.get('shoot').action;
-        const mixer = this._action.getMixer();
-        mixer.addEventListener('finished', this.finishedCallback);
-        mixer.stopAllAction();
+        const action = this._parent._proxy.animations.get('shoot').action;
+        action.getMixer().addEventListener('finished', this.finishedCallback);
+        action.loop = LoopOnce;
         if (prevState) {
-          const previousAction = this.parent.proxy.animations.get(prevState.name).action;
-          this._action.reset();
-          this._action.setLoop(LoopOnce, 1);
-          this._action.clampWhenFinished = true;
-          this._action.crossFadeFrom(previousAction, 0.2, true);
-          this._action.play();
+          const prevAction = this._parent._proxy.animations.get(prevState.Name).action;
+          action.time = 0.0;
+          action.enabled = true;
+          action.setEffectiveTimeScale(1.0);
+          action.setEffectiveWeight(1.0);
+          action.crossFadeFrom(prevAction, 0.5, true);
+          action.play();
         } else {
-          this._action.play();
-        }
-
-        /* const previousAction = this.parent.proxy.animations.get(prevState.name).action;
-         if (prevState) {
-         if (prevState.name === 'roll') {
-         if (previousAction.isRunning()) {
-         return;
-         }
-         }
-         }
-         this._action.reset()
-         this._action.setDuration = 0.2;
-         this._action.setLoop(LoopOnce, 1)
-         this._action.clampWhenFinished = false
-         this._action.crossFadeFrom(previousAction, 0.2, true)
-         this._action.play() */
-      }
-
-      finished() {
-        this.cleanup();
-        this.parent.changeTo('idle');
-      }
-      cleanup() {
-        if (this._action) {
-          this._action.getMixer().removeEventListener('finished', this.finishedCallback);
-          this._action = null;
-        }
-      }
-      exit() {
-        this.cleanup();
-      }
-    }
-    class MeleeAttackState extends PlayerState {
-      constructor(parent) {
-        super(parent);
-        this._action = null;
-        this.finishedCallback = () => {
-          this.finished();
-        };
-      }
-      get name() {
-        return 'meleeAttack';
-      }
-      enter(prevState) {
-        this._action = this.parent.proxy.animations.get('slash').action;
-        const mixer = this._action.getMixer();
-        mixer.addEventListener('finished', this.finishedCallback);
-        mixer.stopAllAction();
-        if (prevState) {
-          const previousAction = this.parent.proxy.animations.get(prevState.name).action;
-          this._action.reset();
-          this._action.setLoop(LoopOnce, 1);
-          this._action.clampWhenFinished = true;
-          this._action.crossFadeFrom(previousAction, 0.2, true);
-          this._action.play();
-        } else {
-          this._action.play();
+          action.play();
         }
       }
       finished() {
         this.cleanup();
-        this.parent.changeTo('idle');
+        this._parent.changeTo('idle');
       }
       cleanup() {
-        if (this._action) {
-          this._action.getMixer().removeEventListener('finished', this.finishedCallback);
-          this._action = null;
-        }
+        const action = this._parent._proxy.animations.get('shoot').action;
+        action.getMixer().removeEventListener('finished', this.finishedCallback);
       }
-      update(_, input, moving) {
-        return;
-      }
+      update() {}
       exit() {
         this.cleanup();
       }
     }
-    class RollState extends PlayerState {
+    class MeleeAttackState extends State {
       constructor(parent) {
         super(parent);
-        this._action = null;
         this.finishedCallback = () => {
           this.finished();
         };
       }
-      get name() {
+      get Name() {
+        return 'melee';
+      }
+      enter(prevState) {
+        const action = this._parent._proxy.animations.get('melee').action;
+        action.getMixer().addEventListener('finished', this.finishedCallback);
+        action.loop = LoopOnce;
+        if (prevState) {
+          const prevAction = this._parent._proxy.animations.get(prevState.Name).action;
+          action.time = 0.0;
+          action.enabled = true;
+          action.setEffectiveTimeScale(1.0);
+          action.setEffectiveWeight(1.0);
+          action.crossFadeFrom(prevAction, 0.5, true);
+          action.play();
+        } else {
+          action.play();
+        }
+      }
+      finished() {
+        this.cleanup();
+        this._parent.changeTo('idle');
+      }
+      cleanup() {
+        const action = this._parent._proxy.animations.get('melee').action;
+        action.getMixer().removeEventListener('finished', this.finishedCallback);
+      }
+      update() {}
+      exit() {
+        this.cleanup();
+      }
+    }
+    class RollState extends State {
+      constructor(parent) {
+        super(parent);
+        this.finishedCallback = () => {
+          this.finished();
+        };
+      }
+      get Name() {
         return 'roll';
       }
       enter(prevState) {
-        this._action = this.parent.proxy.animations.get('roll').action;
-        const mixer = this._action.getMixer();
-        mixer.addEventListener('finished', this.finishedCallback);
-        mixer.stopAllAction();
+        const action = this._parent._proxy.animations.get('roll').action;
+        action.getMixer().addEventListener('finished', this.finishedCallback);
+        action.loop = LoopOnce;
         if (prevState) {
-          const previousAction = this.parent.proxy.animations.get(prevState.name).action;
-          this._action.reset();
-          this._action.setLoop(LoopOnce, 1);
-          this._action.clampWhenFinished = true;
-          this._action.crossFadeFrom(previousAction, 0.2, true);
-          this._action.play();
+          const prevAction = this._parent._proxy.animations.get(prevState.Name).action;
+          action.time = 0.0;
+          action.enabled = true;
+          action.setEffectiveTimeScale(1.0);
+          action.setEffectiveWeight(1.0);
+          action.crossFadeFrom(prevAction, 0.5, true);
+          action.play();
         } else {
-          this._action.play();
+          action.play();
         }
-
-        /* const previousAction = this.parent.proxy.animations.get(prevState.name).action;
-         if (prevState) {
-         if (prevState.name === 'roll') {
-         if (previousAction.isRunning()) {
-         return;
-         }
-         }
-         }
-         this._action.reset()
-         this._action.setDuration = 0.2;
-         this._action.setLoop(LoopOnce, 1)
-         this._action.clampWhenFinished = false
-         this._action.crossFadeFrom(previousAction, 0.2, true)
-         this._action.play() */
       }
-
+      finished() {
+        this.cleanup();
+        this._parent.changeTo('idle');
+      }
       cleanup() {
-        if (this._action) {
-          this._action.getMixer().removeEventListener('finished', this.finishedCallback);
-          this._action = null;
-        }
+        const action = this._parent._proxy.animations.get('roll').action;
+        action.getMixer().removeEventListener('finished', this.finishedCallback);
       }
+      update() {}
       exit() {
         this.cleanup();
-        this.parent.changeTo('idle');
       }
     }
-    class StunState extends PlayerState {
+    class StunState extends State {
       constructor(parent) {
         super(parent);
-        this._action = null;
         this.finishedCallback = () => {
           this.finished();
         };
       }
-      get name() {
+      get Name() {
         return 'stun';
       }
       enter(prevState) {
-        const mixer = this._action.getMixer();
-        mixer.addEventListener('finished', this.finishedCallback);
-        mixer.stopAllAction();
+        const action = this._parent._proxy.animations.get('stun').action;
+        action.getMixer().addEventListener('finished', this.finishedCallback);
         if (prevState) {
-          const previousAction = this.parent.proxy.animations.get(prevState.name).action;
-          this._action.reset();
-          this._action.setLoop(LoopOnce, 1);
-          this._action.clampWhenFinished = true;
-          this._action.crossFadeFrom(previousAction, 0.2, true);
-          this._action.play();
+          const prevAction = this._parent._proxy.animations.get(prevState.Name).action;
+          action.time = 0.0;
+          action.enabled = true;
+          action.setEffectiveTimeScale(1.0);
+          action.setEffectiveWeight(1.0);
+          action.crossFadeFrom(prevAction, 0.5, true);
+          action.play();
         } else {
-          this._action.play();
+          action.play();
         }
-
-        /* const previousAction = this.parent.proxy.animations.get(prevState.name).action;
-         if (prevState) {
-         if (prevState.name === 'roll') {
-         if (previousAction.isRunning()) {
-         return;
-         }
-         }
-         }
-         this._action.reset()
-         this._action.setDuration = 0.2;
-         this._action.setLoop(LoopOnce, 1)
-         this._action.clampWhenFinished = false
-         this._action.crossFadeFrom(previousAction, 0.2, true)
-         this._action.play() */
       }
-
+      finished() {
+        this.cleanup();
+        this._parent.changeTo('idle');
+      }
       cleanup() {
-        if (this._action) {
-          this._action.getMixer().removeEventListener('finished', this.finishedCallback);
-        }
+        const action = this._parent._proxy.animations.get('stun').action;
+        action.getMixer().removeEventListener('finished', this.finishedCallback);
       }
+      update() {}
       exit() {
         this.cleanup();
-        this.parent.changeTo('idle');
-      }
-    }
-
-    class PlayerProxy extends PlayerStateMachine {
-      constructor(proxy) {
-        super();
-        this.proxy = proxy;
-        this.addState('idle', new IdleState(this));
-        this.addState('walk', new WalkState(this));
-        this.addState('run', new RunState(this));
-        this.addState('runBack', new RunBackState(this));
-        this.addState('runLeft', new RunLeftState(this));
-        this.addState('runRight', new RunRightState(this));
-        this.addState('roll', new RollState(this));
-        this.addState('stun', new StunState(this));
-        this.addState('die', new DeathState(this));
-        this.addState('shootAttack', new ShootAttackState(this));
-        this.addState('meleeAttack', new MeleeAttackState(this));
       }
     }
 
@@ -69561,15 +69937,13 @@
     const offset = new Vector3();
     class Player extends MovingEntity {
       /**
-       *
-       *
        * @param world
        * @param body
+       * @param weaponMesh
        * @param mixer
        * @param animations
-       * @param weapon
        */
-      constructor(world, body, mixer, animations, weapon) {
+      constructor(world, body, weaponMesh, mixer, animations) {
         super();
         console.log(process.env.NODE_ENV);
         this._GOD_MODE_ = process.env.NODE_ENV === 'development' ? true : false;
@@ -69578,6 +69952,11 @@
         this.mixer = mixer;
         this.animations = animations;
         this.controls = world.controls;
+        this.attacking = false;
+        this.resting = false;
+        this.vision = new Vision(this);
+        this.vision.fieldOfView = 90;
+        this.vision.range = 20;
         this.protected = false;
         this.protection = 0;
         this.protectionMesh = null;
@@ -69589,7 +69968,6 @@
 
         // TODO: pospone attack until roll animation is finished
         this.attackPosponeTime = 0.5;
-
         // TODO: Get this data from the weapon
         this.swipesPerSecond = 2;
         this.lastswipeTime = 0;
@@ -69598,13 +69976,26 @@
         this.obb = new OBB();
         this.obb.halfSizes.set(0.1, 0.1, 0.5);
         this.audios = new Map();
-        this.hand = this.bodyMesh.getObjectByName('Middle4.R_end');
-        // this.hand    = this.bodyMesh.getObjectByName('HandR');
-        this.offHand = this.bodyMesh.getObjectByName('HandL');
-        console.log(this.hand);
-        this.weaponSystem = new WeaponSystem();
-        this.weapon = new Weapon(this);
-        this.weaponSystem.currentWeapon = this.weapon;
+        this.mainHand = this.bodyMesh.getObjectByName('PTR');
+        this.offHand = this.bodyMesh.getObjectByName('PTL');
+        console.log(this.bodyMesh);
+        console.log(this.mainHand);
+        console.log(this.offHand);
+        this.weaponDelegateTip = new Object3D();
+        this.weaponDelegate = new Object3D();
+        this.weaponDelegate.position.x = this.mainHand.x;
+        this.weaponDelegate.position.y = this.mainHand.y;
+        this.weaponDelegate.position.z = this.mainHand.z;
+        this.weaponDelegate.rotation.x = this.mainHand.rotation.x;
+        this.weaponDelegate.rotation.y = this.mainHand.rotation.y;
+        this.weaponDelegate.rotation.z = this.mainHand.rotation.z;
+        this.weaponDelegateTip.position.z = 1.5;
+        this.weaponDelegate.add(this.weaponDelegateTip);
+        this.mainHand.add(this.weaponDelegate);
+
+        // this.weaponSystem               = new WeaponSystem(this);
+        // this.weapon                     = new Weapon(this, weaponMesh);
+        // this.weaponSystem.currentWeapon = this.weapon;
 
         // this.offWeapon = this.offHand.children[0];
         this.strategy = 'melee';
@@ -69654,13 +70045,13 @@
         }
       }
       slash() {
-        if (!this.stateMachine.currentState.name.includes('roll')) {
+        if (!this.stateMachine.currentState.Name.includes('roll')) {
           const world = this.world;
           const elapsedTime = world.time.getElapsed();
           if (elapsedTime - this.lastswipeTime > 1 / this.swipesPerSecond) {
             this.lastswipeTime = elapsedTime;
             this.getDirection(direction$1);
-            this.stateMachine.changeTo('meleeAttack');
+            this.stateMachine.changeTo('melee');
 
             // this.weapon.trigger = function () {}
 
@@ -69698,7 +70089,7 @@
         if (elapsedTime - this.lastShotTime > 1 / this.shotsPerSecond) {
           this.lastShotTime = elapsedTime;
           this.getDirection(direction$1);
-          this.stateMachine.changeTo('shootAttack');
+          this.stateMachine.changeTo('shoot');
           const projectile = new PlayerProjectile(this, direction$1);
           world.addProjectile(projectile);
           const audio = this.audios.get('playerShot');
@@ -69711,12 +70102,15 @@
         return this;
       }
       update(delta) {
-        // console.log(this.velocity);
-
+        if (!this.stateMachine) {
+          console.log(this + ': no state machine');
+          return;
+        }
         const world = this.world;
         this.currentTime += delta;
-        this.stateMachine.update(delta, this.world.controls.input, this._isMoving());
-        this.mixer.update(delta);
+        world.controls.input;
+        this.stateMachine.update(delta, this.world.controls.input);
+        if (this.mixer) this.mixer.update(delta);
         this.obb.center.copy(this.position);
         this.obb.rotation.fromQuaternion(this.rotation);
         this.bodyMesh.position.copy(this.position);
@@ -69783,12 +70177,12 @@
         switch (event.keyCode) {
           case 32:
             {
-              /* if (this.stateMachine.currentState.name !== 'roll') {
-               if (this.stateMachine.currentState.name.includes('run') || this.stateMachine.currentState.name.includes('walk') || this.stateMachine.currentState.name.includes('idle')) {
+              /* if (this.stateMachine.currentState.Name !== 'roll') {
+               if (this.stateMachine.currentState.Name.includes('run') || this.stateMachine.currentState.Name.includes('walk') || this.stateMachine.currentState.Name.includes('idle')) {
                 // TODO
                let currentpos = new Vector3();
                let nextpos    = new Vector3();
-               switch (this.stateMachine.currentState.name) {
+               switch (this.stateMachine.currentState.Name) {
                case 'idle':
                break;
                case 'walk': {
@@ -69929,8 +70323,8 @@
 
         // Animations
         this.animations = new AnimationMixer(this.bodyMesh);
-        this.stateMachineMovement = new StateMachine(this);
-        this.stateMachineCombat = new StateMachine(this);
+        this.stateMachineMovement = new StateMachine$1(this);
+        this.stateMachineCombat = new StateMachine$1(this);
         this.boundingRadius = 0.5;
 
         // this.MAX_HEALTH_POINTS = 8;
@@ -70051,8 +70445,8 @@
         this.healthPoints = this.MAX_HEALTH_POINTS;
         this.boundingSphere = new BoundingSphere();
         this.boundingSphere.radius = this.boundingRadius;
-        this.stateMachineMovement = new StateMachine(this);
-        this.stateMachineCombat = new StateMachine(this);
+        this.stateMachineMovement = new StateMachine$1(this);
+        this.stateMachineCombat = new StateMachine$1(this);
         this.audios = new Map();
       }
       isPlayer() {
@@ -70225,6 +70619,107 @@
       }
     }
 
+    class FogController {
+      constructor(world) {
+        this._world = world;
+        this.playerFog = null;
+        this.boundryFog = null;
+        this.startPlayerFog();
+        this.startBoundryFog();
+      }
+      setColor(color, type) {
+        switch (type) {
+          case 'player':
+            this.playerFog.color.set(color);
+            break;
+          case 'boundry':
+            this.boundryFog.color.set(color);
+            break;
+        }
+      }
+      setNear(near, type) {
+        switch (type) {
+          case 'player':
+            this.playerFog.near = near;
+            this.playerFog.far = Math.max(this.playerFog.far, near);
+            break;
+          case 'boundry':
+            this.boundryFog.near = near;
+            this.boundryFog.far = Math.max(this.boundryFog.far, near);
+            break;
+        }
+      }
+      setFar(far, type) {
+        switch (type) {
+          case 'player':
+            this.playerFog.far = far;
+            this.playerFog.near = Math.min(this.playerFog.near, far);
+            break;
+          case 'boundry':
+            this.boundryFog.far = far;
+            this.boundryFog.near = Math.min(this.boundryFog.near, far);
+            break;
+        }
+      }
+      startPlayerFog() {
+        const near = this._world.player.position;
+        this._world.player.radius;
+        this.playerFog = new Fog('add8e6', near, 2);
+        console.log(this.playerFog);
+        this._world.scene.fog = this.playerFog;
+
+        // this._world.playerMesh.fog(this.playerFog);
+      }
+
+      startBoundryFog() {
+        this._world.field;
+        const near = 1;
+        const far = 20;
+        this.boundryFog = new Fog('add8e6', near, far);
+        // this._world.scene.background('add8e6');
+        // this._world.scene.fog(this.boundryFog);
+      }
+    }
+
+    const vertexShader = `
+  varying vec2 vUv;
+  uniform float time;
+  
+	void main() {
+
+    vUv = uv;
+    
+    // VERTEX POSITION
+    
+    vec4 mvPosition = vec4( position, 1.0 );
+    #ifdef USE_INSTANCING
+    	mvPosition = instanceMatrix * mvPosition;
+    #endif
+    
+    // DISPLACEMENT
+    
+    // here the displacement is made stronger on the blades tips.
+    float dispPower = 1.0 - cos( uv.y * 3.1416 / 2.0 );
+    
+    float displacement = sin( mvPosition.z + time * 10.0 ) * ( 0.1 * dispPower );
+    mvPosition.z += displacement;
+    
+    //
+    
+    vec4 modelViewPosition = modelViewMatrix * mvPosition;
+    gl_Position = projectionMatrix * modelViewPosition;
+
+	}
+`;
+    const fragmentShader = `
+  varying vec2 vUv;
+  
+  void main() {
+  	vec3 baseColor = vec3( 0.41, 1.0, 0.5 );
+    float clarity = ( vUv.y * 0.5 ) + 0.5;
+    gl_FragColor = vec4( baseColor * clarity, 1 );
+  }
+`;
     class EnvironmentManager {
       constructor(world) {
         this.world = world;
@@ -70232,6 +70727,14 @@
         this.environmentmap = new Map();
         this.floorMesh = new Group();
         this.wallsMeshes = new Group();
+        this.background = new Color('black');
+        this.fogController = null;
+        this.grass = null;
+        this.uniforms = {
+          time: {
+            value: 0
+          }
+        };
         this.width = 0;
         this.depth = 0;
         this.height = 0;
@@ -70254,10 +70757,11 @@
       init() {
         this.width = this.world.field.x;
         this.depth = this.world.depth;
-        this.generateBackground(0x030303, true);
+        this.generateBackground(0x030303);
         this.generateLights(null, true);
         this.generateFloor();
         this.generateWalls();
+        this.fogController = new FogController(this.world);
       }
       generateShell() {}
       generateWalls() {
@@ -70267,13 +70771,13 @@
         this.wallsMeshes.clear();
         let x = Math.floor(-this.width / 2);
         let z = Math.floor(-this.depth / 2);
-        let wallGeometry = new BoxBufferGeometry(0.5, this.height, 0.5);
+        let wallGeometry = new BoxBufferGeometry(0.5, 2, 0.5);
         var cornerWallMesh = new Mesh(wallGeometry, wallMaterial);
         var oppoCornerWallMesh = new Mesh(wallGeometry, wallMaterial);
         cornerWallMesh.matrixAutoUpdate = false;
         oppoCornerWallMesh.matrixAutoUpdate = false;
-        cornerWallMesh.position.set(x, 1, z);
-        oppoCornerWallMesh.position.set(Math.abs(x), 1, Math.abs(z));
+        cornerWallMesh.position.set(x, 0, z);
+        oppoCornerWallMesh.position.set(Math.abs(x), 0, Math.abs(z));
         cornerWallMesh.updateMatrix();
         oppoCornerWallMesh.updateMatrix();
         cornerWallMesh.castShadow = true;
@@ -70286,8 +70790,8 @@
         oppoCornerWallMesh = new Mesh(wallGeometry, wallMaterial);
         cornerWallMesh.matrixAutoUpdate = false;
         oppoCornerWallMesh.matrixAutoUpdate = false;
-        cornerWallMesh.position.set(x, 1, Math.abs(z));
-        oppoCornerWallMesh.position.set(Math.abs(x), 1, z);
+        cornerWallMesh.position.set(x, 0, Math.abs(z));
+        oppoCornerWallMesh.position.set(Math.abs(x), 0, z);
         cornerWallMesh.updateMatrix();
         oppoCornerWallMesh.updateMatrix();
         cornerWallMesh.castShadow = true;
@@ -70297,16 +70801,16 @@
         this.wallsMeshes.add(cornerWallMesh);
         this.wallsMeshes.add(oppoCornerWallMesh);
         for (let i = Math.ceil(-this.depth / 2); i < Math.ceil(this.depth / 2); i++) {
-          wallGeometry = new BoxBufferGeometry(0.5, 1, 1);
+          wallGeometry = new BoxBufferGeometry(0.5, 2, 1);
           if (i === Math.floor(this.depth / 2) || i === Math.ceil(-this.depth / 2)) {
-            wallGeometry = new BoxBufferGeometry(0.5, 1, 1.5);
+            wallGeometry = new BoxBufferGeometry(0.5, 2, 1.5);
           }
           let wallMesh = new Mesh(wallGeometry, wallMaterial);
           let oppoWallMesh = new Mesh(wallGeometry, wallMaterial);
           wallMesh.matrixAutoUpdate = false;
           oppoWallMesh.matrixAutoUpdate = false;
-          wallMesh.position.set(x, 1, i);
-          oppoWallMesh.position.set(Math.abs(x), 1, i);
+          wallMesh.position.set(x, 0, i);
+          oppoWallMesh.position.set(Math.abs(x), 0, i);
           wallMesh.updateMatrix();
           oppoWallMesh.updateMatrix();
           wallMesh.castShadow = true;
@@ -70317,16 +70821,16 @@
           this.wallsMeshes.add(oppoWallMesh);
         }
         for (let i = Math.ceil(-this.width / 2); i < Math.ceil(this.width / 2); i++) {
-          wallGeometry = new BoxBufferGeometry(1, 1, 0.5);
+          wallGeometry = new BoxBufferGeometry(1, 2, 0.5);
           if (i === Math.floor(this.width / 2) || i === Math.ceil(-this.width / 2)) {
-            wallGeometry = new BoxBufferGeometry(1.5, 1, 0.5);
+            wallGeometry = new BoxBufferGeometry(1.5, 2, 0.5);
           }
           let wallMesh = new Mesh(wallGeometry, wallMaterial);
           let oppoWallMesh = new Mesh(wallGeometry, wallMaterial);
           wallMesh.matrixAutoUpdate = false;
           oppoWallMesh.matrixAutoUpdate = false;
-          wallMesh.position.set(i, 1, z);
-          oppoWallMesh.position.set(i, 1, Math.abs(z));
+          wallMesh.position.set(i, 0, z);
+          oppoWallMesh.position.set(i, 0, Math.abs(z));
           wallMesh.updateMatrix();
           oppoWallMesh.updateMatrix();
           wallMesh.castShadow = true;
@@ -70339,38 +70843,10 @@
         this.world.scene.add(this.wallsMeshes);
       }
       generateRooms(count, options = null) {}
-      generateBackground(newColor, stars = true, options = null) {
+      generateBackground(options = null) {
         if (options === null) {
-          for (var i = 0; i < 8000; i++) {
-            var star = new Object3D();
-            star.x = MathUtils$1.randFloat(-200, 200);
-            star.y = MathUtils$1.randFloat(-75, -50);
-            star.z = MathUtils$1.randFloat(-200, 200);
-            star.scale.set(1, 1, 1).multiplyScalar(Math.random());
-            star.updateMatrixWorld();
-            star.velocity = 0;
-            star.acceleration = 0.002;
-            this.stargeometry.vertices.push(star);
-          }
-          let sprite = this.world.assetManager.textures.get('star');
-          let starMaterial = new PointsMaterial({
-            color: 0xaaaaaa,
-            size: 0.7,
-            map: sprite
-          });
-          this.stars = new Points(this.stargeometry, starMaterial);
-          let color;
-          if (newColor) {
-            color = new Color(newColor);
-          } else {
-            color = new Color(0x030303);
-          }
-          this.world.scene.background = new Color(color);
-          if (stars) {
-            this.world.scene.add(this.stars);
-          } else {
-            this.world.scene.remove(this.stars);
-          }
+          this.world.scene.background = this.background;
+          this.world.scene.fog = this.outBoundFog;
         }
       }
       _updateBackground(delta) {
@@ -70386,9 +70862,9 @@
       }
       generateFloor() {
         this.width * this.depth;
-        const floorGeometry = new BoxBufferGeometry(1, 0.5, 1);
+        const floorGeometry = new BoxBufferGeometry(1, 0.2, 1);
         const floorMaterial = new MeshBasicMaterial({
-          map: this.world.assetManager.textures.get('grass1')
+          map: this.world.assetManager.textures.get('SummerGrass')
         });
         this.floorMesh.clear();
         for (let x = -this.width / 2; x <= this.width / 2; x++) {
@@ -70402,6 +70878,25 @@
             this.floorMesh.add(floorMesh);
           }
         }
+        this.grass = new ShaderMaterial({
+          vertexShader,
+          fragmentShader,
+          uniforms: this.uniforms,
+          side: DoubleSide
+        });
+        const instanceNumber = this.width * this.depth * 2;
+        const dummy = new Object3D();
+        const geometry = new PlaneGeometry(0.1, 1, 1, 4);
+        geometry.translate(0, 0.2, 0);
+        const instancedMesh = new InstancedMesh(geometry, this.grass, instanceNumber);
+        for (let i = 0; i < instanceNumber; i++) {
+          dummy.position.set(MathUtils$1.randFloatSpread(this.width), 0, MathUtils$1.randFloatSpread(this.depth));
+          // dummy.position.set(Math.random() * 100 - 50, 0, Math.random() * 100 - 50);
+          dummy.rotation.y = Math.random() * Math.PI;
+          dummy.updateMatrix();
+          instancedMesh.setMatrixAt(i, dummy.matrix);
+        }
+        this.floorMesh.add(instancedMesh);
         this.world.scene.add(this.floorMesh);
       }
       generateLights(options = null, DEBUG = false) {
@@ -70437,6 +70932,10 @@
         this.height = y;
         this.generateFloor();
         this.generateWalls();
+      }
+      animate(delta) {
+        this.grass.uniforms.time.value = delta;
+        this.grass.uniformsNeedUpdate = true;
       }
     }
 
@@ -70647,7 +71146,7 @@
     const direction = new Vector3();
     const target = new Vector3();
     const TWO_PI = Math.PI * 2;
-    class CombatPattern extends State {
+    class CombatPattern extends State$1 {
       constructor() {
         super();
         this.shotsPerSecond = 0.5;
@@ -70781,7 +71280,7 @@
       }
     }
 
-    class MovementPattern extends State {
+    class MovementPattern extends State$1 {
       constructor() {
         super();
         this.speed = 1.5;
@@ -70908,7 +71407,7 @@
 
         // enemies
         const guard = world._createGuard(GUARDTYPE.ASSAULT);
-        // console.log(dumpObject(guard));
+        console.log(dumpObject(guard));
         // console.log(guard);
         guard.position.set(0, 0.5, -4);
         guard.setCombatPattern(new DefaultCombatPattern());
@@ -71571,7 +72070,7 @@
         this.healthPoints = this.MAX_HEALTH_POINTS;
         this.boundingSphere = new BoundingSphere();
         this.boundingSphere.radius = this.boundingRadius;
-        this.stateMachineCombat = new StateMachine(this);
+        this.stateMachineCombat = new StateMachine$1(this);
         this.audios = new Map();
       }
       isPlayer() {
@@ -71690,12 +72189,13 @@
         };
       }
       init() {
-        this.assetManager = new AssetManager();
+        this.assetManager = new AssetManager(this);
         this.assetManager.init().then(() => {
           this._initEnvironment();
           this._initBackground();
           this._initPlayer();
           this._initControls();
+          this.environmentManager.init();
           this._loadStage(this.currentStage);
           this.ui.startScreen.remove();
         });
@@ -71706,7 +72206,8 @@
           this.animationSystem.update(delta);
           this.controls.update(delta);
           this.entityManager.update(delta);
-          this.userInterface.update(delta);
+          // this.userInterface.update(delta);
+          this.environmentManager.animate(delta);
           this._enforceNonPenetrationConstraint();
           this._checkPlayerCollision();
           this._checkPlayerProjectileCollisions();
@@ -71805,9 +72306,10 @@
         this.scene = new Scene();
 
         // player
-        this.playerMesh = this.assetManager.characterModels.get('Android');
+        this.playerMesh = this.assetManager.characterModels.get('Adventurer');
         this.playerMesh.matrixAutoUpdate = false;
         this.scene.add(this.playerMesh);
+        // console.log(dumpObject(this.playerMesh));
 
         // player projectiles
         const playerProjectileGeometry = new PlaneBufferGeometry(0.2, 1);
@@ -71910,22 +72412,20 @@
         this.ui.quitButtonMenu.addEventListener('click', this._onQuit, false);
         this.ui.quitButtonComplete.addEventListener('click', this._onQuit, false);
         this.ui.quitButtonGameOver.addEventListener('click', this._onQuit, false);
-        this.environmentManager.init();
         this.userInterface = new InterfaceManager(this);
       }
       _initBackground(params) {
-        const background_color = new Color(0x030303);
-        this.environmentManager.generateBackground(background_color, true);
+        new Color(0x030303);
+        this.environmentManager.generateBackground();
       }
       _initPlayer() {
         const protectionMesh = this.protectionMesh.clone();
         protectionMesh.material = this.protectionMesh.material.clone(); // cloning a mesh does not clone its material (but we need unique uniforms!)
 
+        const initialWeaponMesh = this.assetManager.weapons.get('FireAxe').clone();
+        // this.playerMesh.add(initialWeaponMesh);
         this.playerMesh.add(protectionMesh);
-        // this.player                = new Player(this, this.playerMesh, this.assetManager.mixers.get('Android'), this.assetManager.animations.get('Android'));
-        // this.player                = new Player(this, this.playerMesh, this.assetManager.mixers.get('Android'),
-        //   this.assetManager.animations.get('Android'));
-        this.player = new Player(this, this.playerMesh, this.assetManager.mixers.get('Android'), this.assetManager.animations.get('Android'));
+        this.player = new Player(this, this.playerMesh, initialWeaponMesh, this.assetManager.mixers.get('Adventurer'), this.assetManager.animations.get('Adventurer'));
         this.player.protectionMesh = protectionMesh;
 
         // particle system

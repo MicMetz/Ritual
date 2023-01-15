@@ -82,6 +82,8 @@ class Player extends MovingEntity {
       console.log(this.mainHand);
       console.log(this.offHand);
 
+      this.weaponState = "idle";
+
       this.weaponDelegateTip            = new Object3D();
       this.weaponDelegate               = new Object3D();
       this.weaponDelegate.position.x    = this.mainHand.x;

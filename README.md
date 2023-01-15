@@ -17,10 +17,8 @@
 * [ ] Basic inventory
 * [ ] Basic item generation
 * [ ] Basic loot system
-* [ ] Basic shop system
-* [ ] Basic leveling system
 * [ ] Character customization
-* [ ] Map system
+* [x] Map system
 * [ ] In scene room transitions
 * [ ] Scene randomization
 * [ ] Bosses
@@ -29,6 +27,11 @@
 
 ## Pictures
 
+![Splash.png](documentation%2FSplash.png)
+
+<br>
+
+![Splash01.png](documentation%2FSplash01.png)
 
 
 <br>

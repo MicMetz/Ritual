@@ -1,5 +1,5 @@
 {
-  "name": "fighton",
+  "name": "ritual",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
@@ -15,14 +15,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/MicMetz/FightOn.git"
+    "url": "git+https://github.com/MicMetz/Ritual.git"
   },
   "author": "MicMetz",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/MicMetz/FightOn/issues"
+    "url": "https://github.com/MicMetz/Ritual/issues"
   },
-  "homepage": "https://github.com/MicMetz/FightOn#readme",
+  "homepage": "https://github.com/MicMetz/Ritual#readme",
   "devDependencies": {
     "@babel/preset-env": "^7.20.2",
     "@babel/preset-flow": "^7.18.6",
