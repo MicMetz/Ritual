@@ -1,4 +1,4 @@
-# FightOn
+# Ritual
 
 ## About The Game
 
