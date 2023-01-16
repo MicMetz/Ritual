@@ -2,6 +2,6 @@ import {Cell} from "yuka";
 
 
 
-class Tile extends Cell {
+class Chunk extends Cell {
 
 }

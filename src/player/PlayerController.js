@@ -3,6 +3,7 @@
  */
 
 import {EventDispatcher, Vector3, Logger, MathUtils} from 'yuka';
+import {PlayerActionController}                      from "./PlayerActionController.js";
 
 
 
@@ -11,14 +12,15 @@ const target    = new Vector3();
 
 
 
-class PlayerControls extends EventDispatcher {
+class PlayerController extends EventDispatcher {
 
    constructor(owner = null, camera = null) {
 
       super();
 
-      this.owner  = owner;
-      this.camera = camera;
+      this.owner            = owner;
+      this.camera           = camera;
+      this.actionController = new PlayerActionController(owner);
 
       this.cameraOffset        = new Vector3(0, 20, 10);
       this.cameraMovementSpeed = 2.5;
@@ -36,6 +38,13 @@ class PlayerControls extends EventDispatcher {
          space    : false,
          mouseDown: false
       };
+
+      this.perspectiveToggle = new Event('perspectiveToggle');
+      this.interactionToggle = new Event('interactionToggle');
+      this.inventoryToggle   = new Event('inventoryToggle');
+      this.reloadToggle      = new Event('reloadToggle');
+      this.equipToggle       = new Event('equipToggle');
+      this.fireToggle        = new Event('fireToggle');
 
       this._mouseUpHandler           = onMouseUp.bind(this);
       this._mouseDownHandler         = onMouseDown.bind(this);
@@ -168,6 +177,7 @@ function onMouseDown(event) {
    if (event.which === 1) {
 
       this.input.mouseDown = true;
+      this.dispatchEvent(this.fireToggle);
 
    }
 
@@ -220,7 +230,7 @@ function onPointerlockChange() {
 
 function onPointerlockError() {
 
-   Logger.warn('YUKA.PlayerControls: Unable to use Pointer Lock API.');
+   Logger.warn('PlayerController: Unable to use Pointer Lock API.');
 
 }
 
@@ -253,6 +263,23 @@ function onKeyDown(event) {
          this.input.space = true;
          break;
 
+      case 82: // r
+         this.dispatchEvent(this.reloadToggle);
+         break;
+
+      case 70: // f
+         this.dispatchEvent(this.equipToggle);
+         break;
+
+      case 69: // e
+         this.dispatchEvent(this.interactionToggle);
+         break;
+
+      case 73: // i
+         this.dispatchEvent(this.inventoryToggle);
+         break;
+
+
    }
 
 }
@@ -284,9 +311,10 @@ function onKeyUp(event) {
 
       case 32: // space
          this.input.space = false;
+         break;
    }
 
 }
 
 
-export {PlayerControls};
+export {PlayerController};

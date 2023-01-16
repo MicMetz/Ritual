@@ -11,15 +11,15 @@ import {
 import * as THREE                    from 'three';
 import * as YUKA                     from 'yuka';
 import {Weapon}                      from "../weapons/Weapon.js";
-import {AssetManager}                from './AssetManager.js';
-import {PlayerControls}              from '../player/PlayerControls.js';
-import {Player}                      from '../player/Player.js';
+import {AssetManager}     from './AssetManager.js';
+import {PlayerController} from '../player/PlayerController.js';
+import {Player}           from '../player/Player.js';
 import {Guard}                       from '../entities/Guard.js';
 import {Pursuer}                     from '../entities/Pursuer.js';
 import {ProtectionShader, HitShader} from '../etc/Shaders.js';
-import {PursuerGeometry}    from '../patterns/PursuerGeometry.js';
-import {AnimationSystem}    from '../system/AnimationSystem.js';
-import {EnvironmentManager} from "./EnvironmentManager.js";
+import {PursuerGeometry}             from '../patterns/PursuerGeometry.js';
+import {AnimationSystem}             from '../system/AnimationSystem.js';
+import {EnvironmentManager}          from "./EnvironmentManager.js";
 import {InterfaceManager}            from "./InterfaceManager.js";
 import {SceneManager}                from './SceneManager.js';
 import {Tower}                       from '../entities/Tower.js';
@@ -496,7 +496,7 @@ class World {
 
    _initControls() {
 
-      this.controls = new PlayerControls(this.player, this.camera);
+      this.controls = new PlayerController(this.player, this.camera);
       this.controls.setPosition(new YUKA.Vector3(0, 0, 0));
 
       this.controls.addEventListener('lock', () => {
