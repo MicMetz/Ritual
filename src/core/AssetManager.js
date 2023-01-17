@@ -169,6 +169,13 @@ class AssetManager {
          textures.set('woodFloor', texture);
       });
 
+      textureLoader.load('./textures/carbon/Grass.png', (texture) => {
+         texture.repeat.x = 1;
+         texture.repeat.y = 1;
+
+         textures.set('Grass', texture);
+      });
+
       textureLoader.load('./textures/Summer_Grass_A.png', (texture) => {
          texture.repeat.x = 1;
          texture.repeat.y = 1;
@@ -220,6 +227,14 @@ class AssetManager {
          texture.repeat.y = 1;
 
          textures.set('rocks', texture);
+      });
+
+      textureLoader.load('./textures/carbon/Flowers.png', (texture) => {
+         texture.repeat.x = 1;
+         texture.repeat.y = 1;
+         texture.wrapS    = THREE.RepeatWrapping;
+
+         textures.set('flowers', texture);
       });
 
       // Tree Bark

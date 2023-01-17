@@ -4,7 +4,7 @@
 
 
 import {
-   Color, Geometry, Group, Object3D, Points, PointsMaterial, MathUtils, BoxBufferGeometry, MeshLambertMaterial, Mesh, AmbientLight, DirectionalLight, CameraHelper, MeshBasicMaterial, Fog, PlaneGeometry, InstancedMesh, DoubleSide, ShaderMaterial, PlaneBufferGeometry
+   Color, Geometry, Group, Object3D, Points, PointsMaterial, MathUtils, BoxBufferGeometry, MeshLambertMaterial, Mesh, AmbientLight, DirectionalLight, CameraHelper, MeshBasicMaterial, Fog, PlaneGeometry, InstancedMesh, DoubleSide, ShaderMaterial, PlaneBufferGeometry, BufferGeometry
 }                         from "three";
 import {MeshToonMaterial} from "three";
 import * as YUKA          from "yuka";
@@ -272,8 +272,11 @@ class EnvironmentManager {
 
    generateFloor() {
       this.floorMesh.clear();
+
       const floorGeometry = new PlaneBufferGeometry(this.width, this.depth, 1, 1);
-      this.grass          = new MeshLambertMaterial({map: this.world.assetManager.textures.get('SummerGrass')});
+      const grass         = new MeshLambertMaterial({map: this.world.assetManager.textures.get('Grass')});
+      const summerGrass         = new MeshLambertMaterial({map: this.world.assetManager.textures.get('SummerGrass')});
+      const leaves        = new MeshLambertMaterial({map: this.world.assetManager.textures.get('BushLeaves')});
       // var floorMaterials           = {};
       // floorMaterials['grass']      = new MeshLambertMaterial({map: this.world.assetManager.textures.get('SummerGrass')});
       // floorMaterials['dirt']       = new MeshLambertMaterial({map: this.world.assetManager.textures.get('SummerDirt')});
@@ -281,7 +284,7 @@ class EnvironmentManager {
       // floorMaterials['mud']        = new MeshLambertMaterial({map: this.world.assetManager.textures.get('SummerMud')});
       // floorMaterials['bushLeaves'] = new MeshLambertMaterial({map: this.world.assetManager.textures.get('BushLeaves')});
 
-      var material        = new MeshToonMaterial({color: 0x336633});
+      var material        = new MeshToonMaterial({map: this.world.assetManager.textures.get('Grass')});
       var plane           = new Mesh(floorGeometry, material);
       plane.rotation.x    = -1 * Math.PI / 2;
       plane.position.y    = 0.1;
@@ -294,26 +297,39 @@ class EnvironmentManager {
          vertexShader, fragmentShader, uniforms: this.uniforms, side: DoubleSide
       });
 
-      const instanceNumber = 1000000;
+      const instanceNumber = 1800000;
       const dummy          = new Object3D();
 
-      const grassGeometry = new PlaneGeometry(0.1, 1.5, 1, 4);
+      const grassGeometry = new PlaneGeometry(0.1, 2, 1, 2);
       grassGeometry.translate(0, 0.2, 0);
 
-      const instancedMesh = new InstancedMesh(grassGeometry, this.grass, instanceNumber);
+      const leavesGeometry = new PlaneGeometry(0.2, 0.1, 2, 1);
+
+      const grassMesh  = new InstancedMesh(grassGeometry, leaves, instanceNumber);
+      const leavesMesh = new InstancedMesh(leavesGeometry, leaves, instanceNumber);
+
+      const grassInstancedMesh = new InstancedMesh(grassGeometry, this.grass, instanceNumber);
+      grassInstancedMesh.name  = 'Grass';
+
+      const leavesInstancedMesh = new InstancedMesh(leavesGeometry, leaves, instanceNumber);
+      leavesInstancedMesh.name  = 'Leaves';
 
       for (let i = 0; i < instanceNumber; i++) {
 
-         dummy.position.set(MathUtils.randFloatSpread(500), 0, MathUtils.randFloatSpread(500));
+         dummy.position.set(MathUtils.randFloatSpread(150), 0, MathUtils.randFloatSpread(150));
          dummy.rotation.y = Math.random() * Math.PI;
          dummy.updateMatrix();
+         grassInstancedMesh.setMatrixAt(i, dummy.matrix);
 
-         instancedMesh.setMatrixAt(i, dummy.matrix);
+         // dummy.position.set(MathUtils.randFloatSpread(500), 0, MathUtils.randFloatSpread(500));
+         // dummy.updateMatrix();
+         // leavesInstancedMesh.setMatrixAt(i, dummy.matrix);
 
       }
 
       this.floorMesh.add(plane);
-      this.floorMesh.add(instancedMesh);
+      this.floorMesh.add(grassInstancedMesh);
+      this.floorMesh.add(leavesInstancedMesh);
       this.world.scene.add(this.floorMesh);
 
    }

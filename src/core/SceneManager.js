@@ -114,6 +114,20 @@ class SceneManager {
       guard.setMovementPattern(new LeftRightMovementPattern());
       world.addGuard(guard);
 
+      const pursuer = world._createPursuer();
+
+      const x = -5 + (1 % 4) * 3;
+      const z = -4 + Math.floor(1 / 4) * 3;
+
+      pursuer.position.set(x, 0, z);
+
+      const combatPattern                   = new FocusCombatPattern();
+      combatPattern.shotsPerSecond          = 0.25 + Math.random() * 0.75;
+      combatPattern.destructibleProjectiles = 1;
+      pursuer.setCombatPattern(combatPattern);
+      pursuer.setMovementPattern(new PursuitBehaviorMovementPattern());
+
+      world.addPursuer(pursuer);
    }
 
 
