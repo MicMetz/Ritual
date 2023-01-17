@@ -10,7 +10,7 @@ import {Vector3} from "yuka";
 
 class FogController {
    constructor(world) {
-      this._world     = world;
+      this.world     = world;
       this.playerFog  = null;
       this.boundryFog = null;
 
@@ -61,28 +61,28 @@ class FogController {
 
    startPlayerFog() {
 
-      const near  = this._world.player.position;
-      const far   = this._world.player.radius;
+      const near  = this.world.player.position;
+      const far   = this.world.player.radius;
 
       this.playerFog = new Fog('add8e6', near, 2);
       console.log(this.playerFog);
-      this._world.scene.fog = this.playerFog;
+      this.world.scene.fog = this.playerFog;
 
-      // this._world.playerMesh.fog(this.playerFog);
+      // world.playerMesh.fog(this.playerFog);
 
    }
 
 
    startBoundryFog() {
 
-      const vector = this._world.field;
+      const vector = this.world.field;
 
       const near = 1;
       const far  = 20;
 
       this.boundryFog = new Fog('add8e6', near, far);
-      // this._world.scene.background('add8e6');
-      // this._world.scene.fog(this.boundryFog);
+      // world.scene.background('add8e6');
+      // world.scene.fog(this.boundryFog);
 
    }
 

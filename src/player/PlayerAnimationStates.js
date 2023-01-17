@@ -3,12 +3,12 @@
  */
 
 import {LoopOnce}   from "three";
-import State        from "./State.js";
-import StateMachine from "./StateMachine.js";
+import PlayerState        from "./PlayerState.js";
+import {PlayerStateMachine} from "./PlayerStateMachine.js";
 
 
 
-export class PlayerProxy extends StateMachine {
+export class PlayerProxy extends PlayerStateMachine {
    constructor(proxy) {
       super()
 
@@ -31,7 +31,7 @@ export class PlayerProxy extends StateMachine {
 
 
 
-class IdleState extends State {
+class IdleState extends PlayerState {
    constructor(parent) {
       super(parent);
    }
@@ -107,7 +107,7 @@ class IdleState extends State {
 
 
 
-class RespawnState extends State {
+class RespawnState extends PlayerState {
    constructor(parent) {
       super(parent);
       this.finishedCallback = () => {
@@ -165,7 +165,7 @@ class RespawnState extends State {
 
 
 
-class DeathState extends State {
+class DeathState extends PlayerState {
    constructor(parent) {
       super(parent);
       this.finishedCallback = () => {
@@ -230,7 +230,7 @@ class DeathState extends State {
 
 
 
-class WalkState extends State {
+class WalkState extends PlayerState {
    constructor(parent) {
       super(parent);
    }
@@ -325,7 +325,7 @@ class WalkState extends State {
 
 
 
-class RunState extends State {
+class RunState extends PlayerState {
    constructor(parent) {
       super(parent);
    }
@@ -408,7 +408,7 @@ class RunState extends State {
 
 
 
-class RunLeftState extends State {
+class RunLeftState extends PlayerState {
    constructor(parent) {
       super(parent);
    }
@@ -494,7 +494,7 @@ class RunLeftState extends State {
 
 
 
-class RunRightState extends State {
+class RunRightState extends PlayerState {
    constructor(parent) {
       super(parent);
    }
@@ -576,7 +576,7 @@ class RunRightState extends State {
 
 
 
-class RunBackState extends State {
+class RunBackState extends PlayerState {
    constructor(parent) {
       super(parent);
    }
@@ -658,7 +658,7 @@ class RunBackState extends State {
 
 
 
-class ShootAttackState extends State {
+class ShootAttackState extends PlayerState {
    constructor(parent) {
       super(parent);
 
@@ -728,7 +728,7 @@ class ShootAttackState extends State {
 
 
 
-class MeleeAttackState extends State {
+class MeleeAttackState extends PlayerState {
    constructor(parent) {
       super(parent);
       this.finishedCallback = () => {
@@ -794,7 +794,7 @@ class MeleeAttackState extends State {
 
 
 
-class RollState extends State {
+class RollState extends PlayerState {
    constructor(parent) {
       super(parent);
       this.finishedCallback = () => {
@@ -861,7 +861,7 @@ class RollState extends State {
 
 
 
-class StunState extends State {
+class StunState extends PlayerState {
    constructor(parent) {
       super(parent);
       this.finishedCallback = () => {

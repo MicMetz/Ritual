@@ -23,7 +23,7 @@ class Item extends GameEntity {
    constructor(world, name, type, parent, active, triggers, description, position, rotation) {
       super();
 
-      this._world    = world;
+      this.world    = world;
       this._type     = type ? type : 'unknown';
       this._parent   = parent ? parent : null;
       this._active   = active ? active : false;

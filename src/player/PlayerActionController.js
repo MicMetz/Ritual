@@ -3,7 +3,19 @@ import {AudioLoader, AudioListener, Raycaster} from "three";
 
 
 class PlayerActionController {
-
+   /**
+    * @description  A controller for the player action events that interact with the game world,
+    *    amd are triggered by the player input.
+    *    This controller is responsible for dispatching the events to the appropriate handlers.
+    *
+    *    VisionHandler - handles the player perspective toggle and fog of war.
+    *    InteractionHandler - handles the player interaction with items found within the game world.
+    *    InventoryHandler - handles the player inventory and item management.
+    *    WeaponHandler - handles the player weapon management and firing.
+    *    HitMarkerHandler - handles the player hit marker display.
+    *
+    * @param owner
+    */
    constructor(owner) {
       this.owner         = owner;
       this.audioLoader   = new AudioLoader();
@@ -28,7 +40,9 @@ class PlayerActionController {
    }
 
 
+
    connect() {
+
       document.addEventListener('perspectiveToggle', this.perspectiveHandler, false);
       document.addEventListener('interactionToggle', this.interactionHandler, false);
       document.addEventListener('inventoryToggle', this.inventoryHandler, false);
@@ -87,6 +101,7 @@ class PlayerActionController {
 
 
 }
+
 
 
 export {PlayerActionController};

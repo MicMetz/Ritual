@@ -1,12 +1,12 @@
 import {GameEntity} from "yuka";
+import {world}      from "../core/World.js";
 
 
 
 class Collectible extends GameEntity {
 
-   constructor(world) {
+   constructor() {
       super();
-      this.world = world;
       this.mesh  = null;
    }
 

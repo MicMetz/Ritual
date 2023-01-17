@@ -3,8 +3,9 @@
  * original {@link https://github.com/Mugen87|Mugen87}
  */
 
-import * as THREE from 'three';
-import { Vector3 } from 'yuka';
+import {BufferAttribute, BufferGeometry, DynamicDrawUsage, Points, ShaderMaterial, TextureLoader} from "three";
+import * as THREE                                                                                 from 'three';
+import { Vector3 }        from 'yuka';
 
 import { ParticleShader } from '../etc/Shaders.js';
 
@@ -54,37 +55,37 @@ class ParticleSystem {
 
 		this.maxParticles = maxParticles;
 
-		const loader = new THREE.TextureLoader();
+		const loader = new TextureLoader();
 		const map = loader.load( './textures/quad.png' );
 
-		const material = new THREE.ShaderMaterial( ParticleShader );
+		const material = new ShaderMaterial( ParticleShader );
 		material.uniforms.map.value = map;
 		material.transparent = true;
 		material.depthWrite = false;
 
-		const geometry = new THREE.BufferGeometry();
+		const geometry = new BufferGeometry();
 
-		const positionAttribute = new THREE.BufferAttribute( new Float32Array( 3 * maxParticles ), 3 );
-		positionAttribute.setUsage( THREE.DynamicDrawUsage );
+		const positionAttribute = new BufferAttribute( new Float32Array( 3 * maxParticles ), 3 );
+		positionAttribute.setUsage( DynamicDrawUsage );
 		geometry.setAttribute( 'position', positionAttribute );
 
-		const opacityAttribute = new THREE.BufferAttribute( new Float32Array( maxParticles ), 1 );
-		opacityAttribute.setUsage( THREE.DynamicDrawUsage );
+		const opacityAttribute = new BufferAttribute( new Float32Array( maxParticles ), 1 );
+		opacityAttribute.setUsage( DynamicDrawUsage );
 		geometry.setAttribute( 'opacity', opacityAttribute );
 
-		const sizeAttribute = new THREE.BufferAttribute( new Uint8Array( maxParticles ), 1 );
-		sizeAttribute.setUsage( THREE.DynamicDrawUsage );
+		const sizeAttribute = new BufferAttribute( new Uint8Array( maxParticles ), 1 );
+		sizeAttribute.setUsage( DynamicDrawUsage );
 		geometry.setAttribute( 'size', sizeAttribute );
 
-		const angleAttribute = new THREE.BufferAttribute( new Float32Array( maxParticles ), 1 );
-		angleAttribute.setUsage( THREE.DynamicDrawUsage );
+		const angleAttribute = new BufferAttribute( new Float32Array( maxParticles ), 1 );
+		angleAttribute.setUsage( DynamicDrawUsage );
 		geometry.setAttribute( 'angle', angleAttribute );
 
-		const tAttribute = new THREE.BufferAttribute( new Float32Array( maxParticles ), 1 );
-		tAttribute.setUsage( THREE.DynamicDrawUsage );
+		const tAttribute = new BufferAttribute( new Float32Array( maxParticles ), 1 );
+		tAttribute.setUsage( DynamicDrawUsage );
 		geometry.setAttribute( 't', tAttribute );
 
-		this._points = new THREE.Points( geometry, material );
+		this._points = new Points( geometry, material );
 
 		return this;
 

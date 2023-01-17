@@ -6,13 +6,13 @@ import * as YUKA                                                                
 
 class Room {
    constructor(world, params, mapType) {
-      this._world   = world;
-      this._tiles   = new Group();
-      this._props   = [];
+      this.world         = world;
+      this._tiles        = new Group();
+      this._props        = [];
       this._collectibles = [];
-      this._enemies = [];
-      this.bossRoom = false;
-      this.exitRoom = false;
+      this._enemies      = [];
+      this.bossRoom      = false;
+      this.exitRoom      = false;
 
       switch (params.type) {
          case 'normal': {
@@ -75,7 +75,7 @@ class Room {
       this.fieldMesh.position.set(0, -0.5, 0);
       this.fieldMesh.updateMatrix();
       this.fieldMesh.receiveShadow = true;
-      this._world.scene.add(this.fieldMesh);
+      this.world.scene.add(this.fieldMesh);
    }
 
 
@@ -107,7 +107,7 @@ class Room {
             }
          }
       }
-      this._world.scene.add(this.wallsMeshes);
+      this.world.scene.add(this.wallsMeshes);
    }
 
 
@@ -115,7 +115,7 @@ class Room {
       // lights
       const ambientLight            = new AmbientLight(0xcccccc, 0.4);
       ambientLight.matrixAutoUpdate = false;
-      this._world.scene.add(ambientLight);
+      this.world.scene.add(ambientLight);
 
       const dirLight = new DirectionalLight(0xffffff, 0.6);
       dirLight.position.set(1, 10, -1);
@@ -131,7 +131,7 @@ class Room {
       dirLight.shadow.mapSize.x     = 2048;
       dirLight.shadow.mapSize.y     = 2048;
       dirLight.shadow.bias          = 0.01;
-      this._world.scene.add(dirLight);
+      this.world.scene.add(dirLight);
    }
 
 
@@ -143,7 +143,7 @@ class Room {
       this.obstacleMesh               = new InstancedMesh(obtacleGeometry, obtacleMaterial, this.maxObstacles);
       this.obstacleMesh.frustumCulled = false;
       this.obstacleMesh.castShadow    = true;
-      this._world.scene.add(this.obstacleMesh);
+      this.world.scene.add(this.obstacleMesh);
    }
 
 

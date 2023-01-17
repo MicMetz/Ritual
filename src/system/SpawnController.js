@@ -2,7 +2,7 @@ class SpawnController {
 
    constructor(world) {
 
-      this._world   = world;
+      this.world   = world;
       this.spawners = [];
 
 

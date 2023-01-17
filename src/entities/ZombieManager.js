@@ -1,10 +1,10 @@
+import {world}  from "../core/World.js";
 import {Zombie} from './enemies/Zombie.js';
 
 
 
 class ZombieManager {
-   constructor(world, zombieContainer) {
-      this.world   = world;
+   constructor(zombieContainer) {
       this.zombies = zombieContainer;
       this.count   = 0;
    }
@@ -17,7 +17,7 @@ class ZombieManager {
 
 
     addZombie(position) {
-       let zombie = new Zombie(this.world, position);
+       let zombie = new Zombie(position);
        this.zombies.push(zombie);
        return zombie;
     }

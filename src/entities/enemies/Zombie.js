@@ -1,5 +1,6 @@
 import {AnimationMixer}               from "three";
 import {BoundingSphere, StateMachine} from "yuka";
+import {world}                        from "../../core/World.js";
 import {ZOMBIETYPE}                   from "../../etc/Utilities.js";
 import Enemy                          from "./Enemy.js";
 
@@ -8,14 +9,12 @@ import Enemy                          from "./Enemy.js";
 class Zombie extends Enemy {
    /**
     * Zombie Enemy type.
-    * @param world
     * @param type
     */
-   constructor(world, type = ZOMBIETYPE.NORMAL) {
+   constructor(type = ZOMBIETYPE.NORMAL) {
       super(type);
 
-      this.world      = world;
-      this.bodyMesh   = this.world.assetManager.enemyModels.get(type).clone();
+      this.bodyMesh   = world.assetManager.enemyModels.get(type).clone();
       this.zombieType = type;
 
       // Animations
@@ -71,7 +70,7 @@ class Zombie extends Enemy {
 
 
    updateHitEffect(delta) {
-      if (this.hitted && this._hideHitEffectTime < this.world.time) {
+      if (this.hitted && this._hideHitEffectTime < world.time) {
          this.disableHitEffect();
       }
    }

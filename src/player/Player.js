@@ -6,11 +6,11 @@ import {AABB, MathUtils, MovingEntity, OBB, Ray, Vector3, Vision} from 'yuka';
 import {Particle, ParticleSystem}                                 from '../system/ParticleSystem.js';
 import {WeaponSystem}                                             from "../weapons/WeaponSystem.js";
 import {Weapon}                                                   from "../weapons/Weapon.js";
-import StateMachine                                               from "./StateMachine.js";
-import PlayerControllerProxy                                      from "./PlayerControllerProxy.js";
+import {PlayerStateMachine}                                       from "./PlayerStateMachine.js";
+import {PlayerControllerProxy}                                    from "./PlayerControllerProxy.js";
 import {PlayerProjectile}                                         from './PlayerProjectile.js';
 import {EventDispatcher, Object3D, Raycaster}                     from 'three';
-import {PlayerProxy}                                              from "./PlayerStates.js";
+import {PlayerProxy}                                              from "./PlayerAnimationStates.js";
 
 
 

@@ -107,4 +107,24 @@ class WeaponManager {
       return this.targetWeaponPositions.length === 0 && this.targetWeaponRotations.length === 0;
    }
 
+
+   setRay(ray) {
+      this.ray = ray
+   }
+
+
+   setWeapon(weapon) {
+      this.weapon = weapon
+   }
+
+
+   setChest(chest) {
+      this.chest = chest;
+   }
+
+
+   setRightHand(rightHand) {
+      this.rightHand = rightHand;
+   }
+
 }

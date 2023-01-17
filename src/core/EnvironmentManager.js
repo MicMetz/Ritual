@@ -9,7 +9,8 @@ import {
    CameraHelper, MeshBasicMaterial, Fog, PlaneGeometry, InstancedMesh, DoubleSide, ShaderMaterial
 }                      from "three";
 import * as YUKA       from "yuka";
-import {FogController} from "../environment/FogController.js";
+import {FogController}    from "../environment/FogController.js";
+import {Terrain} from "../environment/terrain/Terrain.js";
 
 
 
@@ -62,6 +63,8 @@ class EnvironmentManager {
       this.props          = [];
       this.environmentmap = new Map();
 
+      // this.terrain       = terrain;
+      this.terrain       = null;
       this.floorMesh     = new Group();
       this.wallsMeshes   = new Group();
       this.background    = new Color('black');
@@ -105,6 +108,7 @@ class EnvironmentManager {
 
       this.width = this.world.field.x;
       this.depth = this.world.depth;
+      this.terrain       = new Terrain(this.world);
 
       this.generateBackground(0x030303);
       this.generateLights(null, true);

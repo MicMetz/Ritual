@@ -4,16 +4,16 @@ import {Enemy} from "./Enemy.js";
 
 
 class Humanoid extends Enemy {
-   constructor(world) {
-      super(world);
+   constructor() {
+      super();
       this.maxSpeed              = 2;
       this.MAX_HEALTH_POINTS     = 1;
       this.healthPoints          = this.MAX_HEALTH_POINTS;
       this.boundingRadius        = 0.5;
       this.boundingSphere        = new BoundingSphere();
       this.boundingSphere.radius = this.boundingRadius;
-      this.stateMachineMovement  = new StateMachine(this);
-      this.stateMachineCombat    = new StateMachine(this);
+      this.stateMachineMovement  = new PlayerStateMachine(this);
+      this.stateMachineCombat    = new PlayerStateMachine(this);
       this.audios                = new Map();
    }
 

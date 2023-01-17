@@ -30,11 +30,13 @@ class InterfaceManager {
 
       this.ui = {
          userInterface: document.getElementById("user-interface"),
+         uiCrosshair  : document.getElementById("uiCrosshair"),
          uiMinimap    : document.getElementById("uiMinimap"),
          uiTimer      : document.getElementById("uiTimer"),
          uiHealth     : document.getElementById("uiHealth"),
          uiAmmo       : document.getElementById("uiAmmo"),
          uiNade       : document.getElementById("uiNadeList"),
+         crosshair    : document.getElementById("crosshair"),
          timer        : document.getElementById("timer"),
          ammo         : document.getElementById("ammo"),
          ammoRemaining: document.getElementById("ammoRemaining"),

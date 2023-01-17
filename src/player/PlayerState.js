@@ -2,7 +2,7 @@
  * @author MicMetzger /
  */
 
-class State {
+class PlayerState {
    constructor(parent) {
       this._parent = parent
    }
@@ -20,4 +20,4 @@ class State {
 
 
 
-export default State;
+export default PlayerState;

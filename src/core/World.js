@@ -11,9 +11,9 @@ import {
 import * as THREE                    from 'three';
 import * as YUKA                     from 'yuka';
 import {Weapon}                      from "../weapons/Weapon.js";
-import {AssetManager}     from './AssetManager.js';
-import {PlayerController} from '../player/PlayerController.js';
-import {Player}           from '../player/Player.js';
+import {AssetManager}                from './AssetManager.js';
+import {PlayerController}            from '../player/PlayerController.js';
+import {Player}                      from '../player/Player.js';
 import {Guard}                       from '../entities/Guard.js';
 import {Pursuer}                     from '../entities/Pursuer.js';
 import {ProtectionShader, HitShader} from '../etc/Shaders.js';
@@ -29,7 +29,9 @@ import {dumpObject, GUARDTYPE}       from '../etc/Utilities.js';
 
 export function start() {
 
+
    const game = new World();
+
    game.init();
 
 }
@@ -348,7 +350,7 @@ class World {
 
 
       // player
-      this.playerMesh                  = this.assetManager.characterModels.get('Adventurer');
+      this.playerMesh                  = this.assetManager.characterModels.get('Android');
       this.playerMesh.matrixAutoUpdate = false;
       this.scene.add(this.playerMesh);
       // console.log(dumpObject(this.playerMesh));
@@ -468,8 +470,8 @@ class World {
       const initialWeaponMesh = this.assetManager.weapons.get('FireAxe').clone();
       // this.playerMesh.add(initialWeaponMesh);
       this.playerMesh.add(protectionMesh)
-      this.player                = new Player(this, this.playerMesh, initialWeaponMesh, this.assetManager.mixers.get('Adventurer'),
-        this.assetManager.animations.get('Adventurer'));
+      this.player                = new Player(this, this.playerMesh, initialWeaponMesh, this.assetManager.mixers.get('Android'),
+        this.assetManager.animations.get('Android'));
       this.player.protectionMesh = protectionMesh
 
       // particle system
@@ -1458,3 +1460,4 @@ function stopAnimation() {
 
 
 export default new World();
+// export {world};

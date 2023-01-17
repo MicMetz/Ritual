@@ -17,4 +17,4 @@ class PlayerControllerProxy {
 
 
 
-export default PlayerControllerProxy
+export {PlayerControllerProxy}
