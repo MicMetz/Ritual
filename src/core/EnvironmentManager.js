@@ -4,13 +4,12 @@
 
 
 import {
-   Color, Geometry, Group, Object3D, Points, PointsMaterial, MathUtils,
-   BoxBufferGeometry, MeshLambertMaterial, Mesh, AmbientLight, DirectionalLight,
-   CameraHelper, MeshBasicMaterial, Fog, PlaneGeometry, InstancedMesh, DoubleSide, ShaderMaterial
-}                      from "three";
-import * as YUKA       from "yuka";
+   Color, Geometry, Group, Object3D, Points, PointsMaterial, MathUtils, BoxBufferGeometry, MeshLambertMaterial, Mesh, AmbientLight, DirectionalLight, CameraHelper, MeshBasicMaterial, Fog, PlaneGeometry, InstancedMesh, DoubleSide, ShaderMaterial, PlaneBufferGeometry
+}                         from "three";
+import {MeshToonMaterial} from "three";
+import * as YUKA          from "yuka";
 import {FogController}    from "../environment/FogController.js";
-import {Terrain} from "../environment/terrain/Terrain.js";
+import {Terrain}          from "../environment/terrain/Terrain.js";
 
 
 
@@ -87,15 +86,10 @@ class EnvironmentManager {
       this.stars        = new Points();
 
       this._options = {
-         type       : 'default',
-         constraints: {
-            minX: 0,
-            maxX: 0,
-            x   : 0,
+         type: 'default', constraints: {
+            minX: 0, maxX: 0, x: 0,
 
-            minZ: 0,
-            maxZ: 0,
-            z   : 0
+            minZ: 0, maxZ: 0, z: 0
          },
 
 
@@ -107,13 +101,13 @@ class EnvironmentManager {
    init() {
 
       this.width = this.world.field.x;
-      this.depth = this.world.depth;
-      this.terrain       = new Terrain(this.world);
+      this.depth = this.world.field.z;
+      // this.terrain       = new Terrain(this.world);
 
       this.generateBackground(0x030303);
       this.generateLights(null, true);
       this.generateFloor();
-      this.generateWalls();
+      // this.generateWalls();
       this.fogController = new FogController(this.world);
 
    }
@@ -129,8 +123,10 @@ class EnvironmentManager {
       let wallMaterial = new MeshLambertMaterial({color: 0x8e8e8e});
       this.wallsMeshes.clear();
 
-      let x = Math.floor(-this.width / 2);
-      let z = Math.floor(-this.depth / 2);
+      // let x = Math.floor(-this.width / 2);
+      // let z = Math.floor(-this.depth / 2);
+      let x = this.width;
+      let z = this.depth;
 
       let wallGeometry       = new BoxBufferGeometry(0.5, 2, 0.5);
       var cornerWallMesh     = new Mesh(wallGeometry, wallMaterial);
@@ -275,41 +271,40 @@ class EnvironmentManager {
 
 
    generateFloor() {
-      const totalcells    = this.width * this.depth;
-      const floorGeometry = new BoxBufferGeometry(1, 0.2, 1);
-      const floorMaterial = new MeshBasicMaterial({map: this.world.assetManager.textures.get('SummerGrass')});
       this.floorMesh.clear();
-      for (let x = -this.width / 2; x <= this.width / 2; x++) {
-         for (let z = -this.depth / 2; z <= this.depth / 2; z++) {
-            const floorMesh            = new Mesh(floorGeometry, floorMaterial);
-            floorMesh.matrixAutoUpdate = false;
-            floorMesh.position.set(x, 0, z);
-            floorMesh.updateMatrix();
-            floorMesh.castShadow    = true;
-            floorMesh.receiveShadow = true;
-            this.floorMesh.add(floorMesh);
-         }
-      }
+      const floorGeometry = new PlaneBufferGeometry(this.width, this.depth, 1, 1);
+      this.grass          = new MeshLambertMaterial({map: this.world.assetManager.textures.get('SummerGrass')});
+      // var floorMaterials           = {};
+      // floorMaterials['grass']      = new MeshLambertMaterial({map: this.world.assetManager.textures.get('SummerGrass')});
+      // floorMaterials['dirt']       = new MeshLambertMaterial({map: this.world.assetManager.textures.get('SummerDirt')});
+      // floorMaterials['moss']       = new MeshLambertMaterial({map: this.world.assetManager.textures.get('SummerMoss')});
+      // floorMaterials['mud']        = new MeshLambertMaterial({map: this.world.assetManager.textures.get('SummerMud')});
+      // floorMaterials['bushLeaves'] = new MeshLambertMaterial({map: this.world.assetManager.textures.get('BushLeaves')});
+
+      var material        = new MeshToonMaterial({color: 0x336633});
+      var plane           = new Mesh(floorGeometry, material);
+      plane.rotation.x    = -1 * Math.PI / 2;
+      plane.position.y    = 0.1;
+      plane.receiveShadow = true;
+      plane.castShadow    = false;
+      // plane.matrixAutoUpdate = false;
+      plane.name          = 'Ground';
 
       this.grass = new ShaderMaterial({
-         vertexShader,
-         fragmentShader,
-         uniforms: this.uniforms,
-         side    : DoubleSide
+         vertexShader, fragmentShader, uniforms: this.uniforms, side: DoubleSide
       });
 
-      const instanceNumber = this.width * this.depth * 2;
+      const instanceNumber = 1000000;
       const dummy          = new Object3D();
 
-      const geometry = new PlaneGeometry(0.1, 1, 1, 4);
-      geometry.translate(0, 0.2, 0);
+      const grassGeometry = new PlaneGeometry(0.1, 1.5, 1, 4);
+      grassGeometry.translate(0, 0.2, 0);
 
-      const instancedMesh = new InstancedMesh(geometry, this.grass, instanceNumber);
+      const instancedMesh = new InstancedMesh(grassGeometry, this.grass, instanceNumber);
 
       for (let i = 0; i < instanceNumber; i++) {
 
-         dummy.position.set(MathUtils.randFloatSpread(this.width), 0, MathUtils.randFloatSpread(this.depth));
-         // dummy.position.set(Math.random() * 100 - 50, 0, Math.random() * 100 - 50);
+         dummy.position.set(MathUtils.randFloatSpread(500), 0, MathUtils.randFloatSpread(500));
          dummy.rotation.y = Math.random() * Math.PI;
          dummy.updateMatrix();
 
@@ -317,6 +312,7 @@ class EnvironmentManager {
 
       }
 
+      this.floorMesh.add(plane);
       this.floorMesh.add(instancedMesh);
       this.world.scene.add(this.floorMesh);
 
@@ -365,12 +361,14 @@ class EnvironmentManager {
 
    update(x, y, z) {
 
+      if (x === this.width && y === this.height && z === this.depth) return;
+
       this.width  = x;
       this.depth  = z;
       this.height = y;
 
       this.generateFloor();
-      this.generateWalls();
+      // this.generateWalls();
 
    }
 

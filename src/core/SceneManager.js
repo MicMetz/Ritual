@@ -95,7 +95,11 @@ class SceneManager {
       const world = this.world;
 
       // field
-      world.environmentManager.update(15, 1, 15);
+      // world.environmentManager.update(15, 1, 15);
+      world.field.x = 10000;
+      world.field.y = 1;
+      world.field.z = 10000;
+      world.environmentManager.update(10000, 1, 10000);
 
       // controls
       world.controls.setPosition(0, 0.5, 5);

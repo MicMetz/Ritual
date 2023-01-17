@@ -63,7 +63,7 @@ class World {
       this.stargeometry       = new Geometry();
       this.stars              = new Points();
 
-      this.field = new YUKA.Vector3(16, 1, 16);
+      this.field = new YUKA.Vector3(10000, 1, 10000);
 
       this.wall        = new YUKA.Vector3(0.5, 1, 0.5);
       this.wallsMeshes = new Group();
@@ -190,6 +190,9 @@ class World {
       this.guards.push(guard);
       this.entityManager.add(guard);
 
+      if (_DEBUG_) {
+         guard.visible = false;
+      }
       this.scene.add(guard._renderComponent);
 
    }
@@ -234,6 +237,7 @@ class World {
 
       this.scene.add(tower._renderComponent);
 
+
    }
 
 
@@ -263,6 +267,9 @@ class World {
 
          } else {
 
+            if (_DEBUG_) {
+               projectile.visible = false;
+            }
             this.enemyProjectiles.push(projectile);
 
          }

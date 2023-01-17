@@ -15,27 +15,30 @@ const target    = new Vector3();
 const TWO_PI = Math.PI * 2;
 
 
+const _DEBUG_ = process.env.NODE_ENV === 'development' ? true : false;
+
+
 
 class CombatPattern extends State {
 
-    constructor() {
+   constructor() {
 
-        super();
+      super();
 
-        this.shotsPerSecond          = 0.5;
-        this.projectilesPerShot      = 3;
-        this.destructibleProjectiles = 0; // amount of destructible projectiles per shot [0,1]
+      this.shotsPerSecond          = 0.5;
+      this.projectilesPerShot      = 3;
+      this.destructibleProjectiles = 0; // amount of destructible projectiles per shot [0,1]
 
-        this._lastShotTime = 0;
+      this._lastShotTime = 0;
 
-    }
+   }
 
 
-    enter(enemy) {
+   enter(enemy) {
 
-        this._lastShotTime = enemy.world.time.getElapsed();
+      this._lastShotTime = enemy.world.time.getElapsed();
 
-    }
+   }
 
 }
 
@@ -43,51 +46,54 @@ class CombatPattern extends State {
 
 class DefaultCombatPattern extends CombatPattern {
 
-    constructor() {
+   constructor() {
 
-        super();
+      super();
 
-        this.angularStep = Math.PI * 0.167; // 30 degrees;
+      this.angularStep = Math.PI * 0.167; // 30 degrees;
 
-    }
+   }
 
 
-    execute(enemy) {
+   execute(enemy) {
 
-        const world       = enemy.world;
-        const elapsedTime = world.time.getElapsed();
+      const world       = enemy.world;
+      const elapsedTime = world.time.getElapsed();
 
-        const halfAngle = this.angularStep * (this.projectilesPerShot - 1) / 2;
+      const halfAngle = this.angularStep * (this.projectilesPerShot - 1) / 2;
 
-        if (elapsedTime - this._lastShotTime > (1 / this.shotsPerSecond)) {
+      if (elapsedTime - this._lastShotTime > (1 / this.shotsPerSecond)) {
 
-            this._lastShotTime = elapsedTime;
+         this._lastShotTime = elapsedTime;
+
+         if (!_DEBUG_) {
 
             for (let i = 0; i < this.projectilesPerShot; i++) {
 
-                const s = halfAngle - this.angularStep * i;
+               const s = halfAngle - this.angularStep * i;
 
-                target.copy(enemy.position);
-                target.x += Math.sin(s);
-                target.z += Math.cos(s);
+               target.copy(enemy.position);
+               target.x += Math.sin(s);
+               target.z += Math.cos(s);
 
-                direction.subVectors(target, enemy.position).normalize();
-                direction.applyRotation(enemy.rotation);
+               direction.subVectors(target, enemy.position).normalize();
+               direction.applyRotation(enemy.rotation);
 
-                const projectile = new EnemyProjectile(enemy, direction);
+               const projectile = new EnemyProjectile(enemy, direction);
 
-                if (Math.random() <= this.destructibleProjectiles) projectile.isDestructible = true;
+               if (Math.random() <= this.destructibleProjectiles) projectile.isDestructible = true;
 
-                world.addProjectile(projectile);
+               world.addProjectile(projectile);
 
             }
 
             const audio = enemy.audios.get('enemyShot');
             world.playAudio(audio);
 
-        }
+         }
+      }
 
-    }
+   }
 
 }
 
@@ -95,54 +101,56 @@ class DefaultCombatPattern extends CombatPattern {
 
 class SpreadCombatPattern extends CombatPattern {
 
-    constructor() {
+   constructor() {
 
-        super();
+      super();
 
-        this.shotsPerSecond     = 1;
-        this.projectilesPerShot = 6;
-        this.enableRotation     = true;
-        this.rotationSpeed      = 1;
+      this.shotsPerSecond     = 1;
+      this.projectilesPerShot = 6;
+      this.enableRotation     = true;
+      this.rotationSpeed      = 1;
 
-    }
+   }
 
 
-    execute(enemy) {
+   execute(enemy) {
 
-        const world       = enemy.world;
-        const elapsedTime = world.time.getElapsed();
+      const world       = enemy.world;
+      const elapsedTime = world.time.getElapsed();
 
-        if (elapsedTime - this._lastShotTime > (1 / this.shotsPerSecond)) {
+      if (elapsedTime - this._lastShotTime > (1 / this.shotsPerSecond)) {
 
-            this._lastShotTime = elapsedTime;
+         this._lastShotTime = elapsedTime;
 
-            for (let i = 0; i < this.projectilesPerShot; i++) {
+         for (let i = 0; i < this.projectilesPerShot; i++) {
 
-                let s = (TWO_PI * (i / this.projectilesPerShot));
+            let s = (TWO_PI * (i / this.projectilesPerShot));
 
-                if (this.enableRotation) s += elapsedTime * this.rotationSpeed;
+            if (this.enableRotation) s += elapsedTime * this.rotationSpeed;
 
-                target.copy(enemy.position);
-                target.x += Math.sin(s);
-                target.z += Math.cos(s);
+            if (!_DEBUG_) {
 
-                direction.subVectors(target, enemy.position).normalize();
-                direction.applyRotation(enemy.rotation);
+               target.copy(enemy.position);
+               target.x += Math.sin(s);
+               target.z += Math.cos(s);
 
-                const projectile = new EnemyProjectile(enemy, direction);
+               direction.subVectors(target, enemy.position).normalize();
+               direction.applyRotation(enemy.rotation);
 
-                if (Math.random() <= this.destructibleProjectiles) projectile.isDestructible = true;
+               const projectile = new EnemyProjectile(enemy, direction);
 
-                world.addProjectile(projectile);
+               if (Math.random() <= this.destructibleProjectiles) projectile.isDestructible = true;
+
+               world.addProjectile(projectile);
 
             }
 
             const audio = enemy.audios.get('enemyShot');
             world.playAudio(audio);
+         }
+      }
 
-        }
-
-    }
+   }
 
 }
 
@@ -150,50 +158,51 @@ class SpreadCombatPattern extends CombatPattern {
 
 class FocusCombatPattern extends CombatPattern {
 
-    constructor() {
+   constructor() {
 
-        super();
+      super();
 
-        this.shotsPerSecond = 10;
+      this.shotsPerSecond = 10;
 
-        this.shotDuration  = 1; // seconds
-        this.pauseDuration = 0.5; // seconds
+      this.shotDuration  = 1; // seconds
+      this.pauseDuration = 0.5; // seconds
 
-        this.shooting = true;
+      this.shooting = true;
 
-        this._nextPauseTime = Infinity;
-        this._nextShotTime  = -Infinity;
+      this._nextPauseTime = Infinity;
+      this._nextShotTime  = -Infinity;
 
-    }
+   }
 
 
-    execute(enemy) {
+   execute(enemy) {
 
-        const world       = enemy.world;
-        const elapsedTime = world.time.getElapsed();
+      const world       = enemy.world;
+      const elapsedTime = world.time.getElapsed();
 
-        if (elapsedTime > this._nextPauseTime) {
+      if (elapsedTime > this._nextPauseTime) {
 
-            this.shooting       = false;
-            this._nextPauseTime = Infinity;
-            this._nextShotTime  = elapsedTime + this.pauseDuration;
+         this.shooting       = false;
+         this._nextPauseTime = Infinity;
+         this._nextShotTime  = elapsedTime + this.pauseDuration;
 
-        }
+      }
 
-        if (elapsedTime > this._nextShotTime) {
+      if (elapsedTime > this._nextShotTime) {
 
-            this.shooting       = true;
-            this._nextShotTime  = Infinity;
-            this._nextPauseTime = elapsedTime + this.shotDuration;
+         this.shooting       = true;
+         this._nextShotTime  = Infinity;
+         this._nextPauseTime = elapsedTime + this.shotDuration;
 
-        }
+      }
 
-        if (this.shooting === true && (elapsedTime - this._lastShotTime > (1 / this.shotsPerSecond))) {
+      if (this.shooting === true && (elapsedTime - this._lastShotTime > (1 / this.shotsPerSecond))) {
 
-            this._lastShotTime = elapsedTime;
+         this._lastShotTime = elapsedTime;
 
-            enemy.getDirection(direction);
+         enemy.getDirection(direction);
 
+         if (!_DEBUG_) {
             const projectile = new EnemyProjectile(enemy, direction);
 
             if (Math.random() <= this.destructibleProjectiles) projectile.isDestructible = true;
@@ -202,10 +211,10 @@ class FocusCombatPattern extends CombatPattern {
 
             const audio = enemy.audios.get('enemyShot');
             world.playAudio(audio);
+         }
+      }
 
-        }
-
-    }
+   }
 
 }
 
@@ -213,50 +222,50 @@ class FocusCombatPattern extends CombatPattern {
 
 class RandomCombatPattern extends CombatPattern {
 
-    constructor() {
+   constructor() {
 
-        super();
+      super();
 
-        this.shotsPerSecond     = 1;
-        this.projectilesPerShot = 6;
+      this.shotsPerSecond     = 1;
+      this.projectilesPerShot = 6;
 
-    }
+   }
 
 
-    execute(enemy) {
+   execute(enemy) {
 
-        const world       = enemy.world;
-        const elapsedTime = world.time.getElapsed();
+      const world       = enemy.world;
+      const elapsedTime = world.time.getElapsed();
 
-        if (elapsedTime - this._lastShotTime > (1 / this.shotsPerSecond)) {
+      if (elapsedTime - this._lastShotTime > (1 / this.shotsPerSecond)) {
 
-            this._lastShotTime = elapsedTime;
+         this._lastShotTime = elapsedTime;
 
-            for (let i = 0; i < this.projectilesPerShot; i++) {
+         for (let i = 0; i < this.projectilesPerShot; i++) {
 
-                let s = TWO_PI * Math.random();
+            let s = TWO_PI * Math.random();
 
-                target.copy(enemy.position);
-                target.x += Math.sin(s);
-                target.z += Math.cos(s);
+            target.copy(enemy.position);
+            target.x += Math.sin(s);
+            target.z += Math.cos(s);
 
-                direction.subVectors(target, enemy.position).normalize();
-                direction.applyRotation(enemy.rotation);
+            direction.subVectors(target, enemy.position).normalize();
+            direction.applyRotation(enemy.rotation);
 
-                const projectile = new EnemyProjectile(enemy, direction);
+            const projectile = new EnemyProjectile(enemy, direction);
 
-                if (Math.random() <= this.destructibleProjectiles) projectile.isDestructible = true;
+            if (Math.random() <= this.destructibleProjectiles) projectile.isDestructible = true;
 
-                world.addProjectile(projectile);
+            world.addProjectile(projectile);
 
-            }
+         }
 
-            const audio = enemy.audios.get('enemyShot');
-            world.playAudio(audio);
+         const audio = enemy.audios.get('enemyShot');
+         world.playAudio(audio);
 
-        }
+      }
 
-    }
+   }
 
 }
 

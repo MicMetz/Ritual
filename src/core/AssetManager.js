@@ -187,7 +187,7 @@ class AssetManager {
          texture.repeat.x = 1;
          texture.repeat.y = 1;
 
-         textures.set('moss', texture);
+         textures.set('SummerMoss', texture);
       });
 
       textureLoader.load('./textures/Summer_Mud_A.png', (textureA) => {
@@ -204,7 +204,7 @@ class AssetManager {
             texture.repeat.x = 1;
             texture.repeat.y = 1;
 
-            textures.set('moss', texture);
+            textures.set('SummerMud', texture);
          });
       });
 
@@ -212,7 +212,7 @@ class AssetManager {
          texture.repeat.x = 1;
          texture.repeat.y = 1;
 
-         textures.set('bushLeaves', texture);
+         textures.set('BushLeaves', texture);
       });
 
       textureLoader.load('./textures/Rocks.png', (texture) => {

@@ -1,7 +1,9 @@
 module.exports = {
     extends: [
+
         'eslint:recommended',
         'plugin:flowtype/recommended',
+
 
         // Turn off all rules that are unnecessary or might conflict with prettier
         require.resolve('eslint-config-prettier'),
