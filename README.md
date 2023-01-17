@@ -40,7 +40,9 @@
 
 ## Recordings
 
-[Openworld.mp4](documentation%2FOpenworld.mp4)
+https://user-images.githubusercontent.com/47361643/212860900-6f09ceb0-9e4f-4cac-b118-8d4bad9c6ecc.mp4
+
+<br>
 
 ## License
 
