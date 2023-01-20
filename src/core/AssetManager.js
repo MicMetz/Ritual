@@ -4,9 +4,9 @@
 
 import {LoopOnce}            from "three";
 import * as THREE            from 'three';
+import {FontLoader}          from "three/addons/loaders/FontLoader.js";
 import {FBXLoader}           from "three/examples/jsm/loaders/FBXLoader.js";
 import {OBJLoader}           from "three/examples/jsm/loaders/OBJLoader.js";
-import {BufferGeometryUtils} from 'three/examples/jsm/utils/BufferGeometryUtils.js';
 import {GLTFLoader}          from 'three/examples/jsm/loaders/GLTFLoader.js';
 import {dumpObject}          from '../etc/Utilities.js';
 
@@ -27,7 +27,7 @@ class AssetManager {
       this.fbxLoader     = new FBXLoader(this.loadingManager);
       this.jsonLoader    = new THREE.FileLoader(this.loadingManager);
       this.audioLoader   = new THREE.AudioLoader(this.loadingManager);
-      this.fontLoader    = new THREE.FontLoader(this.loadingManager);
+      this.fontLoader    = new FontLoader(this.loadingManager);
       this.textureLoader = new THREE.TextureLoader(this.loadingManager);
       this.listener      = new THREE.AudioListener();
 

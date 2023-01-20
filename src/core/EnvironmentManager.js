@@ -4,12 +4,15 @@
 
 
 import {
-   Color, Geometry, Group, Object3D, Points, PointsMaterial, MathUtils, BoxBufferGeometry, MeshLambertMaterial, Mesh, AmbientLight, DirectionalLight, CameraHelper, MeshBasicMaterial, Fog, PlaneGeometry, InstancedMesh, DoubleSide, ShaderMaterial, PlaneBufferGeometry, BufferGeometry
+   Color, Group, Object3D, Points, PointsMaterial, MathUtils, BoxBufferGeometry, Mesh,
+   AmbientLight, DirectionalLight, CameraHelper, MeshBasicMaterial, Fog, InstancedMesh,
+   DoubleSide, ShaderMaterial, PlaneGeometry, BufferGeometry
 }                         from "three";
 import {MeshToonMaterial} from "three";
-import * as YUKA          from "yuka";
-import {FogController}    from "../environment/FogController.js";
-import {Terrain}          from "../environment/terrain/Terrain.js";
+
+import * as YUKA       from "yuka";
+import {FogController} from "../environment/FogController.js";
+import {Terrain}       from "../environment/terrain/Terrain.js";
 
 
 
@@ -80,9 +83,8 @@ class EnvironmentManager {
       this.height = 0;
 
       this.rooms = new Group();
-      this.ship  = null;
 
-      this.stargeometry = new Geometry();
+      this.stargeometry = new BufferGeometry();
       this.stars        = new Points();
 
       this._options = {
@@ -120,7 +122,7 @@ class EnvironmentManager {
 
    generateWalls() {
 
-      let wallMaterial = new MeshLambertMaterial({color: 0x8e8e8e});
+      let wallMaterial = new MeshBasicMaterial({color: 0x8e8e8e});
       this.wallsMeshes.clear();
 
       // let x = Math.floor(-this.width / 2);
@@ -273,16 +275,16 @@ class EnvironmentManager {
    generateFloor() {
       this.floorMesh.clear();
 
-      const floorGeometry = new PlaneBufferGeometry(this.width, this.depth, 1, 1);
-      const grass         = new MeshLambertMaterial({map: this.world.assetManager.textures.get('Grass')});
-      const summerGrass         = new MeshLambertMaterial({map: this.world.assetManager.textures.get('SummerGrass')});
-      const leaves        = new MeshLambertMaterial({map: this.world.assetManager.textures.get('BushLeaves')});
+      const floorGeometry = new PlaneGeometry(this.width, this.depth, 1, 1);
+      const grass         = new MeshBasicMaterial({map: this.world.assetManager.textures.get('Grass')});
+      const summerGrass   = new MeshBasicMaterial({map: this.world.assetManager.textures.get('SummerGrass')});
+      const leaves        = new MeshBasicMaterial({map: this.world.assetManager.textures.get('BushLeaves')});
       // var floorMaterials           = {};
-      // floorMaterials['grass']      = new MeshLambertMaterial({map: this.world.assetManager.textures.get('SummerGrass')});
-      // floorMaterials['dirt']       = new MeshLambertMaterial({map: this.world.assetManager.textures.get('SummerDirt')});
-      // floorMaterials['moss']       = new MeshLambertMaterial({map: this.world.assetManager.textures.get('SummerMoss')});
-      // floorMaterials['mud']        = new MeshLambertMaterial({map: this.world.assetManager.textures.get('SummerMud')});
-      // floorMaterials['bushLeaves'] = new MeshLambertMaterial({map: this.world.assetManager.textures.get('BushLeaves')});
+      // floorMaterials['grass']      = new MeshBasicMaterial({map: this.world.assetManager.textures.get('SummerGrass')});
+      // floorMaterials['dirt']       = new MeshBasicMaterial({map: this.world.assetManager.textures.get('SummerDirt')});
+      // floorMaterials['moss']       = new MeshBasicMaterial({map: this.world.assetManager.textures.get('SummerMoss')});
+      // floorMaterials['mud']        = new MeshBasicMaterial({map: this.world.assetManager.textures.get('SummerMud')});
+      // floorMaterials['bushLeaves'] = new MeshBasicMaterial({map: this.world.assetManager.textures.get('BushLeaves')});
 
       var material        = new MeshToonMaterial({map: this.world.assetManager.textures.get('Grass')});
       var plane           = new Mesh(floorGeometry, material);

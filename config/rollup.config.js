@@ -15,7 +15,7 @@ export default {
     output : [
         {
             format: 'umd',
-            name  : 'FightOn',
+            name  : 'Ritual',
             file  : 'build/bundle.js',
             inlineDynamicImports: true,
         }

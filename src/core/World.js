@@ -3,10 +3,10 @@
  */
 
 import {
-   AmbientLight, BoxBufferGeometry, CameraHelper, Color, CylinderBufferGeometry, DirectionalLight,
-   DynamicDrawUsage, Geometry, Group, InstancedMesh, Mesh, MeshBasicMaterial, MeshLambertMaterial, Object3D, PCFSoftShadowMap,
-   PerspectiveCamera, PlaneBufferGeometry, Points, PointsMaterial, Scene, ShaderMaterial, SphereBufferGeometry, sRGBEncoding,
-   WebGLRenderer, MathUtils, BufferGeometry
+   AmbientLight, BoxGeometry, CameraHelper, Color, CylinderGeometry, DirectionalLight,
+   DynamicDrawUsage, Group, InstancedMesh, Mesh, MeshBasicMaterial, Object3D, PCFSoftShadowMap,
+   PerspectiveCamera, PlaneGeometry, Points, PointsMaterial, Scene, ShaderMaterial, SphereGeometry,
+   sRGBEncoding, WebGLRenderer, MathUtils,
 }                                    from "three";
 import * as THREE                    from 'three';
 import * as YUKA                     from 'yuka';
@@ -60,8 +60,7 @@ class World {
       this.maxStage     = 14;
 
       this.environmentManager = new EnvironmentManager(this);
-      this.stargeometry       = new Geometry();
-      this.stars              = new Points();
+
 
       this.field = new YUKA.Vector3(10000, 1, 10000);
 
@@ -176,7 +175,6 @@ class World {
          this._updateObstaclesMeshes();
          this._updateProjectileMeshes();
 
-         this.stars.rotation.y += 0.01;
 
          this.renderer.render(this.scene, this.camera);
 
@@ -363,7 +361,7 @@ class World {
       // console.log(dumpObject(this.playerMesh));
 
       // player projectiles
-      const playerProjectileGeometry = new PlaneBufferGeometry(0.2, 1);
+      const playerProjectileGeometry = new PlaneGeometry(0.2, 1);
       playerProjectileGeometry.rotateX(Math.PI * -0.5);
       const playerProjectileMaterial = new MeshBasicMaterial({color: 0xfff9c2});
 
@@ -373,9 +371,9 @@ class World {
       this.scene.add(this.playerProjectileMesh);
 
       // enemy projectile
-      const enemyProjectileGeometry = new SphereBufferGeometry(0.4, 16, 16);
+      const enemyProjectileGeometry = new SphereGeometry(0.4, 16, 16);
       enemyProjectileGeometry.rotateX(Math.PI * -0.5);
-      const enemyProjectileMaterial = new MeshLambertMaterial({color: 0x43254d});
+      const enemyProjectileMaterial = new MeshBasicMaterial({color: 0x43254d});
 
       this.enemyProjectileMesh = new InstancedMesh(enemyProjectileGeometry, enemyProjectileMaterial, this.maxEnemyProjectiles);
       this.enemyProjectileMesh.instanceMatrix.setUsage(DynamicDrawUsage);
@@ -383,9 +381,9 @@ class World {
       this.scene.add(this.enemyProjectileMesh);
 
       // enemy destructible projectile
-      const enemyDestructibleProjectileGeometry = new SphereBufferGeometry(0.4, 16, 16);
+      const enemyDestructibleProjectileGeometry = new SphereGeometry(0.4, 16, 16);
       enemyDestructibleProjectileGeometry.rotateX(Math.PI * -0.5);
-      const enemyDestructibleProjectileMaterial = new MeshLambertMaterial({color: 0xf34d08});
+      const enemyDestructibleProjectileMaterial = new MeshBasicMaterial({color: 0xf34d08});
 
       this.enemyDestructibleProjectileMesh = new InstancedMesh(enemyDestructibleProjectileGeometry, enemyDestructibleProjectileMaterial, this.maxEnemyProjectiles);
       this.enemyDestructibleProjectileMesh.instanceMatrix.setUsage(DynamicDrawUsage);
@@ -393,8 +391,8 @@ class World {
       this.scene.add(this.enemyDestructibleProjectileMesh);
 
       // obstacle
-      const obtacleGeometry = new BoxBufferGeometry(1, 1, 1);
-      const obtacleMaterial = new MeshLambertMaterial({color: 0xdedad3});
+      const obtacleGeometry = new BoxGeometry(1, 1, 1);
+      const obtacleMaterial = new MeshBasicMaterial({color: 0xdedad3});
 
       this.obstacleMesh               = new InstancedMesh(obtacleGeometry, obtacleMaterial, this.maxObstacles);
       this.obstacleMesh.frustumCulled = false;
@@ -403,37 +401,37 @@ class World {
 
       // pursuer enemy
       const pursuerGeometry = new PursuerGeometry();
-      const pursuerMaterial = new MeshLambertMaterial({color: 0x333132});
+      const pursuerMaterial = new MeshBasicMaterial({color: 0x333132});
 
       this.pursuerMesh                  = new Mesh(pursuerGeometry, pursuerMaterial);
       this.pursuerMesh.matrixAutoUpdate = false;
       this.pursuerMesh.castShadow       = true;
 
       // tower enemy
-      const towerGeometry = new CylinderBufferGeometry(0.5, 0.5, 1, 16);
-      const towerMaterial = new MeshLambertMaterial({color: 0x333132});
+      const towerGeometry = new CylinderGeometry(0.5, 0.5, 1, 16);
+      const towerMaterial = new MeshBasicMaterial({color: 0x333132});
 
       this.towerMesh                  = new Mesh(towerGeometry, towerMaterial);
       this.towerMesh.matrixAutoUpdate = false;
       this.towerMesh.castShadow       = true;
 
 
-      const guardGeometry             = new SphereBufferGeometry(0.5, 16, 16);
-      const guardMaterial             = new MeshLambertMaterial({color: 0x333132});
+      const guardGeometry             = new SphereGeometry(0.5, 16, 16);
+      const guardMaterial             = new MeshBasicMaterial({color: 0x333132});
       this.guardMesh                  = new Mesh(guardGeometry, guardMaterial);
       this.guardMesh.matrixAutoUpdate = false;
       this.guardMesh.castShadow       = true;
 
       // this.guardMesh.add(this.assetManager.cloneModel('guard'));
 
-      const protectionGeometry             = new SphereBufferGeometry(0.75, 16, 16);
+      const protectionGeometry             = new SphereGeometry(0.75, 16, 16);
       const protectionMaterial             = new ShaderMaterial(ProtectionShader);
       protectionMaterial.transparent       = true;
       this.protectionMesh                  = new Mesh(protectionGeometry, protectionMaterial);
       this.protectionMesh.matrixAutoUpdate = false;
       this.protectionMesh.visible          = false;
 
-      const hitGeometry       = new PlaneBufferGeometry(2.5, 2.5);
+      const hitGeometry       = new PlaneGeometry(2.5, 2.5);
       const hitMaterial       = new ShaderMaterial(HitShader);
       hitMaterial.transparent = true;
       this.hitMesh            = new Mesh(hitGeometry, hitMaterial);
@@ -1027,8 +1025,8 @@ class World {
 
    _updateWalls() {
 
-      const wallGeometry = new BoxBufferGeometry(1, 1, 1);
-      const wallMaterial = new MeshLambertMaterial({color: 0x8e8e8e});
+      const wallGeometry = new BoxGeometry(1, 1, 1);
+      const wallMaterial = new MeshBasicMaterial({color: 0x8e8e8e});
 
       this.wallsMeshes.clear();
       for (let x = -this.field.x; x <= this.field.x; x++) {
