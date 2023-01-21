@@ -1,6 +1,6 @@
 # Ritual
 
-## About The Game
+## About
 
 
 ## Inspiration
