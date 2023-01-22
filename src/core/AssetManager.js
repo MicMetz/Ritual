@@ -2,56 +2,64 @@
  * @author MicMetzger /
  */
 
-import {LoopOnce}            from "three";
-import * as THREE            from 'three';
-import {FontLoader}          from "three/addons/loaders/FontLoader.js";
-import {FBXLoader}           from "three/examples/jsm/loaders/FBXLoader.js";
-import {OBJLoader}           from "three/examples/jsm/loaders/OBJLoader.js";
-import {GLTFLoader}          from 'three/examples/jsm/loaders/GLTFLoader.js';
-import {dumpObject}          from '../etc/Utilities.js';
+import {
+   AnimationMixer, AudioLoader, FileLoader, LoadingManager, LoopOnce, PositionalAudio, RepeatWrapping, Skeleton, Texture, TextureLoader, Audio
+}                   from "three";
+import * as THREE   from 'three';
+import {FontLoader} from "three/addons/loaders/FontLoader.js";
+import {FBXLoader}  from "three/examples/jsm/loaders/FBXLoader.js";
+import {OBJLoader}  from "three/examples/jsm/loaders/OBJLoader.js";
+import {GLTFLoader} from 'three/examples/jsm/loaders/GLTFLoader.js';
+import {dumpObject} from '../etc/Utilities.js';
 
 
 
 class AssetManager {
    /**
-    *
-    *
+    * @description Asset manager class.
+    * @param world {World} - World instance.
+    * @constructor
     */
    constructor(world) {
 
       this.world          = world;
-      this.loadingManager = new THREE.LoadingManager();
+      this.loadingManager = new LoadingManager();
 
+      // @description Loading manager loaders. (THREE.Loaders)
       this.objectLoader  = new OBJLoader(this.loadingManager);
       this.gltfLoader    = new GLTFLoader(this.loadingManager);
       this.fbxLoader     = new FBXLoader(this.loadingManager);
+      this.fontLoader    = new FontLoader(this.loadingManager);
+      this.textureLoader = new TextureLoader(this.loadingManager);
       this.jsonLoader    = new THREE.FileLoader(this.loadingManager);
       this.audioLoader   = new THREE.AudioLoader(this.loadingManager);
-      this.fontLoader    = new FontLoader(this.loadingManager);
-      this.textureLoader = new THREE.TextureLoader(this.loadingManager);
       this.listener      = new THREE.AudioListener();
 
-      this.animations = new Map();
-      this.mixers     = new Map();
-      this.audios     = new Map();
-      this.textures   = new Map();
-      this.fonts      = new Map();
-
+      // @description Loading manager asset containers. (Maps)
+      this.animations      = new Map();
+      this.mixers          = new Map();
+      this.audios          = new Map();
+      this.textures        = new Map();
+      this.fonts           = new Map();
+      // --------------------------------------------
       this.characterModels = new Map();
       this.enemyModels     = new Map();
       this.npcModels       = new Map();
-
-      this.items     = new Map();
-      this.weapons   = new Map();
-      this.props     = new Map();
-      this.interiors = new Map();
-      this.exteriors = new Map();
-
-      this.descriptors = new Map();
+      // --------------------------------------------
+      this.items           = new Map();
+      this.weapons         = new Map();
+      this.props           = new Map();
+      this.interiors       = new Map();
+      this.exteriors       = new Map();
+      this.descriptors     = new Map();
 
    }
 
 
+   /**
+    * @description Public method to initialize asset manager.
+    * @returns {Promise<unknown>}
+    */
    init() {
 
       this._loadAudios();
@@ -69,7 +77,6 @@ class AssetManager {
       return new Promise((resolve) => {
 
          loadingManager.onLoad = () => {
-            // this._itemsLoaded();
 
             setTimeout(() => {
 
@@ -84,6 +91,10 @@ class AssetManager {
    }
 
 
+   /**
+    * @description Loading screening assets currently loading callback.
+    * @private
+    */
    _assetsLoading() {
 
       console.log('Items Loading');
@@ -93,6 +104,10 @@ class AssetManager {
    }
 
 
+   /**
+    * @description Loading screen assets loaded callback.
+    * @private
+    */
    _assetsLoaded() {
 
       console.log('Items Loaded');
@@ -102,6 +117,12 @@ class AssetManager {
    }
 
 
+   /**
+    * @description Produce animation mixer for a model.
+    * @param type - type of model to get animation mixer for
+    * @param name - name of model to get animation mixer for
+    * @returns {*} - animation mixer for model
+    */
    getAnimation(type, name) {
       var result;
       this.animations.get(type).forEach((animation) => {
@@ -116,6 +137,11 @@ class AssetManager {
    }
 
 
+   /**
+    * @description Produces a clone of an audio clip from cache.
+    * @param id - id of audio clip to clone
+    * @returns {*} - clone of audio clip
+    */
    cloneAudio(id) {
 
       const source = this.audios.get(id);
@@ -130,6 +156,11 @@ class AssetManager {
    }
 
 
+   /**
+    * @description Produces a clone of the model from cache.
+    * @param id - id of model to clone
+    * @returns {any}
+    */
    cloneModel(id) {
 
       const source = this.characterModels.get(id);
@@ -141,6 +172,10 @@ class AssetManager {
    }
 
 
+   /**
+    * @description Load all materials
+    * @private
+    */
    _loadTextures() {
 
       const textureLoader             = this.textureLoader;
@@ -199,7 +234,7 @@ class AssetManager {
 
       textureLoader.load('./textures/Summer_Mud_A.png', (textureA) => {
          textureLoader.load('./textures/Summer_Mud_B.png', (textureB) => {
-            const texture        = new THREE.Texture();
+            const texture        = new Texture();
             texture.image        = textureA.image;
             texture.image.height = textureA.image.height + textureB.image.height;
             texture.image.width  = textureA.image.width;
@@ -232,7 +267,7 @@ class AssetManager {
       textureLoader.load('./textures/carbon/Flowers.png', (texture) => {
          texture.repeat.x = 1;
          texture.repeat.y = 1;
-         texture.wrapS    = THREE.RepeatWrapping;
+         texture.wrapS    = RepeatWrapping;
 
          textures.set('flowers', texture);
       });
@@ -240,25 +275,27 @@ class AssetManager {
       // Tree Bark
       textureLoader.load('./textures/carbon/NormalTree_Bark.png', (texture) => {
          textureLoader.load('./textures/carbon/NormalTree_Bark_Normal.png', (normalMap) => {
-            texture.wrapS = THREE.RepeatWrapping;
-            texture.wrapT = THREE.RepeatWrapping;
+            texture.wrapS = RepeatWrapping;
+            texture.wrapT = RepeatWrapping;
 
             texture.repeat.set(100, 100);
-            normalMap.wrapS = THREE.RepeatWrapping;
-            normalMap.wrapT = THREE.RepeatWrapping;
+            normalMap.wrapS = RepeatWrapping;
+            normalMap.wrapT = RepeatWrapping;
 
             normalMap.repeat.set(100, 100);
             textures.set('treeBark', {
-               map      : texture,
-               normalMap: normalMap
+               map: texture, normalMap: normalMap
             });
          });
       });
 
-
    }
 
 
+   /**
+    * @description Load all the audio files
+    * @private
+    */
    _loadAudios() {
 
       const audioLoader = this.audioLoader;
@@ -267,51 +304,51 @@ class AssetManager {
 
       const refDistance = 20;
 
-      const playerShot = new THREE.PositionalAudio(listener);
+      const playerShot = new PositionalAudio(listener);
       playerShot.setRefDistance(refDistance);
-      const playerHit = new THREE.PositionalAudio(listener);
+      const playerHit = new PositionalAudio(listener);
       playerHit.setRefDistance(refDistance);
-      const playerExplode = new THREE.PositionalAudio(listener);
+      const playerExplode = new PositionalAudio(listener);
       playerExplode.setRefDistance(refDistance);
-      const enemyShot = new THREE.PositionalAudio(listener);
+      const enemyShot = new PositionalAudio(listener);
       enemyShot.setRefDistance(refDistance);
       enemyShot.setVolume(0.3);
-      const enemyHit = new THREE.PositionalAudio(listener);
+      const enemyHit = new PositionalAudio(listener);
       enemyHit.setRefDistance(refDistance);
-      const coreExplode = new THREE.PositionalAudio(listener);
+      const coreExplode = new PositionalAudio(listener);
       coreExplode.setRefDistance(refDistance);
-      const coreShieldHit = new THREE.PositionalAudio(listener);
+      const coreShieldHit = new PositionalAudio(listener);
       coreShieldHit.setRefDistance(refDistance);
-      const coreShieldDestroyed = new THREE.PositionalAudio(listener);
+      const coreShieldDestroyed = new PositionalAudio(listener);
       coreShieldDestroyed.setRefDistance(refDistance);
-      const enemyExplode = new THREE.PositionalAudio(listener);
+      const enemyExplode = new PositionalAudio(listener);
       enemyExplode.setRefDistance(refDistance);
-      const playerSwing = new THREE.PositionalAudio(listener);
+      const playerSwing = new PositionalAudio(listener);
       playerSwing.setRefDistance(refDistance);
-      const playerHeavySwing = new THREE.PositionalAudio(listener);
+      const playerHeavySwing = new PositionalAudio(listener);
       playerHeavySwing.setRefDistance(refDistance);
-      const playerRoll = new THREE.PositionalAudio(listener);
+      const playerRoll = new PositionalAudio(listener);
       playerRoll.setRefDistance(refDistance);
-      // const fleshHit = new THREE.PositionalAudio(listener);
-      // fleshHit.setRefDistance(refDistance);
+      const fleshHit = new PositionalAudio(listener);
+      fleshHit.setRefDistance(refDistance);
 
-      const buttonClick = new THREE.Audio(listener);
+      const buttonClick = new Audio(listener);
       buttonClick.setVolume(0.5);
 
-      audioLoader.load('./audio/playerShot.ogg', buffer => playerShot.setBuffer(buffer));
-      audioLoader.load('./audio/playerHit.ogg', buffer => playerHit.setBuffer(buffer));
-      audioLoader.load('./audio/playerExplode.ogg', buffer => playerExplode.setBuffer(buffer));
-      audioLoader.load('./audio/enemyShot.ogg', buffer => enemyShot.setBuffer(buffer));
-      audioLoader.load('./audio/enemyHit.ogg', buffer => enemyHit.setBuffer(buffer));
-      audioLoader.load('./audio/coreExplode.ogg', buffer => coreExplode.setBuffer(buffer));
-      audioLoader.load('./audio/coreShieldHit.ogg', buffer => coreShieldHit.setBuffer(buffer));
-      audioLoader.load('./audio/coreShieldDestroyed.ogg', buffer => coreShieldDestroyed.setBuffer(buffer));
-      audioLoader.load('./audio/enemyExplode.ogg', buffer => enemyExplode.setBuffer(buffer));
-      audioLoader.load('./audio/buttonClick.ogg', buffer => buttonClick.setBuffer(buffer));
-      audioLoader.load('./audio/playerSwing.ogg', buffer => playerSwing.setBuffer(buffer));
-      audioLoader.load('./audio/playerHeavySwing.ogg', buffer => playerHeavySwing.setBuffer(buffer));
-      audioLoader.load('./audio/playerRoll.ogg', buffer => playerRoll.setBuffer(buffer));
-      // audioLoader.load('./audio/fleshHit.ogg', buffer => fleshHit.setBuffer(buffer));
+      audioLoader.load('./audio/playerShot.ogg', buffer => playerShot.setBuffer(buffer), null, () => { console.log('error loading audio: playerShot'); });
+      audioLoader.load('./audio/playerHit.ogg', buffer => playerHit.setBuffer(buffer), null, () => { console.log('error loading audio: playerHit'); });
+      audioLoader.load('./audio/playerExplode.ogg', buffer => playerExplode.setBuffer(buffer), null, () => { console.log('error loading audio: playerExplode'); });
+      audioLoader.load('./audio/enemyShot.ogg', buffer => enemyShot.setBuffer(buffer), null, () => { console.log('error loading audio: enemyShot'); });
+      audioLoader.load('./audio/enemyHit.ogg', buffer => enemyHit.setBuffer(buffer), null, () => { console.log('error loading audio: enemyHit'); });
+      audioLoader.load('./audio/coreExplode.ogg', buffer => coreExplode.setBuffer(buffer), null, () => { console.log('error loading audio: coreExplode'); });
+      audioLoader.load('./audio/coreShieldHit.ogg', buffer => coreShieldHit.setBuffer(buffer), null, () => { console.log('error loading audio: coreShieldHit'); });
+      audioLoader.load('./audio/coreShieldDestroyed.ogg', buffer => coreShieldDestroyed.setBuffer(buffer), null, () => { console.log('error loading audio: coreShieldDestroyed'); });
+      audioLoader.load('./audio/enemyExplode.ogg', buffer => enemyExplode.setBuffer(buffer), null, () => { console.log('error loading audio: enemyExplode'); });
+      audioLoader.load('./audio/buttonClick.ogg', buffer => buttonClick.setBuffer(buffer), null, () => { console.log('error loading audio: buttonClick'); });
+      audioLoader.load('./audio/playerSwing.ogg', buffer => playerSwing.setBuffer(buffer), null, () => { console.log('error loading audio: playerSwing'); });
+      audioLoader.load('./audio/playerHeavySwing.ogg', buffer => playerHeavySwing.setBuffer(buffer), null, () => { console.log('error loading audio: playerHeavySwing'); });
+      audioLoader.load('./audio/playerRoll.ogg', buffer => playerRoll.setBuffer(buffer), null, () => { console.log('error loading audio: playerRoll'); });
+      audioLoader.load('./audio/poly_gore01.wav', buffer => fleshHit.setBuffer(buffer), null, () => { console.log('error loading audio: fleshHit'); });
 
       audios.set('playerShot', playerShot);
       audios.set('playerHit', playerHit);
@@ -326,11 +363,15 @@ class AssetManager {
       audios.set('playerSwing', playerSwing);
       audios.set('playerHeavySwing', playerHeavySwing);
       audios.set('playerRoll', playerRoll);
-      // audios.set('fleshHit', fleshHit);
+      audios.set('fleshHit', fleshHit);
 
    }
 
 
+   /**
+    * @description Load fonts
+    * @private
+    */
    _loadFonts() {
 
       const fontLoader = this.fontLoader;
@@ -342,22 +383,26 @@ class AssetManager {
    }
 
 
+   /**
+    * @description Load enemy models
+    * @private
+    */
    _loadEnemyModels() {
       const gltfLoader    = this.gltfLoader;
       const textureLoader = this.textureLoader;
       const models        = this.enemyModels;
       const animations    = this.animations;
 
+      // ------------------------------------------------------------
       // Zombie
       gltfLoader.load('./models/enemies/Zombie.glb', (gltf) => {
          const clone = {
-            animations: gltf.animations,
-            scene     : gltf.scene.clone(true)
+            animations: gltf.animations, scene: gltf.scene.clone(true)
          }
 
          // clone.scene.scale.set(0.2, 0.2, 0.2);
 
-         const mixer      = new THREE.AnimationMixer(clone.scene);
+         const mixer      = new AnimationMixer(clone.scene);
          const animations = new Map();
 
          const cloneBones         = {};
@@ -384,10 +429,7 @@ class AssetManager {
                orderedCloneBone.push(cloneBone);
             }
 
-            cloneSMesh.bind(
-              new THREE.Skeleton(orderedCloneBone, skeleton.boneInverses),
-              cloneSMesh.matrixWorld
-            );
+            cloneSMesh.bind(new Skeleton(orderedCloneBone, skeleton.boneInverses), cloneSMesh.matrixWorld);
          }
 
          clone.scene.traverse(child => {
@@ -425,18 +467,19 @@ class AssetManager {
          this.mixers.set('Zombie', mixer);
          this.enemyModels.set('Zombie', clone.scene);
       });
+      // ------------------------------------------------------------
 
 
+      // ------------------------------------------------------------
       // Swat Officer model
       gltfLoader.load('./models/enemies/swat.glb', (gltf) => {
          const clone = {
-            animations: gltf.animations,
-            scene     : gltf.scene.clone(true)
+            animations: gltf.animations, scene: gltf.scene.clone(true)
          }
 
          // clone.scene.scale.set(0.2, 0.2, 0.2);
 
-         const mixer      = new THREE.AnimationMixer(clone.scene);
+         const mixer      = new AnimationMixer(clone.scene);
          const animations = new Map();
 
          const cloneBones         = {};
@@ -463,10 +506,7 @@ class AssetManager {
                orderedCloneBone.push(cloneBone);
             }
 
-            cloneSMesh.bind(
-              new THREE.Skeleton(orderedCloneBone, skeleton.boneInverses),
-              cloneSMesh.matrixWorld
-            );
+            cloneSMesh.bind(new Skeleton(orderedCloneBone, skeleton.boneInverses), cloneSMesh.matrixWorld);
          }
 
          clone.scene.traverse(child => {
@@ -549,18 +589,19 @@ class AssetManager {
          this.enemyModels.set('assault_guard', clone.scene);
 
       });
+      // ------------------------------------------------------------
 
 
+      // ------------------------------------------------------------
       // Task Force Operator
       gltfLoader.load('./models/enemies/TaskForceOperator.glb', (gltf) => {
          const clone = {
-            animations: gltf.animations,
-            scene     : gltf.scene.clone(true)
+            animations: gltf.animations, scene: gltf.scene.clone(true)
          }
 
          // clone.scene.scale.set(0.2, 0.2, 0.2);
 
-         const mixer      = new THREE.AnimationMixer(clone.scene);
+         const mixer      = new AnimationMixer(clone.scene);
          const animations = new Map();
 
          const cloneBones         = {};
@@ -587,10 +628,7 @@ class AssetManager {
                orderedCloneBone.push(cloneBone);
             }
 
-            cloneSMesh.bind(
-              new THREE.Skeleton(orderedCloneBone, skeleton.boneInverses),
-              cloneSMesh.matrixWorld
-            );
+            cloneSMesh.bind(new Skeleton(orderedCloneBone, skeleton.boneInverses), cloneSMesh.matrixWorld);
          }
 
          clone.scene.traverse(child => {
@@ -608,25 +646,30 @@ class AssetManager {
          this.enemyModels.set('task_force', clone.scene);
 
       });
-
+      // ------------------------------------------------------------
 
    }
 
 
+   /**
+    * @description Load all character models
+    * @private
+    */
    _loadCharacterModels() {
 
       const gltfLoader = this.gltfLoader;
       const fbxLoader  = this.fbxLoader;
 
+      // ------------------------------------------------------------
+      // Female Survivor Player Model (Default)
       gltfLoader.load('./models/player/Woman2.glb', (gltf) => {
          const clone = {
-            animations: gltf.animations,
-            scene     : gltf.scene.clone(true)
+            animations: gltf.animations, scene: gltf.scene.clone(true)
          }
 
          // clone.scene.scale.set(0.2, 0.2, 0.2);
 
-         const mixer      = new THREE.AnimationMixer(clone.scene);
+         const mixer      = new AnimationMixer(clone.scene);
          const animations = new Map();
 
          const cloneBones         = {};
@@ -653,10 +696,7 @@ class AssetManager {
                orderedCloneBone.push(cloneBone);
             }
 
-            cloneSMesh.bind(
-              new THREE.Skeleton(orderedCloneBone, skeleton.boneInverses),
-              cloneSMesh.matrixWorld
-            );
+            cloneSMesh.bind(new Skeleton(orderedCloneBone, skeleton.boneInverses), cloneSMesh.matrixWorld);
          }
 
          clone.scene.traverse(child => {
@@ -733,23 +773,24 @@ class AssetManager {
          animations.set('melee', {clip: meleeClip, action: meleeAction});
          animations.set('walk', {clip: walkClip, action: walkAction});
 
-         clone.name = 'WomanSurvivor';
-         this.animations.set('WomanSurvivor', animations);
-         this.mixers.set('WomanSurvivor', mixer);
-         this.characterModels.set('WomanSurvivor', clone.scene);
-      })
+         clone.name = 'Female_Survivor';
+         this.animations.set('Female_Survivor', animations);
+         this.mixers.set('Female_Survivor', mixer);
+         this.characterModels.set('Female_Survivor', clone.scene);
+      });
+      // ------------------------------------------------------------
 
 
+      // ------------------------------------------------------------
       // Android Player model
       gltfLoader.load('./models/player/Android.gltf', (gltf) => {
          const clone = {
-            animations: gltf.animations,
-            scene     : gltf.scene.clone(true)
+            animations: gltf.animations, scene: gltf.scene.clone(true)
          }
 
          // clone.scene.scale.set(0.2, 0.2, 0.2);
 
-         const mixer      = new THREE.AnimationMixer(clone.scene);
+         const mixer      = new AnimationMixer(clone.scene);
          const animations = new Map();
 
          const cloneBones         = {};
@@ -776,10 +817,7 @@ class AssetManager {
                orderedCloneBone.push(cloneBone);
             }
 
-            cloneSMesh.bind(
-              new THREE.Skeleton(orderedCloneBone, skeleton.boneInverses),
-              cloneSMesh.matrixWorld
-            );
+            cloneSMesh.bind(new Skeleton(orderedCloneBone, skeleton.boneInverses), cloneSMesh.matrixWorld);
          }
 
          clone.scene.traverse(child => {
@@ -860,19 +898,20 @@ class AssetManager {
          this.animations.set('Android', animations);
          this.mixers.set('Android', mixer);
          this.characterModels.set('Android', clone.scene);
-      })
+      });
+      // ------------------------------------------------------------
 
 
-      // Wanderer
+      // ------------------------------------------------------------
+      // Female Soldier Survivor Player Model
       gltfLoader.load('./models/player/Soldier.glb', (gltf) => {
          const clone = {
-            animations: gltf.animations,
-            scene     : gltf.scene.clone(true)
+            animations: gltf.animations, scene: gltf.scene.clone(true)
          }
 
          // clone.scene.scale.set(0.2, 0.2, 0.2);
 
-         const mixer      = new THREE.AnimationMixer(clone.scene);
+         const mixer      = new AnimationMixer(clone.scene);
          const animations = new Map();
 
          const cloneBones         = {};
@@ -899,10 +938,7 @@ class AssetManager {
                orderedCloneBone.push(cloneBone);
             }
 
-            cloneSMesh.bind(
-              new THREE.Skeleton(orderedCloneBone, skeleton.boneInverses),
-              cloneSMesh.matrixWorld
-            );
+            cloneSMesh.bind(new Skeleton(orderedCloneBone, skeleton.boneInverses), cloneSMesh.matrixWorld);
          }
 
          clone.scene.traverse(child => {
@@ -979,23 +1015,25 @@ class AssetManager {
          animations.set('melee', {clip: meleeClip, action: meleeAction});
          animations.set('walk', {clip: walkClip, action: walkAction});
 
-         clone.name = 'Wanderer';
-         this.animations.set('Wanderer', animations);
-         this.mixers.set('Wanderer', mixer);
-         this.characterModels.set('Wanderer', clone.scene);
-      })
+         clone.name = 'Female_Soldier_Survivor';
+         this.animations.set('Female_Soldier_Survivor', animations);
+         this.mixers.set('Female_Soldier_Survivor', mixer);
+         this.characterModels.set('Female_Soldier_Survivor', clone.scene);
+      });
+      // ------------------------------------------------------------
 
-      // Adventurer
+
+      // ------------------------------------------------------------
+      // Female Adventuring Survivor Player Model
       gltfLoader.load('./models/player/Adventurer.glb', (gltf) => {
 
          const clone = {
-            animations: gltf.animations,
-            scene     : gltf.scene.clone(true)
+            animations: gltf.animations, scene: gltf.scene.clone(true)
          }
 
          // clone.scene.scale.set(0.2, 0.2, 0.2);
 
-         const mixer      = new THREE.AnimationMixer(clone.scene);
+         const mixer      = new AnimationMixer(clone.scene);
          const animations = new Map();
 
          const cloneBones         = {};
@@ -1022,10 +1060,7 @@ class AssetManager {
                orderedCloneBone.push(cloneBone);
             }
 
-            cloneSMesh.bind(
-              new THREE.Skeleton(orderedCloneBone, skeleton.boneInverses),
-              cloneSMesh.matrixWorld
-            );
+            cloneSMesh.bind(new Skeleton(orderedCloneBone, skeleton.boneInverses), cloneSMesh.matrixWorld);
          }
 
          clone.scene.traverse(child => {
@@ -1114,58 +1149,172 @@ class AssetManager {
          animations.set('melee', {clip: meleeClip, action: meleeAction});
          animations.set('walk', {clip: walkClip, action: walkAction});
 
-         clone.name = 'Adventurer';
-         this.animations.set('Adventurer', animations);
-         this.mixers.set('Adventurer', mixer);
-         this.characterModels.set('Adventurer', clone.scene);
-      })
+         clone.name = 'Female_Adventuring_Survivor';
+         this.animations.set('Female_Adventuring_Survivor', animations);
+         this.mixers.set('Female_Adventuring_Survivor', mixer);
+         this.characterModels.set('Female_Adventuring_Survivor', clone.scene);
+      });
+      // ------------------------------------------------------------
+
 
    }
 
 
+   /**
+    * @description Loads all item models into memory.
+    * @private
+    */
    _loadItemModels() {
       const gltfLoader = this.gltfLoader;
       const items      = this.items;
 
+      // ------------------------------------------------------------
       // Collectible Health
       gltfLoader.load('./models/pickups/PickupHealth.glb', (gltf) => {
          const healthpackMesh            = gltf.scene;
          healthpackMesh.matrixAutoUpdate = false;
          items.set('pickupHealth', healthpackMesh);
       });
+      // ------------------------------------------------------------
 
+
+      // ------------------------------------------------------------
       // Collectible Heart
       gltfLoader.load('./models/pickups/PickupHeart.glb', (gltf) => {
          const heartMesh            = gltf.scene;
          heartMesh.matrixAutoUpdate = false;
          items.set('pickupHeart', heartMesh);
       });
+      // ------------------------------------------------------------
 
+
+      // ------------------------------------------------------------
       // Collectible Tank
       gltfLoader.load('./models/pickups/PickupTank.glb', (gltf) => {
          const tankMesh            = gltf.scene;
          tankMesh.matrixAutoUpdate = false;
          items.set('pickupTank', tankMesh);
       });
+      // ------------------------------------------------------------
+
 
    }
 
 
+   /**
+    * @description Loads all weapon models
+    * @private
+    */
    _loadWeaponModels() {
       const gltfLoader = this.gltfLoader;
       const weapons    = this.weapons;
 
+      // ------------------------------------------------------------
       // Fire Axe
       gltfLoader.load('./models/weapons/FireAxe.glb', (gltf) => {
          const fireAxeMesh            = gltf.scene;
          fireAxeMesh.matrixAutoUpdate = false;
          weapons.set('FireAxe', fireAxeMesh);
       });
+      // ------------------------------------------------------------
 
+
+      // ------------------------------------------------------------
+      // Flare Gun
+      gltfLoader.load('./models/weapons/FlareGun.glb', (gltf) => {
+         const flareGunMesh            = gltf.scene;
+         flareGunMesh.matrixAutoUpdate = false;
+         weapons.set('FlareGun', flareGunMesh);
+      });
+      // ------------------------------------------------------------
+
+
+      // ------------------------------------------------------------
+      // Pistol (Default)
+      gltfLoader.load('./models/weapons/Pistol.glb', (gltf) => {
+         const pistolMesh            = gltf.scene;
+         pistolMesh.matrixAutoUpdate = false;
+         weapons.set('Pistol', pistolMesh);
+      });
+      // ------------------------------------------------------------
+
+
+      // ------------------------------------------------------------
+      // AKM
+      gltfLoader.load('./models/weapons/AKM.glb', (gltf) => {
+         const akmMesh            = gltf.scene;
+         akmMesh.matrixAutoUpdate = false;
+         weapons.set('AKM', akmMesh);
+      });
+      // ------------------------------------------------------------
+
+
+      // ------------------------------------------------------------
+      // M4a1
+      gltfLoader.load('./models/weapons/M4a1.glb', (gltf) => {
+         const m4a1Mesh            = gltf.scene;
+         m4a1Mesh.matrixAutoUpdate = false;
+         weapons.set('M4a1', m4a1Mesh);
+      });
+      // ------------------------------------------------------------
+
+
+      // ------------------------------------------------------------
+      // Revolver (Default)
+      gltfLoader.load('./models/weapons/Revolver.glb', (gltf) => {
+         const revolverMesh            = gltf.scene;
+         revolverMesh.matrixAutoUpdate = false;
+         weapons.set('Revolver', revolverMesh);
+      });
+      // ------------------------------------------------------------
+
+
+      // ------------------------------------------------------------
+      // Android Saber
+      gltfLoader.load('./models/weapons/AndroidSaber.glb', (gltf) => {
+         const androidSaberMesh            = gltf.scene;
+         androidSaberMesh.matrixAutoUpdate = false;
+         weapons.set('AndroidSaber', androidSaberMesh);
+      });
+      // ------------------------------------------------------------
+
+
+      // ------------------------------------------------------------
+      // Bowie Knife
+      gltfLoader.load('./models/weapons/BowieKnife.glb', (gltf) => {
+         const bowieKnifeMesh            = gltf.scene;
+         bowieKnifeMesh.matrixAutoUpdate = false;
+         weapons.set('BowieKnife', bowieKnifeMesh);
+      });
+      // ------------------------------------------------------------
+
+
+      // ------------------------------------------------------------
+      // P320 Pistol
+      gltfLoader.load('./models/weapons/P320.glb', (gltf) => {
+         const p320Mesh            = gltf.scene;
+         p320Mesh.matrixAutoUpdate = false;
+         weapons.set('P320', p320Mesh);
+      });
+      // ------------------------------------------------------------
+
+
+      // ------------------------------------------------------------
+      // P226 Pistol
+      gltfLoader.load('./models/weapons/P226.glb', (gltf) => {
+         const p226Mesh            = gltf.scene;
+         p226Mesh.matrixAutoUpdate = false;
+         weapons.set('P226', p226Mesh);
+      });
+      // ------------------------------------------------------------
 
    }
 
 
+   /**
+    * @description Loads all envrironment prop models
+    * @private
+    */
    _loadPropModels() {
       const gltfLoader = this.gltfLoader;
       const props      = this.props;
@@ -1181,6 +1330,10 @@ class AssetManager {
    }
 
 
+   /**
+    * @description Loads all interior environment models
+    * @private
+    */
    _loadInteriorModels() {
       const objectLoader = this.objectLoader;
       const interiors    = this.interiors;
@@ -1188,6 +1341,10 @@ class AssetManager {
    }
 
 
+   /**
+    * @description Loads all exterior environment models
+    * @private
+    */
    _loadExteriorModels() {
       const gltfLoader = this.gltfLoader;
       const exteriors  = this.exteriors;

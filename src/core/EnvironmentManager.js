@@ -4,14 +4,14 @@
 
 
 import {
-   Color, Group, Object3D, Points, PointsMaterial, MathUtils, BoxBufferGeometry, Mesh,
-   AmbientLight, DirectionalLight, CameraHelper, MeshBasicMaterial, Fog, InstancedMesh,
-   DoubleSide, ShaderMaterial, PlaneGeometry, BufferGeometry
-}                         from "three";
-import {MeshToonMaterial} from "three";
-
+   Color, Group, Object3D, Points, PointsMaterial, MathUtils,
+   BoxGeometry, Mesh, AmbientLight, DirectionalLight, CameraHelper,
+   MeshBasicMaterial, Fog, InstancedMesh, DoubleSide, ShaderMaterial,
+   PlaneGeometry, BufferGeometry, MeshToonMaterial
+}                      from "three";
 import * as YUKA       from "yuka";
 import {FogController} from "../environment/FogController.js";
+import SpacialHashGrid from "../environment/SpacialHashGrid.js";
 import {Terrain}       from "../environment/terrain/Terrain.js";
 
 
@@ -65,7 +65,8 @@ class EnvironmentManager {
       this.props          = [];
       this.environmentmap = new Map();
 
-      // this.terrain       = terrain;
+      // TODO
+      this.grid          = new SpacialHashGrid([[-2500, -2500], [2500, 2500]], [5000, 5000]);
       this.terrain       = null;
       this.floorMesh     = new Group();
       this.wallsMeshes   = new Group();
@@ -120,6 +121,11 @@ class EnvironmentManager {
    }
 
 
+   generateGridHelper() {
+
+   }
+
+
    generateWalls() {
 
       let wallMaterial = new MeshBasicMaterial({color: 0x8e8e8e});
@@ -130,7 +136,7 @@ class EnvironmentManager {
       let x = this.width;
       let z = this.depth;
 
-      let wallGeometry       = new BoxBufferGeometry(0.5, 2, 0.5);
+      let wallGeometry       = new BoxGeometry(0.5, 2, 0.5);
       var cornerWallMesh     = new Mesh(wallGeometry, wallMaterial);
       var oppoCornerWallMesh = new Mesh(wallGeometry, wallMaterial);
 
@@ -172,10 +178,10 @@ class EnvironmentManager {
       this.wallsMeshes.add(oppoCornerWallMesh);
 
       for (let i = Math.ceil(-this.depth / 2); i < Math.ceil(this.depth / 2); i++) {
-         wallGeometry = new BoxBufferGeometry(0.5, 2, 1);
+         wallGeometry = new BoxGeometry(0.5, 2, 1);
 
          if (i === Math.floor(this.depth / 2) || i === Math.ceil(-this.depth / 2)) {
-            wallGeometry = new BoxBufferGeometry(0.5, 2, 1.5);
+            wallGeometry = new BoxGeometry(0.5, 2, 1.5);
          }
 
          let wallMesh     = new Mesh(wallGeometry, wallMaterial);
@@ -201,10 +207,10 @@ class EnvironmentManager {
       }
 
       for (let i = Math.ceil(-this.width / 2); i < Math.ceil(this.width / 2); i++) {
-         wallGeometry = new BoxBufferGeometry(1, 2, 0.5);
+         wallGeometry = new BoxGeometry(1, 2, 0.5);
 
          if (i === Math.floor(this.width / 2) || i === Math.ceil(-this.width / 2)) {
-            wallGeometry = new BoxBufferGeometry(1.5, 2, 0.5);
+            wallGeometry = new BoxGeometry(1.5, 2, 0.5);
          }
 
          let wallMesh     = new Mesh(wallGeometry, wallMaterial);
@@ -251,23 +257,9 @@ class EnvironmentManager {
    }
 
 
-   _updateBackground(delta) {
+   updateFog(delta) {
 
-      this.stargeometry.vertices.forEach((vertex) => {
 
-         vertex.velocity += vertex.acceleration * (delta * 0.01);
-         vertex.y -= vertex.velocity;
-
-         if (vertex.y <= -80) {
-
-            vertex.y        = -45;
-            vertex.velocity = 0;
-
-         }
-
-      });
-
-      this.stargeometry.verticesNeedUpdate = true;
 
    }
 
