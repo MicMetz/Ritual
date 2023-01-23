@@ -16,7 +16,6 @@ class IMelee extends Weapon {
       this.damage      = 1;
       this.range       = 1;
       this.raycaster   = new Raycaster(undefined, undefined, 0, undefined);
-      this.enemy       = null;
       this.isAttacking = false;
 
       this.engage    = () => {
@@ -30,22 +29,34 @@ class IMelee extends Weapon {
       this.attack    = () => {
          if (this.isAttacking) {
             this.raycaster.set(this.owner.position, this.owner.direction);
-            this.enemy = this.raycaster.intersectObjects(this.owner.world.enemies.children, true);
-            if (this.enemy.length > 0) {
-               this.enemy[0].object.parent.takeDamage(this);
+            let enemies = this.owner.world.enemies.children;
+            for (let i = 0; i < enemies.length; i++) {
+               let enemy = enemies[i];
+               if (enemy.isAlive) {
+                  let distance = this.raycaster.ray.distanceSqToPoint(enemy.position);
+                  if (distance < this.range) {
+                     enemy.takeDamage(this);
+                  }
+               }
             }
          }
       }
-
-
    }
 
 
-   collide(hitting) {
-
-
-
+   setDamage(damage) {
+      this.damage = damage;
    }
+
+
+   setRange(range) {
+      this.range = range;
+   }
+
+
+   // collide(hitting) {
+   //
+   // }
 
 
 
