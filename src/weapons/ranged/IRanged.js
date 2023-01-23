@@ -10,7 +10,7 @@ class IRanged extends Weapon {
     * @param mesh
     */
    constructor(owner, mesh) {
-      super(owner, mesh);
+      super(owner);
 
       this.weapon    = mesh;
       this.damage    = 1;
