@@ -20,15 +20,15 @@ class IRanged extends Weapon {
 
       this.engage    = () => {
          this.isAttacking = true;
-         this.owner.stateMachine.setState("shoot");
+         this.owner.stateMachine.changeTo("shoot");
       }
       this.disengage = () => {
          this.isAttacking = false;
          if (this.owner.stateMachine) {
             if (this.owner.stateMachine.states.has("shootIdle")) {
-               this.owner.stateMachine.setState("shootIdle");
+               this.owner.stateMachine.changeTo("shootIdle");
             } else {
-               this.owner.stateMachine.setState("idle");
+               this.owner.stateMachine.changeTo("idle");
             }
          }
       }
@@ -47,6 +47,20 @@ class IRanged extends Weapon {
             }
          }
       }
+   }
+
+
+   connect() {
+      this.owner.add(this.weapon);
+      document.addEventListener("mousedown", this.engage);
+      document.addEventListener("mouseup", this.disengage);
+   }
+
+
+   disconnect() {
+      this.owner.remove(this.weapon);
+      document.removeEventListener("mousedown", this.engage);
+      document.removeEventListener("mouseup", this.disengage);
    }
 
 

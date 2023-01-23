@@ -20,11 +20,11 @@ class IMelee extends Weapon {
 
       this.engage    = () => {
          this.isAttacking = true;
-         this.owner.stateMachine.setState("melee");
+         this.owner.stateMachine.changeTo("melee");
       }
       this.disengage = () => {
          this.isAttacking = false;
-         this.owner.stateMachine.setState("idle");
+         this.owner.stateMachine.changeTo("idle");
       }
       this.attack    = () => {
          if (this.isAttacking) {
@@ -41,6 +41,20 @@ class IMelee extends Weapon {
             }
          }
       }
+   }
+
+
+   connect() {
+      this.owner.add(this.weapon);
+      document.addEventListener("mousedown", this.engage);
+      document.addEventListener("mouseup", this.disengage);
+   }
+
+
+   disconnect() {
+      this.owner.remove(this.weapon);
+      document.removeEventListener("mousedown", this.engage);
+      document.removeEventListener("mouseup", this.disengage);
    }
 
 

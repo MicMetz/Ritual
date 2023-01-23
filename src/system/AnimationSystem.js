@@ -69,6 +69,16 @@ class AnimationSystem {
 
    }
 
+
+   changeTo(animation) {
+
+      this.remove(animation);
+      this.add(animation);
+
+      return this;
+
+   }
+
 }
 
 
