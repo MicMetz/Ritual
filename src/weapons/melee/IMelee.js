@@ -24,7 +24,7 @@ class IMelee extends Weapon {
       }
       this.disengage = () => {
          this.isAttacking = false;
-         this.owner.stateMachine.changeTo("idle");
+         // this.owner.stateMachine.changeTo("idle");
       }
       this.attack    = () => {
          if (this.isAttacking) {

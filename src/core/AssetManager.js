@@ -569,7 +569,7 @@ class AssetManager {
          animations.set('idle', {clip: idleClip, action: idleAction});
          animations.set('shoot', {clip: shootClip, action: shootAction});
          animations.set('die', {clip: deathClip, action: deathAction});
-         animations.set('hit', {clip: hitClip, action: hitAction});
+         animations.set('hitTaken', {clip: hitClip, action: hitAction});
          animations.set('idleGunPoint', {clip: idleGunPointClip, action: idleGunPointAction});
          animations.set('idleGunShoot', {clip: idleGunShootClip, action: idleGunShootAction});
          animations.set('idleMelee', {clip: idleMeleeClip, action: idleMeleeAction});
@@ -759,7 +759,7 @@ class AssetManager {
          animations.set('idle', {clip: idleClip, action: idleAction});
          animations.set('shoot', {clip: shootClip, action: shootAction});
          animations.set('die', {clip: deathClip, action: deathAction});
-         animations.set('hit', {clip: hitClip, action: hitAction});
+         animations.set('hitTaken', {clip: hitClip, action: hitAction});
          animations.set('idleGunPoint', {clip: idleGunPointClip, action: idleGunPointAction});
          animations.set('idleGunShoot', {clip: idleGunShootClip, action: idleGunShootAction});
          animations.set('idleMelee', {clip: idleMeleeClip, action: idleMeleeAction});
@@ -880,7 +880,7 @@ class AssetManager {
          animations.set('idle', {clip: idleClip, action: idleAction});
          animations.set('shoot', {clip: shootClip, action: shootAction});
          animations.set('die', {clip: deathClip, action: deathAction});
-         animations.set('hit', {clip: hitClip, action: hitAction});
+         animations.set('hitTaken', {clip: hitClip, action: hitAction});
          animations.set('idleGunPoint', {clip: idleGunPointClip, action: idleGunPointAction});
          animations.set('idleGunShoot', {clip: idleGunShootClip, action: idleGunShootAction});
          animations.set('idleMelee', {clip: idleMeleeClip, action: idleMeleeAction});
@@ -1001,7 +1001,7 @@ class AssetManager {
          animations.set('idle', {clip: idleClip, action: idleAction});
          animations.set('shoot', {clip: shootClip, action: shootAction});
          animations.set('die', {clip: deathClip, action: deathAction});
-         animations.set('hit', {clip: hitClip, action: hitAction});
+         animations.set('hitTaken', {clip: hitClip, action: hitAction});
          animations.set('idleGunPoint', {clip: idleGunPointClip, action: idleGunPointAction});
          animations.set('idleGunShoot', {clip: idleGunShootClip, action: idleGunShootAction});
          animations.set('idleMelee', {clip: idleMeleeClip, action: idleMeleeAction});
@@ -1135,7 +1135,7 @@ class AssetManager {
          animations.set('idle', {clip: idleClip, action: idleAction});
          animations.set('shoot', {clip: shootClip, action: shootAction});
          animations.set('die', {clip: deathClip, action: deathAction});
-         animations.set('hit', {clip: hitClip, action: hitAction});
+         animations.set('hitTaken', {clip: hitClip, action: hitAction});
          animations.set('idleGunPoint', {clip: idleGunPointClip, action: idleGunPointAction});
          animations.set('idleGunShoot', {clip: idleGunShootClip, action: idleGunShootAction});
          animations.set('idleMelee', {clip: idleMeleeClip, action: idleMeleeAction});

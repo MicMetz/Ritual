@@ -2,8 +2,8 @@
  * @author MicMetzger /
  */
 
-import {LoopOnce}   from "three";
-import PlayerState        from "./PlayerState.js";
+import {LoopOnce}           from "three";
+import PlayerState          from "./PlayerState.js";
 import {PlayerStateMachine} from "./PlayerStateMachine.js";
 
 
@@ -15,6 +15,7 @@ export class PlayerProxy extends PlayerStateMachine {
       this._proxy = proxy
 
       this.addState('idle', IdleState);
+      this.addState('interact', InteractState);
       this.addState('walk', WalkState);
       this.addState('run', RunState);
       this.addState('runBack', RunBackState);
@@ -25,6 +26,9 @@ export class PlayerProxy extends PlayerStateMachine {
       this.addState('die', DeathState);
       this.addState('shoot', ShootAttackState);
       this.addState('melee', MeleeAttackState);
+      this.addState('meleeIdle', MeleeIdleState);
+      this.addState('shootIdle', ShootIdleState);
+      this.addState('respawn', RespawnState);
 
    }
 }
@@ -102,6 +106,61 @@ class IdleState extends PlayerState {
 
 
    exit() {}
+
+}
+
+
+
+class InteractState extends PlayerState {
+   constructor(parent) {
+      super(parent);
+      this.finishedCallback = () => {
+         this.finished();
+      }
+   }
+
+
+   get Name() {
+      return 'interact';
+   }
+
+
+   enter(prevState) {
+      const action = this._parent._proxy.animations.get('interact').action;
+      action.getMixer().addEventListener('finished', this.finishedCallback);
+
+      if (prevState) {
+         const prevAction = this._parent._proxy.animations.get(prevState.Name).action;
+         action.time      = 0.0;
+         action.enabled   = true;
+         action.setEffectiveTimeScale(1.0);
+         action.setEffectiveWeight(1.0);
+         action.crossFadeFrom(prevAction, 0.5, true);
+         action.play();
+      } else {
+         action.play();
+      }
+   }
+
+
+   finished() {
+      this.cleanup();
+      this._parent.changeTo('idle');
+   }
+
+
+   cleanup() {
+      const action = this._parent._proxy.animations.get('interact').action;
+      action.getMixer().removeEventListener('finished', this.finishedCallback);
+   }
+
+
+   update() {}
+
+
+   exit() {
+      this.cleanup();
+   }
 
 }
 
@@ -728,6 +787,61 @@ class ShootAttackState extends PlayerState {
 
 
 
+class ShootIdleState extends PlayerState {
+   constructor(parent) {
+      super(parent);
+      this.finishedCallback = () => {
+         this.finished();
+      }
+   }
+
+
+   get Name() {
+      return 'shootIdle'
+   }
+
+
+   enter(prevState) {
+      const action = this._parent._proxy.animations.get('idleGunPoint').action;
+      action.getMixer().addEventListener('finished', this.finishedCallback);
+      action.loop = LoopOnce;
+      if (prevState) {
+         const prevAction = this._parent._proxy.animations.get(prevState.Name).action;
+         action.time      = 0.0;
+         action.enabled   = true;
+         action.setEffectiveTimeScale(1.0);
+         action.setEffectiveWeight(1.0);
+         action.crossFadeFrom(prevAction, 0.5, true);
+         action.play();
+      } else {
+         action.play();
+      }
+   }
+
+
+   finished() {
+      this.cleanup();
+      this._parent.changeTo('idle');
+   }
+
+
+   cleanup() {
+      const action = this._parent._proxy.animations.get('idleGunPoint').action;
+      action.getMixer().removeEventListener('finished', this.finishedCallback);
+   }
+
+
+   update() {}
+
+
+   exit() {
+      this.cleanup();
+   }
+
+}
+
+
+
 class MeleeAttackState extends PlayerState {
    constructor(parent) {
       super(parent);
@@ -788,6 +902,116 @@ class MeleeAttackState extends PlayerState {
 
       this.cleanup();
 
+   }
+
+}
+
+
+
+class MeleeIdleState extends PlayerState {
+   constructor(parent) {
+      super(parent);
+      this.finishedCallback = () => {
+         this.finished();
+      }
+   }
+
+
+   get Name() {
+      return 'meleeIdle'
+   }
+
+
+   enter(prevState) {
+      const action = this._parent._proxy.animations.get('idleMelee').action;
+      action.getMixer().addEventListener('finished', this.finishedCallback);
+      action.loop = LoopOnce;
+      if (prevState) {
+         const prevAction = this._parent._proxy.animations.get(prevState.Name).action;
+         action.time      = 0.0;
+         action.enabled   = true;
+         action.setEffectiveTimeScale(1.0);
+         action.setEffectiveWeight(1.0);
+         action.crossFadeFrom(prevAction, 0.5, true);
+         action.play();
+      } else {
+         action.play();
+      }
+   }
+
+
+   finished() {
+      this.cleanup();
+      this._parent.changeTo('idle');
+   }
+
+
+   cleanup() {
+      const action = this._parent._proxy.animations.get('idleMelee').action;
+      action.getMixer().removeEventListener('finished', this.finishedCallback);
+   }
+
+
+   update() {}
+
+
+   exit() {
+      this.cleanup();
+   }
+
+}
+
+
+
+class HitState extends PlayerState {
+   constructor(parent) {
+      super(parent);
+      this.finishedCallback = () => {
+         this.finished();
+      }
+   }
+
+
+   get Name() {
+      return 'hitTaken';
+   }
+
+
+   enter(prevState) {
+      const action = this._parent._proxy.animations.get('hitTaken').action;
+      action.getMixer().addEventListener('finished', this.finishedCallback);
+      action.loop = LoopOnce;
+      if (prevState) {
+         const prevAction = this._parent._proxy.animations.get(prevState.Name).action;
+         action.time      = 0.0;
+         action.enabled   = true;
+         action.setEffectiveTimeScale(1.0);
+         action.setEffectiveWeight(1.0);
+         action.crossFadeFrom(prevAction, 0.5, true);
+         action.play();
+      } else {
+         action.play();
+      }
+   }
+
+
+   finished() {
+      this.cleanup();
+      this._parent.changeTo('idle');
+   }
+
+
+   cleanup() {
+      const action = this._parent._proxy.animations.get('hitTaken').action;
+      action.getMixer().removeEventListener('finished', this.finishedCallback);
+   }
+
+
+   update() {}
+
+
+   exit() {
+      this.cleanup();
    }
 
 }
