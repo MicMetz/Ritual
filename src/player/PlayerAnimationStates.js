@@ -3,12 +3,17 @@
  */
 
 import {LoopOnce}           from "three";
+import {INFINITY}           from "three/nodes";
 import PlayerState          from "./PlayerState.js";
 import {PlayerStateMachine} from "./PlayerStateMachine.js";
 
 
 
 export class PlayerProxy extends PlayerStateMachine {
+   /**
+    * @description A finite state machine design pattern for the player character animation states.
+    * @param proxy
+    */
    constructor(proxy) {
       super()
 
@@ -36,6 +41,10 @@ export class PlayerProxy extends PlayerStateMachine {
 
 
 class IdleState extends PlayerState {
+   /**
+    * @description Idle state for the player.
+    * @param parent
+    */
    constructor(parent) {
       super(parent);
    }
@@ -112,6 +121,10 @@ class IdleState extends PlayerState {
 
 
 class InteractState extends PlayerState {
+   /**
+    * @description InteractState is a state that is entered when the player interacts with a pickup.
+    * @param parent
+    */
    constructor(parent) {
       super(parent);
       this.finishedCallback = () => {
@@ -166,7 +179,69 @@ class InteractState extends PlayerState {
 
 
 
+class DeathState extends PlayerState {
+   /**
+    * @description DeadState is a state that is entered when the player dies.
+    * @param parent
+    */
+   constructor(parent) {
+      super(parent);
+   }
+
+
+   get Name() {
+      return 'die';
+   }
+
+
+   enter(prevState) {
+      const action = this._parent._proxy.animations.get('dead').action;
+      action.setLoop(INFINITY, 1.0);
+
+      if (prevState) {
+         const prevAction = this._parent._proxy.animations.get(prevState.Name).action;
+         action.time      = 0.0;
+         action.enabled   = true;
+         action.setEffectiveTimeScale(1.0);
+         action.setEffectiveWeight(1.0);
+         action.crossFadeFrom(prevAction, 0.5, true);
+         action.play();
+      } else {
+         action.play();
+      }
+   }
+
+
+   update() {
+      if (this._parent._proxy.health <= 0) {
+         this._parent.isDead = true;
+      }
+      if (this._parent._proxy.health > 0) {
+         this._parent.isDead = false;
+         this._parent.changeTo('idle');
+      }
+   }
+
+
+   cleanup() {
+      const action = this._parent._proxy.animations.get('dead').action;
+      action.getMixer().removeEventListener('finished', this.finishedCallback);
+   }
+
+
+   exit() {
+      this.cleanup();
+   }
+
+}
+
+
+
 class RespawnState extends PlayerState {
+   /**
+    * @description RespawnState is a state that is entered if the player respawns after dying.
+    * @param parent
+    */
    constructor(parent) {
       super(parent);
       this.finishedCallback = () => {
@@ -224,72 +299,11 @@ class RespawnState extends PlayerState {
 
 
 
-class DeathState extends PlayerState {
-   constructor(parent) {
-      super(parent);
-      this.finishedCallback = () => {
-         this.finished();
-      }
-   }
-
-
-   get Name() {
-
-      return 'die';
-
-   }
-
-
-   Enter(prevState) {
-      const action = this._parent._proxy.animations.get('die').action;
-      action.getMixer().addEventListener('finished', this.finishedCallback);
-
-      if (prevState) {
-         const previousAction = this._parent._proxy.animations.get(prevState.Name).action;
-
-         // action.reset();
-
-         action.setLoop(LoopOnce, 1);
-         action.clampWhenFinished = true;
-         action.crossFadeFrom(previousAction, 0.2, true);
-         action.play();
-
-      } else {
-
-         action.play();
-
-      }
-   }
-
-
-   finished() {
-      this.cleanup();
-      // this._parent.changeTo('idle');
-   }
-
-
-   cleanup() {
-      const action = this._parent._proxy.animations.get('die').action;
-      action.getMixer().removeEventListener('finished', this.finishedCallback);
-   }
-
-
-   update(_) {
-
-      return;
-
-   }
-
-
-   exit() {
-      this.cleanup();
-   }
-
-};
-
-
-
 class WalkState extends PlayerState {
+   /**
+    * @description WalkState is a state that is entered when the player is walking.
+    * @param parent
+    */
    constructor(parent) {
       super(parent);
    }
@@ -385,6 +399,10 @@ class WalkState extends PlayerState {
 
 
 class RunState extends PlayerState {
+   /**
+    * @description RunState is a state that is entered when the player is running forward.
+    * @param parent
+    */
    constructor(parent) {
       super(parent);
    }
@@ -468,6 +486,10 @@ class RunState extends PlayerState {
 
 
 class RunLeftState extends PlayerState {
+   /**
+    * @description RunLeftState is a state that is entered when the player is running left.
+    * @param parent
+    */
    constructor(parent) {
       super(parent);
    }
@@ -554,6 +576,10 @@ class RunLeftState extends PlayerState {
 
 
 class RunRightState extends PlayerState {
+   /**
+    * @description RunRightState is a state that is entered when the player is running right.
+    * @param parent
+    */
    constructor(parent) {
       super(parent);
    }
@@ -636,6 +662,10 @@ class RunRightState extends PlayerState {
 
 
 class RunBackState extends PlayerState {
+   /**
+    * @description RunBackState is a state that is entered when the player is running backwards.
+    * @param parent
+    */
    constructor(parent) {
       super(parent);
    }
@@ -718,6 +748,10 @@ class RunBackState extends PlayerState {
 
 
 class ShootAttackState extends PlayerState {
+   /**
+    * @description ShootAttackState is a state that is entered when the player is shooting.
+    * @param parent
+    */
    constructor(parent) {
       super(parent);
 
@@ -788,6 +822,10 @@ class ShootAttackState extends PlayerState {
 
 
 class ShootIdleState extends PlayerState {
+   /**
+    * @description ShootIdleState is a state that is entered when the player is shooting and idle.
+    * @param parent
+    */
    constructor(parent) {
       super(parent);
       this.finishedCallback = () => {
@@ -843,6 +881,10 @@ class ShootIdleState extends PlayerState {
 
 
 class MeleeAttackState extends PlayerState {
+   /**
+    * @description MeleeAttackState is a state that is entered when the player is melee attacking.
+    * @param parent
+    */
    constructor(parent) {
       super(parent);
       this.finishedCallback = () => {
@@ -909,6 +951,10 @@ class MeleeAttackState extends PlayerState {
 
 
 class MeleeIdleState extends PlayerState {
+   /**
+    * @description MeleeIdleState is a state that is entered when the player is ending a melee attack.
+    * @param parent
+    */
    constructor(parent) {
       super(parent);
       this.finishedCallback = () => {
@@ -964,6 +1010,10 @@ class MeleeIdleState extends PlayerState {
 
 
 class HitState extends PlayerState {
+   /**
+    * @description HitState is a state that is entered when the player is hit.
+    * @param parent
+    */
    constructor(parent) {
       super(parent);
       this.finishedCallback = () => {
@@ -1019,6 +1069,10 @@ class HitState extends PlayerState {
 
 
 class RollState extends PlayerState {
+   /**
+    * @description RollState is a state that is entered when the player is rolling.
+    * @param parent
+    */
    constructor(parent) {
       super(parent);
       this.finishedCallback = () => {
@@ -1086,6 +1140,10 @@ class RollState extends PlayerState {
 
 
 class StunState extends PlayerState {
+   /**
+    * @description StunState is a state that is entered when the player is stunned.
+    * @param parent
+    */
    constructor(parent) {
       super(parent);
       this.finishedCallback = () => {
@@ -1141,3 +1199,8 @@ class StunState extends PlayerState {
    }
 
 }
+
+
+
+
+
