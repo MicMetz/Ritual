@@ -17,7 +17,7 @@ import {dumpObject} from '../etc/Utilities.js';
 class AssetManager {
    /**
     * @description Asset manager class.
-    * @param world {World} - World instance.
+    * @param world {world} - World instance.
     * @constructor
     */
    constructor(world) {
@@ -69,7 +69,7 @@ class AssetManager {
       this._loadItemModels();
       this._loadTextures();
       this._loadWeaponModels();
-      this._loadPropModels();
+      // this._loadPropModels();
       this._loadInteriorModels();
 
       const loadingManager = this.loadingManager;
@@ -1169,10 +1169,63 @@ class AssetManager {
       const items      = this.items;
 
       // ------------------------------------------------------------
+      // Lab Container
+      gltfLoader.load('./models/items/LabContainer.glb', (gltf) => {
+         const labContainerMesh            = gltf.scene;
+         labContainerMesh.matrixAutoUpdate = false;
+         items.set('LabContainer', labContainerMesh);
+      });
+      // ------------------------------------------------------------
+
+
+      // ------------------------------------------------------------
+      // Bear Trap
+      gltfLoader.load('./models/items/BearTrap.glb', (gltf) => {
+         const bearTrapMesh            = gltf.scene;
+         bearTrapMesh.matrixAutoUpdate = false;
+         items.set('BearTrap', bearTrapMesh);
+      });
+      // ------------------------------------------------------------
+
+
+      // ------------------------------------------------------------
+      // Backpack
+      gltfLoader.load('./models/items/Backpack.glb', (gltf) => {
+         const backpackMesh            = gltf.scene;
+         backpackMesh.matrixAutoUpdate = false;
+         backpackMesh.name             = 'Backpack';
+         items.set('Backpack', backpackMesh);
+      });
+      // ------------------------------------------------------------
+
+
+      // ------------------------------------------------------------
+      // Bonfire
+      gltfLoader.load('./models/items/Bonfire.glb', (gltf) => {
+         const bonfireMesh            = gltf.scene;
+         bonfireMesh.matrixAutoUpdate = false;
+         bonfireMesh.name             = 'Bonfire';
+         items.set('Bonfire', bonfireMesh);
+      });
+
+
+      // ------------------------------------------------------------
+      // Flare Gun
+      gltfLoader.load('./models/items/FlareGun.glb', (gltf) => {
+         const flareGunMesh            = gltf.scene;
+         flareGunMesh.matrixAutoUpdate = false;
+         flareGunMesh.name             = 'FlareGun';
+         items.set('FlareGun', flareGunMesh);
+      });
+      // ------------------------------------------------------------
+
+
+      // ------------------------------------------------------------
       // Collectible Health
-      gltfLoader.load('./models/pickups/PickupHealth.glb', (gltf) => {
+      gltfLoader.load('./models/items/PickupHealth.glb', (gltf) => {
          const healthpackMesh            = gltf.scene;
          healthpackMesh.matrixAutoUpdate = false;
+         healthpackMesh.name             = 'Healthpack';
          items.set('pickupHealth', healthpackMesh);
       });
       // ------------------------------------------------------------
@@ -1180,9 +1233,10 @@ class AssetManager {
 
       // ------------------------------------------------------------
       // Collectible Heart
-      gltfLoader.load('./models/pickups/PickupHeart.glb', (gltf) => {
+      gltfLoader.load('./models/items/PickupHeart.glb', (gltf) => {
          const heartMesh            = gltf.scene;
          heartMesh.matrixAutoUpdate = false;
+         heartMesh.name             = 'Heart';
          items.set('pickupHeart', heartMesh);
       });
       // ------------------------------------------------------------
@@ -1190,9 +1244,10 @@ class AssetManager {
 
       // ------------------------------------------------------------
       // Collectible Tank
-      gltfLoader.load('./models/pickups/PickupTank.glb', (gltf) => {
+      gltfLoader.load('./models/items/PickupTank.glb', (gltf) => {
          const tankMesh            = gltf.scene;
          tankMesh.matrixAutoUpdate = false;
+         tankMesh.name             = 'PickupTank';
          items.set('pickupTank', tankMesh);
       });
       // ------------------------------------------------------------
@@ -1206,6 +1261,7 @@ class AssetManager {
     * @private
     */
    _loadWeaponModels() {
+
       const gltfLoader = this.gltfLoader;
       const weapons    = this.weapons;
 
@@ -1214,17 +1270,8 @@ class AssetManager {
       gltfLoader.load('./models/weapons/FireAxe.glb', (gltf) => {
          const fireAxeMesh            = gltf.scene;
          fireAxeMesh.matrixAutoUpdate = false;
+         fireAxeMesh.name             = 'FireAxe';
          weapons.set('FireAxe', fireAxeMesh);
-      });
-      // ------------------------------------------------------------
-
-
-      // ------------------------------------------------------------
-      // Flare Gun
-      gltfLoader.load('./models/weapons/FlareGun.glb', (gltf) => {
-         const flareGunMesh            = gltf.scene;
-         flareGunMesh.matrixAutoUpdate = false;
-         weapons.set('FlareGun', flareGunMesh);
       });
       // ------------------------------------------------------------
 
@@ -1234,6 +1281,7 @@ class AssetManager {
       gltfLoader.load('./models/weapons/Pistol.glb', (gltf) => {
          const pistolMesh            = gltf.scene;
          pistolMesh.matrixAutoUpdate = false;
+         pistolMesh.name             = 'Pistol';
          weapons.set('Pistol', pistolMesh);
       });
       // ------------------------------------------------------------
@@ -1244,6 +1292,7 @@ class AssetManager {
       gltfLoader.load('./models/weapons/AKM.glb', (gltf) => {
          const akmMesh            = gltf.scene;
          akmMesh.matrixAutoUpdate = false;
+         akmMesh.name             = 'AKM';
          weapons.set('AKM', akmMesh);
       });
       // ------------------------------------------------------------
@@ -1254,6 +1303,7 @@ class AssetManager {
       gltfLoader.load('./models/weapons/M4a1.glb', (gltf) => {
          const m4a1Mesh            = gltf.scene;
          m4a1Mesh.matrixAutoUpdate = false;
+         m4a1Mesh.name             = 'M4a1';
          weapons.set('M4a1', m4a1Mesh);
       });
       // ------------------------------------------------------------
@@ -1264,6 +1314,7 @@ class AssetManager {
       gltfLoader.load('./models/weapons/Revolver.glb', (gltf) => {
          const revolverMesh            = gltf.scene;
          revolverMesh.matrixAutoUpdate = false;
+         revolverMesh.name             = 'Revolver';
          weapons.set('Revolver', revolverMesh);
       });
       // ------------------------------------------------------------
@@ -1274,6 +1325,7 @@ class AssetManager {
       gltfLoader.load('./models/weapons/AndroidSaber.glb', (gltf) => {
          const androidSaberMesh            = gltf.scene;
          androidSaberMesh.matrixAutoUpdate = false;
+         androidSaberMesh.name             = 'AndroidSaber';
          weapons.set('AndroidSaber', androidSaberMesh);
       });
       // ------------------------------------------------------------
@@ -1284,6 +1336,7 @@ class AssetManager {
       gltfLoader.load('./models/weapons/BowieKnife.glb', (gltf) => {
          const bowieKnifeMesh            = gltf.scene;
          bowieKnifeMesh.matrixAutoUpdate = false;
+         bowieKnifeMesh.name             = 'BowieKnife';
          weapons.set('BowieKnife', bowieKnifeMesh);
       });
       // ------------------------------------------------------------
@@ -1294,6 +1347,7 @@ class AssetManager {
       gltfLoader.load('./models/weapons/P320.glb', (gltf) => {
          const p320Mesh            = gltf.scene;
          p320Mesh.matrixAutoUpdate = false;
+         p320Mesh.name             = 'P320';
          weapons.set('P320', p320Mesh);
       });
       // ------------------------------------------------------------
@@ -1304,6 +1358,7 @@ class AssetManager {
       gltfLoader.load('./models/weapons/P226.glb', (gltf) => {
          const p226Mesh            = gltf.scene;
          p226Mesh.matrixAutoUpdate = false;
+         p226Mesh.name             = 'P226';
          weapons.set('P226', p226Mesh);
       });
       // ------------------------------------------------------------
@@ -1319,12 +1374,15 @@ class AssetManager {
       const gltfLoader = this.gltfLoader;
       const props      = this.props;
 
-      // Space Station
+      // ------------------------------------------------------------
+      // Apartment
       gltfLoader.load('./models/environment/Apartment.glb', (gltf) => {
          const apartment            = gltf.scene;
          apartment.matrixAutoUpdate = false;
+         apartment.name             = 'Apartment';
          props.set('Apartment', apartment);
       });
+      // ------------------------------------------------------------
 
 
    }

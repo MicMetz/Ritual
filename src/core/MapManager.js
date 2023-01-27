@@ -1,3 +1,13 @@
+// const mapType = {
+//    [EMPTY]    : createFloor,
+//    [HARD_WALL]: createHardWall,
+//    [SOFT_WALL]: createSoftWall
+// };
+
+const mapCache = {};
+
+
+
 class MapManager {
    /**
     *
@@ -31,7 +41,6 @@ class MapManager {
       this._miniMap.save();
 
       this._miniMap.beginPath();
-      // this._miniMap.arc(this._world.player.position.x, this._world.player.position.z, 5, 0, 2 * Math.PI);
       this._miniMap.fill();
 
       this._miniMap.closePath();

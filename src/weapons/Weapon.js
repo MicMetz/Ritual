@@ -11,15 +11,13 @@ import {WEAPON_STATUS_READY, WEAPON_STATUS_NOT_READY, WEAPON_STATUS_EQUIPPED, WE
 
 class Weapon extends Item {
 
-   constructor(owner, mesh) {
-      super(owner);
+   constructor(owner, type) {
+      super(owner, type);
 
-      this._owner  = owner;
-      this._weapon = mesh;
+      this._owner = owner;
 
       this._canActivateTrigger = false;
 
-      this._type   = null;
       this._status = WEAPON_STATUS_NOT_READY;
 
       // use to restore the state after a weapon change
@@ -97,7 +95,6 @@ class Weapon extends Item {
    /**
     * Returns a value representing the desirability of using the weapon.
     *
-    * @param {Number} distance - The distance to the target.
     * @return {Number} A score between 0 and 1 representing the desirability.
     */
    getDesirability() {
@@ -175,7 +172,6 @@ class Weapon extends Item {
    /**
     * Shoots at the given position.
     *
-    * @param {Vector3} targetPosition - The target position.
     * @return {Weapon} A reference to this weapon.
     */
    fire() {}

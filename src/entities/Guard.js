@@ -5,7 +5,7 @@
 import {AnimationMixer}                                    from "three";
 import {BoundingSphere, Vehicle, StateMachine, Quaternion} from 'yuka';
 import {GUARDTYPE}                                         from "../etc/Utilities.js";
-import Enemy                                               from "./enemies/Enemy.js";
+import Enemy                                               from "./Enemy.js";
 
 
 
@@ -22,7 +22,7 @@ class Guard extends Enemy {
     * @param body
     */
    constructor(world, type = GUARDTYPE.ASSAULT, body) {
-      super(type);
+      super(world, type);
 
       this.world     = world;
       this.bodyMesh  = body;
@@ -106,14 +106,12 @@ class Guard extends Enemy {
       this.boundingSphere.center.copy(this.position);
       this.bodyMesh.position.copy(this.position);
 
-
       this.stateMachineMovement.update();
       this.stateMachineCombat.update();
 
       super.update(delta);
 
       // rendering related stuff
-
       if (this.protected === true) {
 
          this.protectionMesh.material.uniforms.time.value = world.time.getElapsed();

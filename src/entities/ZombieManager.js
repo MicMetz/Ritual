@@ -1,4 +1,3 @@
-import {world}  from "../core/World.js";
 import {Zombie} from './enemies/Zombie.js';
 
 

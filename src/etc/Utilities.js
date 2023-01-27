@@ -1,6 +1,8 @@
 /**
  * @author MicMetzger /
  */
+import {Object3D} from "three";
+
 
 
 export const CONFIG = {
@@ -97,6 +99,14 @@ const WEAPONTYPE = {
 
 
 
+function wrap(mesh) {
+   const object = new Object3D();
+   object.add(mesh);
+   return object;
+}
+
+
+
 function dumpObject(obj, lines = [], isLast = true, prefix = '') {
    const localPrefix = isLast ? '└─' : '├─';
    lines.push(`${prefix}${prefix ? localPrefix : ''}${obj.name || '*no-name*'} [${obj.type}]`);
@@ -108,6 +118,28 @@ function dumpObject(obj, lines = [], isLast = true, prefix = '') {
    });
    return lines;
 }
+
+
+
+function adjustVertices(geometry, scale = 2) {
+   const p = geometry.vertices;
+   for (let i = 0; i < p.length; i++) {
+      p[i].x += (Math.random() - 0.5) * scale;
+      p[i].y += (Math.random() - 0.5) * scale;
+      p[i].z += (Math.random() - 0.5) * scale;
+   }
+}
+
+
+
+function randomMovePositions(bufferGeometry, scale = 1) {
+   const p = bufferGeometry.attributes.position.array;
+   for (let i = 0; i < p.length; i++) {
+      p[i] += (Math.random() - 0.5) * scale;
+   }
+   bufferGeometry.attributes.position.needsUpdate = true;
+}
+
 
 
 function randomString(length) {

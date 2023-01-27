@@ -6,11 +6,13 @@ import {Weapon}    from "../Weapon.js";
 class IMelee extends Weapon {
    /**
     * @description Interface for all melee weapons.
+    * @param world
     * @param owner
     * @param mesh
+    * @param type
     */
-   constructor(owner, mesh) {
-      super(owner);
+   constructor(world, owner, mesh, type = "melee") {
+      super(world, owner, type);
 
       this.weapon      = mesh;
       this.damage      = 1;

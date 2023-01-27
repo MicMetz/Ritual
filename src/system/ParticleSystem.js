@@ -3,9 +3,7 @@
  * original {@link https://github.com/Mugen87|Mugen87}
  */
 
-import {BufferAttribute, BufferGeometry, DynamicDrawUsage, Points, ShaderMaterial, TextureLoader} from "three";
-import * as THREE                                                                                 from 'three';
-import { Vector3 }        from 'yuka';
+import {BufferAttribute, BufferGeometry, DynamicDrawUsage, Points, ShaderMaterial, TextureLoader, Vector3} from "three";
 
 import { ParticleShader } from '../etc/Shaders.js';
 

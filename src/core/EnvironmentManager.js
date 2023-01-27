@@ -7,12 +7,12 @@ import {
    Color, Group, Object3D, Points, PointsMaterial, MathUtils,
    BoxGeometry, Mesh, AmbientLight, DirectionalLight, CameraHelper,
    MeshBasicMaterial, Fog, InstancedMesh, DoubleSide, ShaderMaterial,
-   PlaneGeometry, BufferGeometry, MeshToonMaterial
-}                      from "three";
+   PlaneGeometry, BufferGeometry, MeshToonMaterial, BoxBufferGeometry
+} from "three";
 import * as YUKA       from "yuka";
 import {FogController} from "../environment/FogController.js";
-import SpacialHashGrid from "../environment/SpacialHashGrid.js";
-import {Terrain}       from "../environment/terrain/Terrain.js";
+// import SpacialHashGrid from "../environment/SpacialHashGrid.js";
+// import {Terrain}       from "../environment/terrain/Terrain.js";
 
 
 
@@ -66,7 +66,7 @@ class EnvironmentManager {
       this.environmentmap = new Map();
 
       // TODO
-      this.grid          = new SpacialHashGrid([[-2500, -2500], [2500, 2500]], [5000, 5000]);
+      // this.grid          = new SpacialHashGrid([[-2500, -2500], [2500, 2500]], [5000, 5000]);
       this.terrain       = null;
       this.floorMesh     = new Group();
       this.wallsMeshes   = new Group();
@@ -116,14 +116,15 @@ class EnvironmentManager {
    }
 
 
-   generateShell() {
+   createHardWall() {
 
    }
 
 
-   generateGridHelper() {
+   createSoftWall() {
 
    }
+
 
 
    generateWalls() {
@@ -397,3 +398,6 @@ class EnvironmentManager {
 
 
 export {EnvironmentManager};
+
+
+

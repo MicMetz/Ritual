@@ -1,7 +1,7 @@
 import {AnimationMixer}               from "three";
 import {BoundingSphere, StateMachine} from "yuka";
-import {ZOMBIETYPE}                   from "../../etc/Utilities.js";
-import Enemy                          from "./Enemy.js";
+import {ZOMBIETYPE} from "../../etc/Utilities.js";
+import Enemy        from "../Enemy.js";
 
 
 
