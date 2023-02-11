@@ -3,57 +3,63 @@ import { FollowPathGoal } from './FollowPathGoal.js';
 import { FindPathGoal } from './FindPathGoal.js';
 
 
+
 /**
-* Top-Level goal that is used to manage the map exploration
-* of the enemy.
-*
-* @author {@link https://github.com/Mugen87|Mugen87}
-* @author {@link https://github.com/robp94|robp94}
-*/
+ * Top-Level goal that is used to manage the map exploration
+ * of the enemy.
+ *
+ * @author {@link https://github.com/Mugen87|Mugen87}
+ * @author {@link https://github.com/robp94|robp94}
+ */
 class ExploreGoal extends CompositeGoal {
 
-	constructor( owner ) {
+   constructor( owner ) {
 
-		super( owner );
+      super( owner );
 
-	}
+   }
 
-	activate() {
 
-		const owner = this.owner;
+   activate() {
 
-		// if this goal is reactivated then there may be some existing subgoals that must be removed
+      const owner = this.owner;
 
-		this.clearSubgoals();
+      // if this goal is reactivated then there may be some existing subgoals that must be removed
 
-		// compute random position on map
+      this.clearSubgoals();
 
-		const region = owner.world.navMesh.getRandomRegion();
+      // compute random position on map
 
-		const from = new Vector3().copy( owner.position );
-		const to = new Vector3().copy( region.centroid );
+      const region = owner.world.navMesh.getRandomRegion();
 
-		// setup subgoals
+      const from = new Vector3().copy( owner.position );
+      const to   = new Vector3().copy( region.centroid );
 
-		this.addSubgoal( new FindPathGoal( owner, from, to ) );
-		this.addSubgoal( new FollowPathGoal( owner ) );
+      // setup subgoals
 
-	}
+      this.addSubgoal( new FindPathGoal( owner, from, to ) );
+      this.addSubgoal( new FollowPathGoal( owner ) );
 
-	execute() {
+   }
 
-		this.status = this.executeSubgoals();
 
-		this.replanIfFailed();
+   execute() {
 
-	}
+      this.status = this.executeSubgoals();
 
-	terminate() {
+      this.replanIfFailed();
 
-		this.clearSubgoals();
+   }
 
-	}
+
+   terminate() {
+
+      this.clearSubgoals();
+
+   }
 
 }
+
+
 
 export { ExploreGoal };

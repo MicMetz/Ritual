@@ -4,20 +4,20 @@
  */
 
 
-import {PursuitBehavior, State} from 'yuka';
+import { PursuitBehavior, State } from 'yuka';
 
 
 
 class MovementPattern extends State {
 
-    constructor() {
+   constructor() {
 
-        super();
+      super();
 
-        this.speed  = 1.5;
-        this.spread = 4;
+      this.speed  = 1.5;
+      this.spread = 4;
 
-    }
+   }
 
 }
 
@@ -25,13 +25,13 @@ class MovementPattern extends State {
 
 class LeftRightMovementPattern extends MovementPattern {
 
-    execute(enemy) {
+   execute( enemy ) {
 
-        const elapsedTime = enemy.world.time.getElapsed();
+      const elapsedTime = enemy.world.time.getElapsed();
 
-        enemy.position.x = Math.cos(elapsedTime * this.speed) * this.spread;
+      enemy.position.x = Math.cos( elapsedTime * this.speed ) * this.spread;
 
-    }
+   }
 
 }
 
@@ -39,24 +39,24 @@ class LeftRightMovementPattern extends MovementPattern {
 
 class WavyMovementPattern extends MovementPattern {
 
-    constructor() {
+   constructor() {
 
-        super();
+      super();
 
-        this.offset = -3;
+      this.offset = -3;
 
-    }
-
-
-    execute(enemy) {
-
-        const t = enemy.world.time.getElapsed() * this.speed;
-
-        enemy.position.x = Math.cos(t) * this.spread;
-        enemy.position.z = this.offset + (Math.sin(t) * Math.cos(t) * this.spread);
+   }
 
 
-    }
+   execute( enemy ) {
+
+      const t = enemy.world.time.getElapsed() * this.speed;
+
+      enemy.position.x = Math.cos( t ) * this.spread;
+      enemy.position.z = this.offset + ( Math.sin( t ) * Math.cos( t ) * this.spread );
+
+
+   }
 
 }
 
@@ -64,23 +64,23 @@ class WavyMovementPattern extends MovementPattern {
 
 class CircleMovementPattern extends MovementPattern {
 
-    constructor() {
+   constructor() {
 
-        super();
+      super();
 
-        this.spread = 3;
+      this.spread = 3;
 
-    }
+   }
 
 
-    execute(enemy) {
+   execute( enemy ) {
 
-        const t = enemy.world.time.getElapsed() * this.speed;
+      const t = enemy.world.time.getElapsed() * this.speed;
 
-        enemy.position.x = Math.sin(t) * this.spread;
-        enemy.position.z = -Math.cos(t) * this.spread;
+      enemy.position.x = Math.sin( t ) * this.spread;
+      enemy.position.z = -Math.cos( t ) * this.spread;
 
-    }
+   }
 
 }
 
@@ -88,19 +88,19 @@ class CircleMovementPattern extends MovementPattern {
 
 class PursuitBehaviorMovementPattern extends MovementPattern {
 
-    enter(enemy) {
+   enter( enemy ) {
 
-        const pursuitBehavior = new PursuitBehavior(enemy.world.player);
-        enemy.steering.add(pursuitBehavior);
+      const pursuitBehavior = new PursuitBehavior( enemy.world.player );
+      enemy.steering.add( pursuitBehavior );
 
-    }
+   }
 
 
-    exit(enemy) {
+   exit( enemy ) {
 
-        enemy.steering.clear();
+      enemy.steering.clear();
 
-    }
+   }
 
 }
 
@@ -108,22 +108,22 @@ class PursuitBehaviorMovementPattern extends MovementPattern {
 
 class FleeMovementPattern extends MovementPattern {
 
-    enter(enemy) {
+   enter( enemy ) {
 
-        const fleeBehavior = new FleeBehavior(enemy.world.player);
-        enemy.steering.add(fleeBehavior);
+      const fleeBehavior = new FleeBehavior( enemy.world.player );
+      enemy.steering.add( fleeBehavior );
 
-    }
+   }
 
 
-    exit(enemy) {
+   exit( enemy ) {
 
-        enemy.steering.clear();
+      enemy.steering.clear();
 
-    }
+   }
 
 }
 
 
 
-export {LeftRightMovementPattern, WavyMovementPattern, CircleMovementPattern, PursuitBehaviorMovementPattern};
+export { LeftRightMovementPattern, WavyMovementPattern, CircleMovementPattern, PursuitBehaviorMovementPattern };

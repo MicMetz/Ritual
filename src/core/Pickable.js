@@ -1,47 +1,44 @@
-import {Vector2} from "three";
+import { Vector2 } from "three";
+import { EventDispatcher } from "yuka";
 
 
 
-var pickableIds = 0;
+class Pickable {
+   constructor( args ) {
+      this.deleted = false;
+      this.id      = args.id;
+      this.radius  = .3;
+      this.pos     = new Vector2( args.x, args.y );
+      this.type    = args.type;
+   }
 
 
-function Pickable(args) {
-   this.deleted = false;
-   this.id      = ++pickableIds;
-   this.radius  = .3;
-   this.pos     = new Vector2(args.x, args.y);
-   this.type    = args.type;
+   collideCircle( item ) {
+      return !this.deleted && this.pos.distanceTo( item.pos ) < this.radius + item.radius;
+   };
+
+
+   delete() {
+      if ( this.deleted ) {
+         return;
+      }
+
+      this.deleted = true;
+      this.pos.set( 0, 0 );
+   };
+
+
+   get data() {
+      return {
+         id: this.id,
+         t : this.type,
+         r : this.radius,
+         x : this.pos.x,
+         y : this.pos.y
+      };
+   }
 }
 
-
-Pickable.prototype.collideCircle = function (item) {
-   return !this.deleted && this.pos.dist(item.pos) <= (item.radius + this.radius);
-};
-
-
-Pickable.prototype.delete = function () {
-   if (this.deleted)
-      return;
-
-   this.deleted = true;
-   this.pos.delete();
-};
-
-
-Object.defineProperty(
-  Pickable.prototype,
-  'data', {
-     get: function () {
-        return {
-           id: this.id,
-           t : this.type,
-           r : parseFloat(this.radius.toFixed(2), 10),
-           x : parseFloat(this.pos[0].toFixed(2), 10),
-           y : parseFloat(this.pos[1].toFixed(2), 10)
-        };
-     }
-  }
-);
 
 
 export default Pickable;

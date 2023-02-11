@@ -4,273 +4,288 @@ import { Weapon } from './Weapon.js';
 import { WEAPON_STATUS_READY, WEAPON_STATUS_SHOT, WEAPON_STATUS_RELOAD, WEAPON_STATUS_EMPTY, WEAPON_STATUS_OUT_OF_AMMO, WEAPON_TYPES_BLASTER } from '../core/Constants.js';
 import { CONFIG } from '../core/Config.js';
 
+
+
 const spread = new Vector3();
 
+
+
 /**
-* Class for representing a blaster.
-*
-* @author {@link https://github.com/Mugen87|Mugen87}
-*/
+ * Class for representing a blaster.
+ *
+ * @author {@link https://github.com/Mugen87|Mugen87}
+ */
 class Blaster extends Weapon {
 
-	/**
-	* Constructs a new blaster with the given values.
-	*
-	* @param {GameEntity} owner - The owner of this weapon.
-	*/
-	constructor( owner ) {
+   /**
+    * Constructs a new blaster with the given values.
+    *
+    * @param {GameEntity} owner - The owner of this weapon.
+    */
+   constructor( owner ) {
 
-		super( owner );
+      super( owner );
 
-		this.type = WEAPON_TYPES_BLASTER;
+      this.type = WEAPON_TYPES_BLASTER;
 
-		// common weapon properties
+      // common weapon properties
 
-		this.roundsLeft = CONFIG.BLASTER.ROUNDS_LEFT;
-		this.roundsPerClip = CONFIG.BLASTER.ROUNDS_PER_CLIP;
-		this.ammo = CONFIG.BLASTER.AMMO;
-		this.maxAmmo = CONFIG.BLASTER.MAX_AMMO;
+      this.roundsLeft    = CONFIG.BLASTER.ROUNDS_LEFT;
+      this.roundsPerClip = CONFIG.BLASTER.ROUNDS_PER_CLIP;
+      this.ammo          = CONFIG.BLASTER.AMMO;
+      this.maxAmmo       = CONFIG.BLASTER.MAX_AMMO;
 
-		this.shotTime = CONFIG.BLASTER.SHOT_TIME;
-		this.reloadTime = CONFIG.BLASTER.RELOAD_TIME;
-		this.equipTime = CONFIG.BLASTER.EQUIP_TIME;
-		this.hideTime = CONFIG.BLASTER.HIDE_TIME;
-		this.muzzleFireTime = CONFIG.BLASTER.MUZZLE_TIME;
+      this.shotTime       = CONFIG.BLASTER.SHOT_TIME;
+      this.reloadTime     = CONFIG.BLASTER.RELOAD_TIME;
+      this.equipTime      = CONFIG.BLASTER.EQUIP_TIME;
+      this.hideTime       = CONFIG.BLASTER.HIDE_TIME;
+      this.muzzleFireTime = CONFIG.BLASTER.MUZZLE_TIME;
 
-	}
+   }
 
-	/**
-	* Update method of this weapon.
-	*
-	* @param {Number} delta - The time delta value;
-	* @return {Blaster} A reference to this weapon.
-	*/
-	update( delta ) {
 
-		super.update( delta );
+   /**
+    * Shoots at the given position.
+    *
+    * @param {Vector3} targetPosition - The target position.
+    * @return {Blaster} A reference to this weapon.
+    */
+   shoot( targetPosition ) {
 
-		// check reload
+      this.status = WEAPON_STATUS_SHOT;
 
-		if ( this.currentTime >= this.endTimeReload ) {
+      // audio
 
-			const toReload = this.roundsPerClip - this.roundsLeft;
+      const audio = this.audios.get( 'shot' );
+      if ( audio.isPlaying === true ) {
+         audio.stop();
+      }
+      audio.play();
 
-			if ( this.ammo >= toReload ) {
+      // animation
 
-				this.roundsLeft = this.roundsPerClip;
-				this.ammo -= toReload;
+      if ( this.mixer ) {
 
-			} else {
+         const animation = this.animations.get( 'shot' );
+         animation.stop();
+         animation.play();
 
-				this.roundsLeft += this.ammo;
-				this.ammo = 0;
+      }
 
-			}
+      // muzzle fire
 
-			// update UI
+      this.muzzle.visible           = true;
+      this.muzzle.material.rotation = Math.random() * Math.PI;
 
-			if ( this.owner.isPlayer ) {
+      this.endTimeMuzzleFire = this.currentTime + this.muzzleFireTime;
 
-				this.owner.world.uiManager.updateAmmoStatus();
+      // create bullet
 
-			}
+      const ray = new Ray();
 
-			this.status = WEAPON_STATUS_READY;
+      this.getWorldPosition( ray.origin );
+      ray.direction.subVectors( targetPosition, ray.origin ).normalize();
 
-			this.endTimeReload = Infinity;
+      // add spread
 
-		}
+      spread.x = ( 1 - Math.random() * 2 ) * 0.01;
+      spread.y = ( 1 - Math.random() * 2 ) * 0.01;
+      spread.z = ( 1 - Math.random() * 2 ) * 0.01;
 
-		// check muzzle fire
+      ray.direction.add( spread ).normalize();
 
-		if ( this.currentTime >= this.endTimeMuzzleFire ) {
+      // add bullet to world
 
-			this.muzzle.visible = false;
+      this.owner.world.addBullet( this.owner, ray );
 
-			this.endTimeMuzzleFire = Infinity;
+      // adjust ammo
 
-		}
+      this.roundsLeft--;
 
-		// check shoot
+      this.endTimeShot = this.currentTime + this.shotTime;
 
-		if ( this.currentTime >= this.endTimeShot ) {
+      return this;
 
-			if ( this.roundsLeft === 0 ) {
+   }
 
-				if ( this.ammo === 0 ) {
 
-					this.status = WEAPON_STATUS_OUT_OF_AMMO;
+   /**
+    * Returns a value representing the desirability of using the weapon.
+    *
+    * @param {Number} distance - The distance to the target.
+    * @return {Number} A score between 0 and 1 representing the desirability.
+    */
+   getDesirability( distance ) {
 
-				} else {
+      this.fuzzyModule.fuzzify( 'distanceToTarget', distance );
+      this.fuzzyModule.fuzzify( 'ammoStatus', this.roundsLeft );
 
-					this.status = WEAPON_STATUS_EMPTY;
+      return this.fuzzyModule.defuzzify( 'desirability' ) / 100;
 
-				}
+   }
 
-			} else {
 
-				this.status = WEAPON_STATUS_READY;
+   /**
+    * Reloads the weapon.
+    *
+    * @return {Blaster} A reference to this weapon.
+    */
+   reload() {
 
-			}
+      this.status = WEAPON_STATUS_RELOAD;
 
-			this.endTimeShot = Infinity;
+      // audio
 
-		}
+      const audio = this.audios.get( 'reload' );
+      if ( audio.isPlaying === true ) {
+         audio.stop();
+      }
+      audio.play();
 
-		return this;
+      // animation
 
-	}
+      if ( this.mixer ) {
 
-	/**
-	* Reloads the weapon.
-	*
-	* @return {Blaster} A reference to this weapon.
-	*/
-	reload() {
+         const animation = this.animations.get( 'reload' );
+         animation.stop();
+         animation.play();
 
-		this.status = WEAPON_STATUS_RELOAD;
+      }
 
-		// audio
+      this.endTimeReload = this.currentTime + this.reloadTime;
 
-		const audio = this.audios.get( 'reload' );
-		if ( audio.isPlaying === true ) audio.stop();
-		audio.play();
+      return this;
 
-		// animation
+   }
 
-		if ( this.mixer ) {
 
-			const animation = this.animations.get( 'reload' );
-			animation.stop();
-			animation.play();
+   /**
+    * Update method of this weapon.
+    *
+    * @param {Number} delta - The time delta value;
+    * @return {Blaster} A reference to this weapon.
+    */
+   update( delta ) {
 
-		}
+      super.update( delta );
 
-		this.endTimeReload = this.currentTime + this.reloadTime;
+      // check reload
 
-		return this;
+      if ( this.currentTime >= this.endTimeReload ) {
 
-	}
+         const toReload = this.roundsPerClip - this.roundsLeft;
 
-	/**
-	* Shoots at the given position.
-	*
-	* @param {Vector3} targetPosition - The target position.
-	* @return {Blaster} A reference to this weapon.
-	*/
-	shoot( targetPosition ) {
+         if ( this.ammo >= toReload ) {
 
-		this.status = WEAPON_STATUS_SHOT;
+            this.roundsLeft = this.roundsPerClip;
+            this.ammo -= toReload;
 
-		// audio
+         } else {
 
-		const audio = this.audios.get( 'shot' );
-		if ( audio.isPlaying === true ) audio.stop();
-		audio.play();
+            this.roundsLeft += this.ammo;
+            this.ammo = 0;
 
-		// animation
+         }
 
-		if ( this.mixer ) {
+         // update UI
 
-			const animation = this.animations.get( 'shot' );
-			animation.stop();
-			animation.play();
+         if ( this.owner.isPlayer ) {
 
-		}
+            this.owner.world.uiManager.updateAmmoStatus();
 
-		// muzzle fire
+         }
 
-		this.muzzle.visible = true;
-		this.muzzle.material.rotation = Math.random() * Math.PI;
+         this.status = WEAPON_STATUS_READY;
 
-		this.endTimeMuzzleFire = this.currentTime + this.muzzleFireTime;
+         this.endTimeReload = Infinity;
 
-		// create bullet
+      }
 
-		const ray = new Ray();
+      // check muzzle fire
 
-		this.getWorldPosition( ray.origin );
-		ray.direction.subVectors( targetPosition, ray.origin ).normalize();
+      if ( this.currentTime >= this.endTimeMuzzleFire ) {
 
-		// add spread
+         this.muzzle.visible = false;
 
-		spread.x = ( 1 - Math.random() * 2 ) * 0.01;
-		spread.y = ( 1 - Math.random() * 2 ) * 0.01;
-		spread.z = ( 1 - Math.random() * 2 ) * 0.01;
+         this.endTimeMuzzleFire = Infinity;
 
-		ray.direction.add( spread ).normalize();
+      }
 
-		// add bullet to world
+      // check shoot
 
-		this.owner.world.addBullet( this.owner, ray );
+      if ( this.currentTime >= this.endTimeShot ) {
 
-		// adjust ammo
+         if ( this.roundsLeft === 0 ) {
 
-		this.roundsLeft --;
+            if ( this.ammo === 0 ) {
 
-		this.endTimeShot = this.currentTime + this.shotTime;
+               this.status = WEAPON_STATUS_OUT_OF_AMMO;
 
-		return this;
+            } else {
 
-	}
+               this.status = WEAPON_STATUS_EMPTY;
 
-	/**
-	* Returns a value representing the desirability of using the weapon.
-	*
-	* @param {Number} distance - The distance to the target.
-	* @return {Number} A score between 0 and 1 representing the desirability.
-	*/
-	getDesirability( distance ) {
+            }
 
-		this.fuzzyModule.fuzzify( 'distanceToTarget', distance );
-		this.fuzzyModule.fuzzify( 'ammoStatus', this.roundsLeft );
+         } else {
 
-		return this.fuzzyModule.defuzzify( 'desirability' ) / 100;
+            this.status = WEAPON_STATUS_READY;
 
-	}
+         }
 
-	/**
-	* Inits animations for this weapon. Only used for the player.
-	*
-	* @return {Blaster} A reference to this weapon.
-	*/
-	initAnimations() {
+         this.endTimeShot = Infinity;
 
-		const assetManager = this.owner.world.assetManager;
+      }
 
-		const mixer = new AnimationMixer( this );
-		const animations = new Map();
+      return this;
 
-		const shotClip = assetManager.animations.get( 'blaster_shot' );
-		const reloadClip = assetManager.animations.get( 'blaster_reload' );
-		const hideClip = assetManager.animations.get( 'blaster_hide' );
-		const equipClip = assetManager.animations.get( 'blaster_equip' );
+   }
 
-		const shotAction = mixer.clipAction( shotClip );
-		shotAction.loop = LoopOnce;
 
-		const reloadAction = mixer.clipAction( reloadClip );
-		reloadAction.loop = LoopOnce;
+   /**
+    * Inits animations for this weapon. Only used for the player.
+    *
+    * @return {Blaster} A reference to this weapon.
+    */
+   initAnimations() {
 
-		const hideAction = mixer.clipAction( hideClip );
-		hideAction.loop = LoopOnce;
-		hideAction.clampWhenFinished = true;
+      const assetManager = this.owner.world.assetManager;
 
-		const equipAction = mixer.clipAction( equipClip );
-		equipAction.loop = LoopOnce;
+      const mixer      = new AnimationMixer( this );
+      const animations = new Map();
 
-		animations.set( 'shot', shotAction );
-		animations.set( 'reload', reloadAction );
-		animations.set( 'hide', hideAction );
-		animations.set( 'equip', equipAction );
+      const shotClip   = assetManager.animations.get( 'blaster_shot' );
+      const reloadClip = assetManager.animations.get( 'blaster_reload' );
+      const hideClip   = assetManager.animations.get( 'blaster_hide' );
+      const equipClip  = assetManager.animations.get( 'blaster_equip' );
 
-		this.animations = animations;
-		this.mixer = mixer;
+      const shotAction = mixer.clipAction( shotClip );
+      shotAction.loop  = LoopOnce;
 
-		return this;
+      const reloadAction = mixer.clipAction( reloadClip );
+      reloadAction.loop  = LoopOnce;
 
-	}
+      const hideAction             = mixer.clipAction( hideClip );
+      hideAction.loop              = LoopOnce;
+      hideAction.clampWhenFinished = true;
+
+      const equipAction = mixer.clipAction( equipClip );
+      equipAction.loop  = LoopOnce;
+
+      animations.set( 'shot', shotAction );
+      animations.set( 'reload', reloadAction );
+      animations.set( 'hide', hideAction );
+      animations.set( 'equip', equipAction );
+
+      this.animations = animations;
+      this.mixer      = mixer;
+
+      return this;
+
+   }
 
 }
+
+
 
 export { Blaster };

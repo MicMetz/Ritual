@@ -3,13 +3,13 @@
  * original {@link https://github.com/Mugen87|Mugen87}
  */
 
-import {BoundingSphere, GameEntity, StateMachine} from 'yuka';
+import { BoundingSphere, GameEntity, StateMachine } from 'yuka';
 
 
 
 class Tower extends GameEntity {
 
-   constructor(world) {
+   constructor( world ) {
 
       super();
 
@@ -23,7 +23,7 @@ class Tower extends GameEntity {
       this.boundingSphere        = new BoundingSphere();
       this.boundingSphere.radius = this.boundingRadius;
 
-      this.stateMachineCombat = new StateMachine(this);
+      this.stateMachineCombat = new StateMachine( this );
 
       this.audios = new Map();
 
@@ -37,10 +37,10 @@ class Tower extends GameEntity {
    }
 
 
-   setCombatPattern(pattern) {
+   setCombatPattern( pattern ) {
 
       this.stateMachineCombat.currentState = pattern;
-      this.stateMachineCombat.currentState.enter(this);
+      this.stateMachineCombat.currentState.enter( this );
 
       return this;
 
@@ -49,7 +49,7 @@ class Tower extends GameEntity {
 
    updateBoundingVolumes() {
 
-      this.boundingSphere.center.copy(this.position);
+      this.boundingSphere.center.copy( this.position );
 
    }
 
@@ -63,7 +63,7 @@ class Tower extends GameEntity {
    }
 
 
-   handleMessage(telegram) {
+   handleMessage( telegram ) {
 
       switch (telegram.message) {
 
@@ -73,19 +73,19 @@ class Tower extends GameEntity {
 
             this.healthPoints--;
 
-            const audio = this.audios.get('enemyHit');
-            world.playAudio(audio);
+            const audio = this.audios.get( 'enemyHit' );
+            world.playAudio( audio );
 
-            if (this.healthPoints === 0) {
+            if ( this.healthPoints === 0 ) {
 
-               const audio = this.audios.get('enemyExplode');
-               world.playAudio(audio);
+               const audio = this.audios.get( 'enemyExplode' );
+               world.playAudio( audio );
 
-               world.removeTower(this);
+               world.removeTower( this );
 
                // clear states
 
-               this.stateMachineCombat.currentState.exit(this);
+               this.stateMachineCombat.currentState.exit( this );
 
             }
 
@@ -93,7 +93,7 @@ class Tower extends GameEntity {
 
          default:
 
-            console.error('Unknown message type:', telegram.message);
+            console.error( 'Unknown message type:', telegram.message );
 
       }
 
@@ -105,4 +105,4 @@ class Tower extends GameEntity {
 
 
 
-export {Tower};
+export { Tower };

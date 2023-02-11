@@ -15,10 +15,10 @@ class MapManager {
     *
     * @param map
     */
-   constructor(world, map = null) {
+   constructor( world, map = null ) {
       this._world      = world;
       this._map        = map ? map : null;
-      this._miniMap    = document.getElementById("minimap").getContext("2d");
+      this._miniMap    = document.getElementById( "minimap" ).getContext( "2d" );
       this._visible    = true;
       this._fullScreen = false;
 
@@ -29,8 +29,18 @@ class MapManager {
    }
 
 
+   set Full( bool ) {
+      this._fullScreen = bool;
+      if ( this._fullScreen ) {
+         this.fullScreen();
+      } else {
+         this.minimize();
+      }
+   }
+
+
    update() {
-      this._miniMap.clearRect(0, 0, this._miniMap.width, this._miniMap.height);
+      this._miniMap.clearRect( 0, 0, this._miniMap.width, this._miniMap.height );
       this.generatePlacemark();
    }
 
@@ -55,30 +65,20 @@ class MapManager {
 
 
    connect() {
-      document.addEventListener('keydown', this.toggle);
+      document.addEventListener( 'keydown', this.toggle );
    }
 
 
    disconnect() {
-      document.removeEventListener('keydown', this.toggle);
+      document.removeEventListener( 'keydown', this.toggle );
    }
 
 
-   toggle(event) {
+   toggle( event ) {
       switch (event.keyCode) {
          case 77: // m
             this.Full = !this._fullScreen;
             break;
-      }
-   }
-
-
-   set Full(bool) {
-      this._fullScreen = bool;
-      if (this._fullScreen) {
-         this.fullScreen();
-      } else {
-         this.minimize();
       }
    }
 

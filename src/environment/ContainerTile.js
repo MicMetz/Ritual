@@ -1,10 +1,10 @@
-import {TriggerRegion} from "yuka";
+import { TriggerRegion } from "yuka";
 
 
 
 class ContainerTile extends TriggerRegion {
 
-   constructor(mesh, objects = [], position, rotation) {
+   constructor( mesh, objects = [], position, rotation ) {
       super();
       this.mesh     = mesh;
       this.objects  = objects;
@@ -18,4 +18,4 @@ class ContainerTile extends TriggerRegion {
 
 
 
-export {ContainerTile};
+export { ContainerTile };

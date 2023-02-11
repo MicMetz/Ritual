@@ -2,66 +2,73 @@ import { Goal, CompositeGoal, Vector3 } from 'yuka';
 import { FollowPathGoal } from './FollowPathGoal.js';
 import { FindPathGoal } from './FindPathGoal.js';
 
+
+
 /**
-* Sub-goal for seeking the enemy's target during a battle.
-*
-* @author {@link https://github.com/Mugen87|Mugen87}
-*/
+ * Sub-goal for seeking the enemy's target during a battle.
+ *
+ * @author {@link https://github.com/Mugen87|Mugen87}
+ */
 class ChargeGoal extends CompositeGoal {
 
-	constructor( owner ) {
+   constructor( owner ) {
 
-		super( owner );
+      super( owner );
 
-	}
+   }
 
-	activate() {
 
-		this.clearSubgoals();
+   activate() {
 
-		const owner = this.owner;
+      this.clearSubgoals();
 
-		// seek to the current position of the target
+      const owner = this.owner;
 
-		const target = owner.targetSystem.getTarget();
+      // seek to the current position of the target
 
-		// it's important to use path finding since an enemy might be visible
-		// but not directly reachable via a seek behavior because of an obstacle
+      const target = owner.targetSystem.getTarget();
 
-		const from = new Vector3().copy( owner.position );
-		const to = new Vector3().copy( target.position );
+      // it's important to use path finding since an enemy might be visible
+      // but not directly reachable via a seek behavior because of an obstacle
 
-		// setup subgoals
+      const from = new Vector3().copy( owner.position );
+      const to   = new Vector3().copy( target.position );
 
-		this.addSubgoal( new FindPathGoal( owner, from, to ) );
-		this.addSubgoal( new FollowPathGoal( owner ) );
+      // setup subgoals
 
-	}
+      this.addSubgoal( new FindPathGoal( owner, from, to ) );
+      this.addSubgoal( new FollowPathGoal( owner ) );
 
-	execute() {
+   }
 
-		// stop executing if the traget is not visible anymore
 
-		if ( this.owner.targetSystem.isTargetShootable() === false ) {
+   execute() {
 
-			this.status = Goal.STATUS.COMPLETED;
+      // stop executing if the traget is not visible anymore
 
-		} else {
+      if ( this.owner.targetSystem.isTargetShootable() === false ) {
 
-			this.status = this.executeSubgoals();
+         this.status = Goal.STATUS.COMPLETED;
 
-			this.replanIfFailed();
+      } else {
 
-		}
+         this.status = this.executeSubgoals();
 
-	}
+         this.replanIfFailed();
 
-	terminate() {
+      }
 
-		this.clearSubgoals();
+   }
 
-	}
+
+   terminate() {
+
+      this.clearSubgoals();
+
+   }
 
 }
+
+
 
 export { ChargeGoal };

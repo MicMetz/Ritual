@@ -1,4 +1,4 @@
-import {Item} from "./Item.js";
+import { Item } from "./Item.js";
 
 
 
@@ -17,8 +17,8 @@ class Carryable extends Item {
     * @param position
     * @param rotation
     */
-   constructor(world, name, type, parent, active, triggers, description, position, rotation) {
-      super(world, name, type, parent, active, triggers, description, position, rotation);
+   constructor( world, name, type, parent, active, triggers, description, position, rotation ) {
+      super( world, name, type, parent, active, triggers, description, position, rotation );
 
       this._isCarried = false;
    }
@@ -29,7 +29,7 @@ class Carryable extends Item {
    }
 
 
-   set isCarried(value) {
+   set isCarried( value ) {
       this._isCarried = value;
    }
 }

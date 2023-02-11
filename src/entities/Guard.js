@@ -2,10 +2,10 @@
  * @author MicMetzger /
  */
 
-import {AnimationMixer}                                    from "three";
-import {BoundingSphere, Vehicle, StateMachine, Quaternion} from 'yuka';
-import {GUARDTYPE}                                         from "../etc/Utilities.js";
-import Enemy                                               from "./Enemy.js";
+import { AnimationMixer } from "three";
+import { BoundingSphere, Vehicle, StateMachine, Quaternion } from 'yuka';
+import { GUARDTYPE } from "../etc/Utilities.js";
+import Enemy from "./Enemy.js";
 
 
 
@@ -21,17 +21,17 @@ class Guard extends Enemy {
     * @param type
     * @param body
     */
-   constructor(world, type = GUARDTYPE.ASSAULT, body) {
-      super(world, type);
+   constructor( world, type = GUARDTYPE.ASSAULT, body ) {
+      super( world, type );
 
       this.world     = world;
       this.bodyMesh  = body;
       this.guardType = type;
 
       // Animations
-      this.animations           = new AnimationMixer(this.bodyMesh);
-      this.stateMachineMovement = new StateMachine(this);
-      this.stateMachineCombat   = new StateMachine(this);
+      this.animations           = new AnimationMixer( this.bodyMesh );
+      this.stateMachineMovement = new StateMachine( this );
+      this.stateMachineCombat   = new StateMachine( this );
 
       this.boundingRadius = 0.5;
 
@@ -71,66 +71,66 @@ class Guard extends Enemy {
       this.protected              = false;
       this.protectionMesh.visible = false;
 
-      const audio = this.audios.get('coreShieldDestroyed');
-      this.world.playAudio(audio);
+      const audio = this.audios.get( 'coreShieldDestroyed' );
+      this.world.playAudio( audio );
 
       return this;
 
    }
 
 
-   setCombatPattern(pattern) {
+   setCombatPattern( pattern ) {
 
       this.stateMachineCombat.currentState = pattern;
-      this.stateMachineCombat.currentState.enter(this);
+      this.stateMachineCombat.currentState.enter( this );
 
       return this;
 
    }
 
 
-   setMovementPattern(pattern) {
+   setMovementPattern( pattern ) {
 
       this.stateMachineMovement.currentState = pattern;
-      this.stateMachineMovement.currentState.enter(this);
+      this.stateMachineMovement.currentState.enter( this );
 
       return this;
 
    }
 
 
-   update(delta) {
+   update( delta ) {
 
       const world = this.world;
 
-      this.boundingSphere.center.copy(this.position);
-      this.bodyMesh.position.copy(this.position);
+      this.boundingSphere.center.copy( this.position );
+      this.bodyMesh.position.copy( this.position );
 
       this.stateMachineMovement.update();
       this.stateMachineCombat.update();
 
-      super.update(delta);
+      super.update( delta );
 
       // rendering related stuff
-      if (this.protected === true) {
+      if ( this.protected === true ) {
 
          this.protectionMesh.material.uniforms.time.value = world.time.getElapsed();
 
       }
 
-      if (this.hitted === true) {
+      if ( this.hitted === true ) {
 
          // TODO: not finished
          // this.stateMachine.changeTo('hit');
 
-         q.copy(this.rotation).inverse(); // undo rotation of parent
-         this.hitMesh.quaternion.copy(q).multiply(world.camera.quaternion);
+         q.copy( this.rotation ).inverse(); // undo rotation of parent
+         this.hitMesh.quaternion.copy( q ).multiply( world.camera.quaternion );
 
          this.hitMesh.updateMatrix();
 
          this.hitMesh.material.uniforms.time.value += delta;
 
-         if (world.time.getElapsed() > this._hideHitEffectTime) {
+         if ( world.time.getElapsed() > this._hideHitEffectTime ) {
 
             this.hitMesh.visible = false;
             this.hitted          = false;
@@ -144,7 +144,7 @@ class Guard extends Enemy {
    }
 
 
-   handleMessage(telegram) {
+   handleMessage( telegram ) {
 
       const world = this.world;
 
@@ -152,14 +152,14 @@ class Guard extends Enemy {
 
          case 'hit':
 
-            if (this.protected === false) {
+            if ( this.protected === false ) {
 
                // this.healthPoints--;
-               this.takeDamage(telegram.data);
+               this.takeDamage( telegram.data );
 
-               if (this.hitted === true) {
+               if ( this.hitted === true ) {
 
-                  if (this.hitMesh.material.uniforms.time.value > this.hitEffectMinDuration) {
+                  if ( this.hitMesh.material.uniforms.time.value > this.hitEffectMinDuration ) {
 
                      this.hitMesh.material.uniforms.time.value = 0;
                      this._hideHitEffectTime                   = world.time.getElapsed() + this.hitEffectDuration;
@@ -177,28 +177,28 @@ class Guard extends Enemy {
 
                }
 
-               const audio = this.audios.get('enemyHit');
-               world.playAudio(audio);
+               const audio = this.audios.get( 'enemyHit' );
+               world.playAudio( audio );
 
                // if (this.healthPoints === 0) {
-               if (!this.isAlive) {
+               if ( !this.isAlive ) {
 
-                  const audio = this.audios.get('coreExplode');
-                  world.playAudio(audio);
+                  const audio = this.audios.get( 'coreExplode' );
+                  world.playAudio( audio );
 
-                  world.removeGuard(this);
+                  world.removeGuard( this );
 
                   // clear states
 
-                  this.stateMachineCombat.currentState.exit(this);
-                  this.stateMachineMovement.currentState.exit(this);
+                  this.stateMachineCombat.currentState.exit( this );
+                  this.stateMachineMovement.currentState.exit( this );
 
                }
 
             } else {
 
-               const audio = this.audios.get('coreShieldHit');
-               world.playAudio(audio);
+               const audio = this.audios.get( 'coreShieldHit' );
+               world.playAudio( audio );
 
             }
 
@@ -206,7 +206,7 @@ class Guard extends Enemy {
 
          default:
 
-            console.error('Unknown message type:', telegram.message);
+            console.error( 'Unknown message type:', telegram.message );
 
       }
 
@@ -218,4 +218,4 @@ class Guard extends Enemy {
 
 
 
-export {Guard};
+export { Guard };

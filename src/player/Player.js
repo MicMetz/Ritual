@@ -2,15 +2,15 @@
  * @author MicMetzger /
  */
 
-import {AABB, MathUtils, MovingEntity, OBB, Ray, Vector3, Vision} from 'yuka';
-import {Particle, ParticleSystem}                                 from '../system/ParticleSystem.js';
-import {WeaponSystem}                                             from "../weapons/WeaponSystem.js";
-import {Weapon}                                                   from "../weapons/Weapon.js";
-import {PlayerStateMachine}                                       from "./PlayerStateMachine.js";
-import {PlayerControllerProxy}                                    from "./PlayerControllerProxy.js";
-import {PlayerProjectile}                                         from './PlayerProjectile.js';
-import {EventDispatcher, Object3D, Raycaster}                     from 'three';
-import {PlayerProxy}                                              from "./PlayerAnimationStates.js";
+import { AABB, MathUtils, MovingEntity, OBB, Ray, Vector3, Vision } from 'yuka';
+import { Particle, ParticleSystem } from '../system/ParticleSystem.js';
+import { WeaponSystem } from "../weapons/WeaponSystem.js";
+import { Weapon } from "../weapons/Weapon.js";
+import { PlayerStateMachine } from "./PlayerStateMachine.js";
+import { PlayerControllerProxy } from "./PlayerControllerProxy.js";
+import { PlayerProjectile } from './PlayerProjectile.js';
+import { EventDispatcher, Object3D, Raycaster } from 'three';
+import { PlayerProxy } from "./PlayerAnimationStates.js";
 
 
 
@@ -32,10 +32,10 @@ class Player extends MovingEntity {
     * @param mixer
     * @param animations
     */
-   constructor(world, body, weaponMesh, mixer, animations) {
+   constructor( world, body, weaponMesh, mixer, animations ) {
       super();
 
-      console.log(process.env.NODE_ENV);
+      console.log( process.env.NODE_ENV );
       this._GOD_MODE_ = process.env.NODE_ENV === 'development' ? true : false;
 
       this.world      = world;
@@ -47,7 +47,7 @@ class Player extends MovingEntity {
       this.attacking = false;
       this.resting   = false;
 
-      this.vision             = new Vision(this);
+      this.vision             = new Vision( this );
       this.vision.fieldOfView = 90;
       this.vision.range       = 20;
 
@@ -72,15 +72,15 @@ class Player extends MovingEntity {
       this.lastShotTime      = 0;
 
       this.obb = new OBB();
-      this.obb.halfSizes.set(0.1, 0.1, 0.5);
+      this.obb.halfSizes.set( 0.1, 0.1, 0.5 );
 
       this.audios = new Map();
 
-      this.mainHand = this.bodyMesh.getObjectByName('PTR');
-      this.offHand  = this.bodyMesh.getObjectByName('PTL');
-      console.log(this.bodyMesh);
-      console.log(this.mainHand);
-      console.log(this.offHand);
+      this.mainHand = this.bodyMesh.getObjectByName( 'PTR' );
+      this.offHand  = this.bodyMesh.getObjectByName( 'PTL' );
+      console.log( this.bodyMesh );
+      console.log( this.mainHand );
+      console.log( this.offHand );
 
       this.weaponState = "idle";
 
@@ -93,8 +93,8 @@ class Player extends MovingEntity {
       this.weaponDelegate.rotation.y    = this.mainHand.rotation.y;
       this.weaponDelegate.rotation.z    = this.mainHand.rotation.z;
       this.weaponDelegateTip.position.z = 1.5;
-      this.weaponDelegate.add(this.weaponDelegateTip);
-      this.mainHand.add(this.weaponDelegate);
+      this.weaponDelegate.add( this.weaponDelegateTip );
+      this.mainHand.add( this.weaponDelegate );
 
       // this.weaponSystem               = new WeaponSystem(this);
       // this.weapon                     = new Weapon(this, weaponMesh);
@@ -106,16 +106,16 @@ class Player extends MovingEntity {
       // particles
       this.maxParticles   = 20;
       this.particleSystem = new ParticleSystem();
-      this.particleSystem.init(this.maxParticles);
+      this.particleSystem.init( this.maxParticles );
       this.particlesPerSecond = 6; // number of particles per second with maxSpeed
 
       this._particlesNextEmissionTime = 0;
       this._particlesElapsedTime      = 0;
 
-      this.stateMachine = new PlayerProxy(new PlayerControllerProxy(this.animations));
-      this.stateMachine.changeTo('idle');
+      this.stateMachine = new PlayerProxy( new PlayerControllerProxy( this.animations ) );
+      this.stateMachine.changeTo( 'idle' );
 
-      this._evaluate = this._evaluateActions.bind(this);
+      this._evaluate = this._evaluateActions.bind( this );
 
       this._connect();
 
@@ -131,16 +131,16 @@ class Player extends MovingEntity {
 
    _connect() {
 
-      window.addEventListener('keypress', this._evaluate, false);
-      window.addEventListener('onclick', this._evaluate, false);
+      window.addEventListener( 'keypress', this._evaluate, false );
+      window.addEventListener( 'onclick', this._evaluate, false );
 
    }
 
 
    _disconnect() {
 
-      window.removeEventListener('keypress', this._evaluate, false);
-      window.removeEventListener('onclick', this._evaluate, false);
+      window.removeEventListener( 'keypress', this._evaluate, false );
+      window.removeEventListener( 'onclick', this._evaluate, false );
 
 
    }
@@ -160,8 +160,8 @@ class Player extends MovingEntity {
       this.protected              = false;
       this.protectionMesh.visible = false;
 
-      const audio = this.audios.get('coreShieldDestroyed');
-      this.world.playAudio(audio);
+      const audio = this.audios.get( 'coreShieldDestroyed' );
+      this.world.playAudio( audio );
 
       return this;
 
@@ -170,11 +170,11 @@ class Player extends MovingEntity {
 
    attack() {
 
-      if (this.strategy === 'melee') {
+      if ( this.strategy === 'melee' ) {
          return this.slash();
       }
 
-      if (this.strategy === 'range') {
+      if ( this.strategy === 'range' ) {
          return this.shoot();
       }
 
@@ -183,22 +183,22 @@ class Player extends MovingEntity {
 
    slash() {
 
-      if (!this.stateMachine.currentState.Name.includes('roll')) {
+      if ( !this.stateMachine.currentState.Name.includes( 'roll' ) ) {
 
          const world       = this.world;
          const elapsedTime = world.time.getElapsed();
 
-         if (elapsedTime - this.lastswipeTime > (1 / this.swipesPerSecond)) {
+         if ( elapsedTime - this.lastswipeTime > ( 1 / this.swipesPerSecond ) ) {
 
             this.lastswipeTime = elapsedTime;
 
-            this.getDirection(direction);
+            this.getDirection( direction );
 
-            this.stateMachine.changeTo('melee');
+            this.stateMachine.changeTo( 'melee' );
 
-            const swipe = new PlayerProjectile(this, direction);
+            const swipe = new PlayerProjectile( this, direction );
 
-            world.addProjectile(swipe);
+            world.addProjectile( swipe );
 
          }
       }
@@ -213,20 +213,20 @@ class Player extends MovingEntity {
       const world       = this.world;
       const elapsedTime = world.time.getElapsed();
 
-      if (elapsedTime - this.lastShotTime > (1 / this.shotsPerSecond)) {
+      if ( elapsedTime - this.lastShotTime > ( 1 / this.shotsPerSecond ) ) {
 
          this.lastShotTime = elapsedTime;
 
-         this.getDirection(direction);
+         this.getDirection( direction );
 
-         this.stateMachine.changeTo('shoot');
+         this.stateMachine.changeTo( 'shoot' );
 
-         const projectile = new PlayerProjectile(this, direction);
+         const projectile = new PlayerProjectile( this, direction );
 
-         world.addProjectile(projectile);
+         world.addProjectile( projectile );
 
-         const audio = this.audios.get('playerShot');
-         world.playAudio(audio);
+         const audio = this.audios.get( 'playerShot' );
+         world.playAudio( audio );
 
       }
 
@@ -244,10 +244,10 @@ class Player extends MovingEntity {
    }
 
 
-   update(delta) {
+   update( delta ) {
 
-      if (!this.stateMachine) {
-         console.log(this + ': no state machine');
+      if ( !this.stateMachine ) {
+         console.log( this + ': no state machine' );
          return;
       }
 
@@ -255,24 +255,26 @@ class Player extends MovingEntity {
       this.currentTime += delta;
       const input = world.controls.input;
 
-      this.stateMachine.update(delta, this.world.controls.input);
-      if (this.mixer) this.mixer.update(delta);
+      this.stateMachine.update( delta, this.world.controls.input );
+      if ( this.mixer ) {
+         this.mixer.update( delta );
+      }
 
-      this.obb.center.copy(this.position);
-      this.obb.rotation.fromQuaternion(this.rotation);
-      this.bodyMesh.position.copy(this.position);
+      this.obb.center.copy( this.position );
+      this.obb.rotation.fromQuaternion( this.rotation );
+      this.bodyMesh.position.copy( this.position );
 
       this._restrictMovement();
 
-      super.update(delta);
+      super.update( delta );
 
-      if (this.protected === true) {
+      if ( this.protected === true ) {
 
          this.protectionMesh.material.uniforms.time.value = world.time.getElapsed();
 
       }
 
-      this.updateParticles(delta);
+      this.updateParticles( delta );
 
 
       return this;
@@ -280,66 +282,28 @@ class Player extends MovingEntity {
    }
 
 
-   updateParticles(delta) {
-
-      // check emission of new particles
-
-      const timeScale      = this.getSpeed() / this.maxSpeed; // [0,1]
-      const effectiveDelta = delta * timeScale;
-
-      this._particlesElapsedTime += effectiveDelta;
-
-      if (this._particlesElapsedTime > this._particlesNextEmissionTime) {
-
-         const t = 1 / this.particlesPerSecond;
-
-         this._particlesNextEmissionTime = this._particlesElapsedTime + (t / 2) + (t / 2 * Math.random());
-
-         // emit new particle
-
-         const particle = new Particle();
-         offset.x       = Math.random() * 0.3;
-         offset.y       = Math.random() * 0.3;
-         offset.z       = Math.random() * 0.3;
-         particle.position.copy(this.position).add(offset);
-         particle.lifetime = Math.random() * 0.7 + 0.3;
-         particle.opacity  = Math.random() * 0.5 + 0.5;
-         particle.size     = Math.floor(Math.random() * 10) + 10;
-         particle.angle    = Math.round(Math.random()) * Math.PI * Math.random();
-
-         this.particleSystem.add(particle);
-
-      }
-
-      // update the system itself
-
-      this.particleSystem.update(delta);
-
-   }
-
-
-   handleMessage(telegram) {
+   handleMessage( telegram ) {
 
       switch (telegram.message) {
 
          case 'hit':
 
-            if (this._GOD_MODE_ === false) {
-               console.log('player hit');
+            if ( this._GOD_MODE_ === false ) {
+               console.log( 'player hit' );
 
                const world = this.world;
 
-               const audio = this.audios.get('playerHit');
-               world.playAudio(audio);
+               const audio = this.audios.get( 'playerHit' );
+               world.playAudio( audio );
 
-               if (this.protected === false) {
+               if ( this.protected === false ) {
 
                   this.healthPoints--;
 
-                  if (this.healthPoints === 0) {
+                  if ( this.healthPoints === 0 ) {
 
-                     const audio = this.audios.get('playerExplode');
-                     world.playAudio(audio);
+                     const audio = this.audios.get( 'playerExplode' );
+                     world.playAudio( audio );
 
                   }
 
@@ -351,7 +315,7 @@ class Player extends MovingEntity {
 
          default:
 
-            console.error('Unknown message type:', telegram.message);
+            console.error( 'Unknown message type:', telegram.message );
 
       }
 
@@ -360,11 +324,49 @@ class Player extends MovingEntity {
    }
 
 
-   _evaluateActions(event) {
+   updateParticles( delta ) {
+
+      // check emission of new particles
+
+      const timeScale      = this.getSpeed() / this.maxSpeed; // [0,1]
+      const effectiveDelta = delta * timeScale;
+
+      this._particlesElapsedTime += effectiveDelta;
+
+      if ( this._particlesElapsedTime > this._particlesNextEmissionTime ) {
+
+         const t = 1 / this.particlesPerSecond;
+
+         this._particlesNextEmissionTime = this._particlesElapsedTime + ( t / 2 ) + ( t / 2 * Math.random() );
+
+         // emit new particle
+
+         const particle = new Particle();
+         offset.x       = Math.random() * 0.3;
+         offset.y       = Math.random() * 0.3;
+         offset.z       = Math.random() * 0.3;
+         particle.position.copy( this.position ).add( offset );
+         particle.lifetime = Math.random() * 0.7 + 0.3;
+         particle.opacity  = Math.random() * 0.5 + 0.5;
+         particle.size     = Math.floor( Math.random() * 10 ) + 10;
+         particle.angle    = Math.round( Math.random() ) * Math.PI * Math.random();
+
+         this.particleSystem.add( particle );
+
+      }
+
+      // update the system itself
+
+      this.particleSystem.update( delta );
+
+   }
+
+
+   _evaluateActions( event ) {
       switch (event.keyCode) {
          case 32: {
 
-            this.stateMachine.changeTo('roll');
+            this.stateMachine.changeTo( 'roll' );
             // }
             break;
 
@@ -382,53 +384,55 @@ class Player extends MovingEntity {
 
    _restrictMovement() {
 
-      if (this.velocity.squaredLength() === 0) return;
+      if ( this.velocity.squaredLength() === 0 ) {
+         return;
+      }
 
       // check obstacles
 
       const world     = this.world;
       const obstacles = world.obstacles;
 
-      for (let i = 0, l = obstacles.length; i < l; i++) {
+      for ( let i = 0, l = obstacles.length; i < l; i++ ) {
 
-         const obstacle = obstacles[i];
+         const obstacle = obstacles[ i ];
 
          // enhance the AABB
 
-         aabb.copy(obstacle.aabb);
-         aabb.max.addScalar(this.boundingRadius * 0.5);
-         aabb.min.subScalar(this.boundingRadius * 0.5);
+         aabb.copy( obstacle.aabb );
+         aabb.max.addScalar( this.boundingRadius * 0.5 );
+         aabb.min.subScalar( this.boundingRadius * 0.5 );
 
          // setup ray
 
-         ray.origin.copy(this.position);
-         ray.direction.copy(this.velocity).normalize();
+         ray.origin.copy( this.position );
+         ray.direction.copy( this.velocity ).normalize();
 
          // perform ray/AABB intersection test
 
-         if (ray.intersectAABB(aabb, intersectionPoint) !== null) {
+         if ( ray.intersectAABB( aabb, intersectionPoint ) !== null ) {
 
-            const squaredDistance = this.position.squaredDistanceTo(intersectionPoint);
+            const squaredDistance = this.position.squaredDistanceTo( intersectionPoint );
 
-            if (squaredDistance <= (this.boundingRadius * this.boundingRadius)) {
+            if ( squaredDistance <= ( this.boundingRadius * this.boundingRadius ) ) {
 
                // derive normal vector
 
-               aabb.getNormalFromSurfacePoint(intersectionPoint, intersectionNormal);
+               aabb.getNormalFromSurfacePoint( intersectionPoint, intersectionNormal );
 
                // compute reflection vector
 
-               reflectionVector.copy(ray.direction).reflect(intersectionNormal);
+               reflectionVector.copy( ray.direction ).reflect( intersectionNormal );
 
                // compute new velocity vector
 
                const speed = this.getSpeed();
 
-               this.velocity.addVectors(ray.direction, reflectionVector).normalize();
+               this.velocity.addVectors( ray.direction, reflectionVector ).normalize();
 
-               const f = 1 - Math.abs(intersectionNormal.dot(ray.direction));
+               const f = 1 - Math.abs( intersectionNormal.dot( ray.direction ) );
 
-               this.velocity.multiplyScalar(speed * f);
+               this.velocity.multiplyScalar( speed * f );
 
             }
 
@@ -441,8 +445,8 @@ class Player extends MovingEntity {
       const fieldXHalfSize = world.field.x / 2;
       const fieldZHalfSize = world.field.z / 2;
 
-      this.position.x = MathUtils.clamp(this.position.x, -(fieldXHalfSize - this.boundingRadius), (fieldXHalfSize - this.boundingRadius));
-      this.position.z = MathUtils.clamp(this.position.z, -(fieldZHalfSize - this.boundingRadius), (fieldZHalfSize - this.boundingRadius));
+      this.position.x = MathUtils.clamp( this.position.x, -( fieldXHalfSize - this.boundingRadius ), ( fieldXHalfSize - this.boundingRadius ) );
+      this.position.z = MathUtils.clamp( this.position.z, -( fieldZHalfSize - this.boundingRadius ), ( fieldZHalfSize - this.boundingRadius ) );
 
       return this;
 
@@ -453,4 +457,4 @@ class Player extends MovingEntity {
 
 
 
-export {Player};
+export { Player };

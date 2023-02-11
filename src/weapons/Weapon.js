@@ -3,16 +3,16 @@
  * original {@link https://github.com/Mugen87|Mugen87}
  */
 
-import {GameEntity, MathUtils}                                                                      from 'yuka';
-import {Item}                                                                                       from "../entities/Item.js";
-import {WEAPON_STATUS_READY, WEAPON_STATUS_NOT_READY, WEAPON_STATUS_EQUIPPED, WEAPON_STATUS_HIDDEN} from '../etc/Constants.js';
+import { GameEntity, MathUtils } from 'yuka';
+import { Item } from "../entities/Item.js";
+import { WEAPON_STATUS_READY, WEAPON_STATUS_NOT_READY, WEAPON_STATUS_EQUIPPED, WEAPON_STATUS_HIDDEN } from '../etc/Constants.js';
 
 
 
 class Weapon extends Item {
 
-   constructor(owner, type) {
-      super(owner, type);
+   constructor( owner, type ) {
+      super( owner, type );
 
       this._owner = owner;
 
@@ -53,20 +53,19 @@ class Weapon extends Item {
    }
 
 
-   set owner(owner) {
-
-      this._owner = owner;
-      super.owner = owner;
-
-   }
-
-
    get owner() {
 
       return this._owner;
 
    }
 
+
+   set owner( owner ) {
+
+      this._owner = owner;
+      super.owner = owner;
+
+   }
 
 
    /**
@@ -75,9 +74,9 @@ class Weapon extends Item {
     * @param {Number} rounds - The amount of ammo.
     * @return {Weapon} A reference to this weapon.
     */
-   addAmmo(rounds) {
+   addAmmo( rounds ) {
 
-      this._ammo = MathUtils.clamp(this._ammo + rounds, 0, this._maxAmmo);
+      this._ammo = MathUtils.clamp( this._ammo + rounds, 0, this._maxAmmo );
 
       return this;
 
@@ -114,18 +113,18 @@ class Weapon extends Item {
       this._status       = WEAPON_STATUS_EQUIPPED;
       this._endTimeEquip = this._currentTime + this._equipTime;
 
-      if (this._mixer) {
+      if ( this._mixer ) {
 
-         let animation = this._animations.get('hide');
+         let animation = this._animations.get( 'hide' );
          animation.stop();
 
-         animation = this._animations.get('equip');
+         animation = this._animations.get( 'equip' );
          animation.stop();
          animation.play();
 
       }
 
-      if (this._owner.isPlayer()) {
+      if ( this._owner.isPlayer() ) {
 
          this._owner.world.userInterface._updateAmmoStatus();
 
@@ -148,9 +147,9 @@ class Weapon extends Item {
       this._status        = WEAPON_STATUS_HIDDEN;
       this._endTimeHide   = this._currentTime + this._hideTime;
 
-      if (this._mixer) {
+      if ( this._mixer ) {
 
-         const animation = this._animations.get('hide');
+         const animation = this._animations.get( 'hide' );
          animation.stop();
          animation.play();
 
@@ -183,18 +182,18 @@ class Weapon extends Item {
     * @param {Number} delta - The time delta value;
     * @return {Weapon} A reference to this weapon.
     */
-   update(delta) {
+   update( delta ) {
 
       this._currentTime += delta;
 
-      if (this._currentTime >= this._endTimeEquip) {
+      if ( this._currentTime >= this._endTimeEquip ) {
 
          this._status       = this._previousState; // restore previous state
          this._endTimeEquip = Infinity;
 
       }
 
-      if (this._currentTime >= this._endTimeHide) {
+      if ( this._currentTime >= this._endTimeHide ) {
 
          this._status      = WEAPON_STATUS_NOT_READY;
          this._endTimeHide = Infinity;
@@ -203,9 +202,9 @@ class Weapon extends Item {
 
       // update animations
 
-      if (this._mixer) {
+      if ( this._mixer ) {
 
-         this._mixer.update(delta);
+         this._mixer.update( delta );
 
       }
 
@@ -217,4 +216,4 @@ class Weapon extends Item {
 
 
 
-export {Weapon};
+export { Weapon };

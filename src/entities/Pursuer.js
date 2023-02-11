@@ -3,13 +3,13 @@
  * original {@link https://github.com/Mugen87|Mugen87}
  */
 
-import {BoundingSphere, Vehicle, StateMachine} from 'yuka';
+import { BoundingSphere, Vehicle, StateMachine } from 'yuka';
 
 
 
 class Pursuer extends Vehicle {
 
-   constructor(world) {
+   constructor( world ) {
 
       super();
 
@@ -25,8 +25,8 @@ class Pursuer extends Vehicle {
       this.boundingSphere        = new BoundingSphere();
       this.boundingSphere.radius = this.boundingRadius;
 
-      this.stateMachineMovement = new StateMachine(this);
-      this.stateMachineCombat   = new StateMachine(this);
+      this.stateMachineMovement = new StateMachine( this );
+      this.stateMachineCombat   = new StateMachine( this );
 
       this.audios = new Map();
 
@@ -40,41 +40,41 @@ class Pursuer extends Vehicle {
    }
 
 
-   setCombatPattern(pattern) {
+   setCombatPattern( pattern ) {
 
       this.stateMachineCombat.currentState = pattern;
-      this.stateMachineCombat.currentState.enter(this);
+      this.stateMachineCombat.currentState.enter( this );
 
       return this;
 
    }
 
 
-   setMovementPattern(pattern) {
+   setMovementPattern( pattern ) {
 
       this.stateMachineMovement.currentState = pattern;
-      this.stateMachineMovement.currentState.enter(this);
+      this.stateMachineMovement.currentState.enter( this );
 
       return this;
 
    }
 
 
-   update(delta) {
+   update( delta ) {
 
-      this.boundingSphere.center.copy(this.position);
+      this.boundingSphere.center.copy( this.position );
 
       this.stateMachineMovement.update();
       this.stateMachineCombat.update();
 
-      super.update(delta);
+      super.update( delta );
 
       return this;
 
    }
 
 
-   handleMessage(telegram) {
+   handleMessage( telegram ) {
 
       switch (telegram.message) {
 
@@ -82,19 +82,19 @@ class Pursuer extends Vehicle {
 
             this.healthPoints--;
 
-            if (this.healthPoints === 0) {
+            if ( this.healthPoints === 0 ) {
 
                const world = this.world;
 
-               const audio = this.audios.get('enemyExplode');
-               world.playAudio(audio);
+               const audio = this.audios.get( 'enemyExplode' );
+               world.playAudio( audio );
 
-               world.removePursuer(this);
+               world.removePursuer( this );
 
                // clear states
 
-               this.stateMachineCombat.currentState.exit(this);
-               this.stateMachineMovement.currentState.exit(this);
+               this.stateMachineCombat.currentState.exit( this );
+               this.stateMachineMovement.currentState.exit( this );
 
             }
 
@@ -102,7 +102,7 @@ class Pursuer extends Vehicle {
 
          default:
 
-            console.error('Unknown message type:', telegram.message);
+            console.error( 'Unknown message type:', telegram.message );
 
       }
 
@@ -114,4 +114,4 @@ class Pursuer extends Vehicle {
 
 
 
-export {Pursuer};
+export { Pursuer };

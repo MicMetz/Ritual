@@ -1,10 +1,10 @@
 class RoomManager {
 
-   constructor(world, environment, size) {
+   constructor( world, environment, size ) {
 
       this.world       = world;
       this.environment = environment;
-      this.dimensions     = {}
+      this.dimensions  = {}
       this.rooms       = new Map();
 
 
@@ -12,12 +12,7 @@ class RoomManager {
    }
 
 
-   addRoom(room) {
-
-   }
-
-
-   set dimensions(size) {
+   set dimensions( size ) {
       switch (size) {
          case 'normal': {
             this.dimensions.x = 35;
@@ -48,7 +43,12 @@ class RoomManager {
    }
 
 
-   generate = (position) => {
+   addRoom( room ) {
+
+   }
+
+
+   generate = ( position ) => {
 
    }
 

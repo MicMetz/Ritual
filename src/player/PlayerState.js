@@ -3,7 +3,7 @@
  */
 
 class PlayerState {
-   constructor(parent) {
+   constructor( parent ) {
       this._parent = parent
    }
 

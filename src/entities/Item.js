@@ -2,7 +2,7 @@
  * @author MicMetzger /
  */
 
-import {GameEntity, Quaternion, Vector3} from "yuka";
+import { GameEntity, Quaternion, Vector3 } from "yuka";
 
 
 
@@ -20,18 +20,18 @@ class Item extends GameEntity {
     * @param position
     * @param rotation
     */
-   constructor(world, name, type, parent, active, triggers, description, position, rotation) {
+   constructor( world, name, type, parent, active, triggers, description, position, rotation ) {
       super();
 
-      this.world    = world;
+      this.world     = world;
       this._type     = type ? type : 'unknown';
       this._parent   = parent ? parent : null;
       this._active   = active ? active : false;
       this._triggers = triggers ? triggers : [];
 
       this._description = description ? description : 'This is a ' + name + ' of type ' + type;
-      this._position    = position ? new Vector3(position) : new Vector3();
-      this._rotation    = rotation ? new Quaternion(rotation) : new Quaternion();
+      this._position    = position ? new Vector3( position ) : new Vector3();
+      this._rotation    = rotation ? new Quaternion( rotation ) : new Quaternion();
 
    }
 
@@ -41,7 +41,7 @@ class Item extends GameEntity {
    }
 
 
-   set type(type) {
+   set type( type ) {
       this._type = type;
    }
 
@@ -51,7 +51,7 @@ class Item extends GameEntity {
    }
 
 
-   set description(value) {
+   set description( value ) {
       this._description = value;
    }
 
@@ -61,8 +61,8 @@ class Item extends GameEntity {
    }
 
 
-   set position(value) {
-      this._position.copy(value);
+   set position( value ) {
+      this._position.copy( value );
    }
 
 
@@ -71,8 +71,8 @@ class Item extends GameEntity {
    }
 
 
-   set rotaion(value) {
-      this._rotation.copy(value);
+   set rotaion( value ) {
+      this._rotation.copy( value );
    }
 
 
@@ -81,23 +81,10 @@ class Item extends GameEntity {
    }
 
 
-   set trigger(func) {
+   set trigger( func ) {
 
-      this._triggers.push(func);
+      this._triggers.push( func );
 
-   }
-
-
-   handleMessage(telegram) {
-      if (this._triggers.length > 0) {
-         if (!(telegram.type in this._triggers)) {
-            return false;
-         } else {
-            for (let handler of this._triggers[telegram.type]) {
-               handler(telegram);
-            }
-         }
-      }
    }
 
 
@@ -105,8 +92,21 @@ class Item extends GameEntity {
       // temporary
    }
 
+
+   handleMessage( telegram ) {
+      if ( this._triggers.length > 0 ) {
+         if ( !( telegram.type in this._triggers ) ) {
+            return false;
+         } else {
+            for ( let handler of this._triggers[ telegram.type ] ) {
+               handler( telegram );
+            }
+         }
+      }
+   }
+
 }
 
 
 
-export {Item};
+export { Item };

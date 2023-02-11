@@ -2,81 +2,88 @@ import { Goal, CompositeGoal, Vector3 } from 'yuka';
 import { FollowPathGoal } from './FollowPathGoal.js';
 import { FindPathGoal } from './FindPathGoal.js';
 
+
+
 /**
-* Sub-goal for searching the current target of an enemy.
-*
-* @author {@link https://github.com/Mugen87|Mugen87}
-*/
+ * Sub-goal for searching the current target of an enemy.
+ *
+ * @author {@link https://github.com/Mugen87|Mugen87}
+ */
 class HuntGoal extends CompositeGoal {
 
-	constructor( owner ) {
+   constructor( owner ) {
 
-		super( owner );
+      super( owner );
 
-	}
+   }
 
-	activate() {
 
-		this.clearSubgoals();
+   activate() {
 
-		const owner = this.owner;
+      this.clearSubgoals();
 
-		// seek to the last sensed position
+      const owner = this.owner;
 
-		const targetPosition = owner.targetSystem.getLastSensedPosition();
+      // seek to the last sensed position
 
-		// it's important to use path finding since there might be obstacle
-		// between the current and target position
+      const targetPosition = owner.targetSystem.getLastSensedPosition();
 
-		const from = new Vector3().copy( owner.position );
-		const to = new Vector3().copy( targetPosition );
+      // it's important to use path finding since there might be obstacle
+      // between the current and target position
 
-		// setup subgoals
+      const from = new Vector3().copy( owner.position );
+      const to   = new Vector3().copy( targetPosition );
 
-		this.addSubgoal( new FindPathGoal( owner, from, to ) );
-		this.addSubgoal( new FollowPathGoal( owner ) );
+      // setup subgoals
 
-	}
+      this.addSubgoal( new FindPathGoal( owner, from, to ) );
+      this.addSubgoal( new FollowPathGoal( owner ) );
 
-	execute() {
+   }
 
-		const owner = this.owner;
 
-		// hunting is not necessary if the target becomes visible again
+   execute() {
 
-		if ( owner.targetSystem.isTargetShootable() ) {
+      const owner = this.owner;
 
-			this.status = Goal.STATUS.COMPLETED;
+      // hunting is not necessary if the target becomes visible again
 
-		} else {
+      if ( owner.targetSystem.isTargetShootable() ) {
 
-			this.status = this.executeSubgoals();
+         this.status = Goal.STATUS.COMPLETED;
 
-			// if the enemy is at the last sensed position, forget about
-			// the bot, update the target system and consider this goal as completed
+      } else {
 
-			if ( this.completed() ) {
+         this.status = this.executeSubgoals();
 
-				const target = owner.targetSystem.getTarget();
-				owner.removeEntityFromMemory( target );
-				owner.targetSystem.update();
+         // if the enemy is at the last sensed position, forget about
+         // the bot, update the target system and consider this goal as completed
 
-			} else {
+         if ( this.completed() ) {
 
-				this.replanIfFailed();
+            const target = owner.targetSystem.getTarget();
+            owner.removeEntityFromMemory( target );
+            owner.targetSystem.update();
 
-			}
+         } else {
 
-		}
+            this.replanIfFailed();
 
-	}
+         }
 
-	terminate() {
+      }
 
-		this.clearSubgoals();
+   }
 
-	}
+
+   terminate() {
+
+      this.clearSubgoals();
+
+   }
 
 }
+
+
 
 export { HuntGoal };

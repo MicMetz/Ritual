@@ -1,7 +1,7 @@
 /**
  * @author MicMetzger /
  */
-import {Object3D} from "three";
+import { Object3D } from "three";
 
 
 
@@ -34,32 +34,32 @@ export const CONFIG = {
  *
  * */
 const _HUGE_MAP_BOUNDRY_LIMIT_ = {
-   x             : {min: -560, max: 560},
-   z             : {min: -560, max: 560},
+   x             : { min: -560, max: 560 },
+   z             : { min: -560, max: 560 },
    maxSmallRooms : 32,
    maxNormalRooms: 16,
    maxLargeRooms : 8,
 }
 
 const _LARGE_MAP_BOUNDRY_LIMIT_ = {
-   x             : {min: -280, max: 280},
-   z             : {min: -280, max: 280},
+   x             : { min: -280, max: 280 },
+   z             : { min: -280, max: 280 },
    maxSmallRooms : 16,
    maxNormalRooms: 8,
    maxLargeRooms : 4,
 };
 
 const _SMALL_MAP_BOUNDRY_LIMIT_ = {
-   x             : {min: -70, max: 70},
-   z             : {min: -70, max: 70},
+   x             : { min: -70, max: 70 },
+   z             : { min: -70, max: 70 },
    maxSmallRooms : 4,
    maxNormalRooms: 2,
    maxLargeRooms : 1,
 };
 
 const _NORMAL_MAP_BOUNDRY_LIMIT_ = {
-   x             : {min: -140, max: 140},
-   z             : {min: -140, max: 140},
+   x             : { min: -140, max: 140 },
+   z             : { min: -140, max: 140 },
    maxSmallRooms : 8,
    maxNormalRooms: 4,
    maxLargeRooms : 2,
@@ -99,64 +99,78 @@ const WEAPONTYPE = {
 
 
 
-function wrap(mesh) {
+function wrap( mesh ) {
    const object = new Object3D();
-   object.add(mesh);
+   object.add( mesh );
    return object;
 }
 
 
+/**
+ * Inclusive test, boundaries are included in positive test
+ * * @author Alex Goldring
+ * * @copyright Alex Goldring 17/04/2016.
 
-function dumpObject(obj, lines = [], isLast = true, prefix = '') {
+ * @param {Number} value
+ * @param {Number} v0
+ * @param {Number} v1
+ * @returns {boolean}
+ */
+export function isValueBetweenInclusive( value, v0, v1 ) {
+   return ( v0 >= value && value >= v1 ) || ( v1 >= value && value >= v0 );
+}
+
+
+function dumpObject( obj, lines = [], isLast = true, prefix = '' ) {
    const localPrefix = isLast ? '└─' : '├─';
-   lines.push(`${prefix}${prefix ? localPrefix : ''}${obj.name || '*no-name*'} [${obj.type}]`);
-   const newPrefix = prefix + (isLast ? '  ' : '│ ');
+   lines.push( `${prefix}${prefix ? localPrefix : ''}${obj.name || '*no-name*'} [${obj.type}]` );
+   const newPrefix = prefix + ( isLast ? '  ' : '│ ' );
    const lastNdx   = obj.children.length - 1;
-   obj.children.forEach((child, ndx) => {
+   obj.children.forEach( ( child, ndx ) => {
       const isLast = ndx === lastNdx;
-      dumpObject(child, lines, isLast, newPrefix);
-   });
+      dumpObject( child, lines, isLast, newPrefix );
+   } );
    return lines;
 }
 
 
 
-function adjustVertices(geometry, scale = 2) {
+function adjustVertices( geometry, scale = 2 ) {
    const p = geometry.vertices;
-   for (let i = 0; i < p.length; i++) {
-      p[i].x += (Math.random() - 0.5) * scale;
-      p[i].y += (Math.random() - 0.5) * scale;
-      p[i].z += (Math.random() - 0.5) * scale;
+   for ( let i = 0; i < p.length; i++ ) {
+      p[ i ].x += ( Math.random() - 0.5 ) * scale;
+      p[ i ].y += ( Math.random() - 0.5 ) * scale;
+      p[ i ].z += ( Math.random() - 0.5 ) * scale;
    }
 }
 
 
 
-function randomMovePositions(bufferGeometry, scale = 1) {
+function randomMovePositions( bufferGeometry, scale = 1 ) {
    const p = bufferGeometry.attributes.position.array;
-   for (let i = 0; i < p.length; i++) {
-      p[i] += (Math.random() - 0.5) * scale;
+   for ( let i = 0; i < p.length; i++ ) {
+      p[ i ] += ( Math.random() - 0.5 ) * scale;
    }
    bufferGeometry.attributes.position.needsUpdate = true;
 }
 
 
 
-function randomString(length) {
-   const chars = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXTZabcdefghiklmnopqrstuvwxyz'.split('');
-   if (!length) {
-      length = Math.floor(Math.random() * chars.length);
+function randomString( length ) {
+   const chars = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXTZabcdefghiklmnopqrstuvwxyz'.split( '' );
+   if ( !length ) {
+      length = Math.floor( Math.random() * chars.length );
    }
    let str = '';
-   for (let i = 0; i < length; i++) {
-      str += chars[Math.floor(Math.random() * chars.length)];
+   for ( let i = 0; i < length; i++ ) {
+      str += chars[ Math.floor( Math.random() * chars.length ) ];
    }
    return str;
 }
 
 
-function randomInt(min, max) {
-   return Math.floor(Math.random() * (max - min + 1)) + min;
+function randomInt( min, max ) {
+   return Math.floor( Math.random() * ( max - min + 1 ) ) + min;
 }
 
 
@@ -165,15 +179,15 @@ function randomBool() {
 }
 
 
-function randomExcept(arr, except) {
-   const filtered = arr.filter(item => item !== except);
-   return filtered[randomInt(0, filtered.length - 1)];
+function randomExcept( arr, except ) {
+   const filtered = arr.filter( item => item !== except );
+   return filtered[ randomInt( 0, filtered.length - 1 ) ];
 }
 
 
-function randomExExcept(arr, exceptArr) {
-   const filtered = arr.filter(item => !exceptArr.includes(item));
-   return filtered[randomInt(0, filtered.length - 1)];
+function randomExExcept( arr, exceptArr ) {
+   const filtered = arr.filter( item => !exceptArr.includes( item ) );
+   return filtered[ randomInt( 0, filtered.length - 1 ) ];
 }
 
 

@@ -1,10 +1,10 @@
-import {TriggerRegion} from "yuka";
+import { TriggerRegion } from "yuka";
 
 
 
 class EventTile extends TriggerRegion {
 
-   constructor(mesh, size, position, rotation) {
+   constructor( mesh, size, position, rotation ) {
       super();
       this.mesh     = mesh;
       this.size     = size;
@@ -18,4 +18,4 @@ class EventTile extends TriggerRegion {
 
 
 
-export {EventTile};
+export { EventTile };

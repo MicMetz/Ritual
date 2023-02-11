@@ -2,8 +2,8 @@
  * @author MicMetzger /
  */
 
-import {OBB, Vector3} from 'yuka';
-import {Projectile}   from '../entities/Projectile.js';
+import { OBB, Vector3 } from 'yuka';
+import { Projectile } from '../entities/Projectile.js';
 
 
 
@@ -13,39 +13,39 @@ const target = new Vector3();
 
 class PlayerProjectile extends Projectile {
 
-   constructor(owner = null, direction) {
+   constructor( owner = null, direction ) {
 
-      super(owner);
+      super( owner );
 
       this.boundingRadius = 0.5;
       this.obb            = new OBB();
 
-			this.damage = 1;
+      this.damage = 1;
 
       this.maxSpeed = 20; // world units/seconds
 
-      this.velocity.copy(direction).multiplyScalar(this.maxSpeed);
-      this.position.copy(this.owner.position);
+      this.velocity.copy( direction ).multiplyScalar( this.maxSpeed );
+      this.position.copy( this.owner.position );
       this.position.y = 0.5; // slightly raise the projectile
 
-      target.copy(this.position).add(this.velocity);
-      this.lookAt(target);
+      target.copy( this.position ).add( this.velocity );
+      this.lookAt( target );
 
 
-      this.obb.halfSizes.set(0.1, 0.1, 0.5);
-      this.obb.rotation.fromQuaternion(this.rotation);
+      this.obb.halfSizes.set( 0.1, 0.1, 0.5 );
+      this.obb.rotation.fromQuaternion( this.rotation );
 
       this.isPlayerProjectile = true;
 
    }
 
 
-   update(delta) {
+   update( delta ) {
 
-      super.update(delta);
+      super.update( delta );
 
       // update OBB
-      this.obb.center.copy(this.position);
+      this.obb.center.copy( this.position );
 
    }
 
@@ -53,4 +53,4 @@ class PlayerProjectile extends Projectile {
 
 
 
-export {PlayerProjectile};
+export { PlayerProjectile };

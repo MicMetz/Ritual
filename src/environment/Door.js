@@ -1,10 +1,10 @@
-import {GameEntity, TriggerRegion} from "yuka";
+import { GameEntity, TriggerRegion } from "yuka";
 
 
 
 class Door extends TriggerRegion {
 
-   constructor(world) {
+   constructor( world ) {
       super();
       this.world   = world;
       this.mesh    = null;

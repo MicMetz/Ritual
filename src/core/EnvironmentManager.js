@@ -9,8 +9,8 @@ import {
    MeshBasicMaterial, Fog, InstancedMesh, DoubleSide, ShaderMaterial,
    PlaneGeometry, BufferGeometry, MeshToonMaterial, BoxBufferGeometry
 } from "three";
-import * as YUKA       from "yuka";
-import {FogController} from "../environment/FogController.js";
+import * as YUKA from "yuka";
+import { FogController } from "../environment/FogController.js";
 // import SpacialHashGrid from "../environment/SpacialHashGrid.js";
 // import {Terrain}       from "../environment/terrain/Terrain.js";
 
@@ -60,7 +60,7 @@ const fragmentShader = `
 
 
 class EnvironmentManager {
-   constructor(world) {
+   constructor( world ) {
       this.world          = world;
       this.props          = [];
       this.environmentmap = new Map();
@@ -70,7 +70,7 @@ class EnvironmentManager {
       this.terrain       = null;
       this.floorMesh     = new Group();
       this.wallsMeshes   = new Group();
-      this.background    = new Color('black');
+      this.background    = new Color( 'black' );
       this.fogController = null;
       this.grass         = null;
       this.uniforms      = {
@@ -107,11 +107,11 @@ class EnvironmentManager {
       this.depth = this.world.field.z;
       // this.terrain       = new Terrain(this.world);
 
-      this.generateBackground(0x030303);
-      this.generateLights(null, true);
+      this.generateBackground( 0x030303 );
+      this.generateLights( null, true );
       this.generateFloor();
       // this.generateWalls();
-      this.fogController = new FogController(this.world);
+      this.fogController = new FogController( this.world );
 
    }
 
@@ -129,7 +129,7 @@ class EnvironmentManager {
 
    generateWalls() {
 
-      let wallMaterial = new MeshBasicMaterial({color: 0x8e8e8e});
+      let wallMaterial = new MeshBasicMaterial( { color: 0x8e8e8e } );
       this.wallsMeshes.clear();
 
       // let x = Math.floor(-this.width / 2);
@@ -137,15 +137,15 @@ class EnvironmentManager {
       let x = this.width;
       let z = this.depth;
 
-      let wallGeometry       = new BoxGeometry(0.5, 2, 0.5);
-      var cornerWallMesh     = new Mesh(wallGeometry, wallMaterial);
-      var oppoCornerWallMesh = new Mesh(wallGeometry, wallMaterial);
+      let wallGeometry       = new BoxGeometry( 0.5, 2, 0.5 );
+      var cornerWallMesh     = new Mesh( wallGeometry, wallMaterial );
+      var oppoCornerWallMesh = new Mesh( wallGeometry, wallMaterial );
 
       cornerWallMesh.matrixAutoUpdate     = false;
       oppoCornerWallMesh.matrixAutoUpdate = false;
 
-      cornerWallMesh.position.set(x, 0, z);
-      oppoCornerWallMesh.position.set(Math.abs(x), 0, Math.abs(z));
+      cornerWallMesh.position.set( x, 0, z );
+      oppoCornerWallMesh.position.set( Math.abs( x ), 0, Math.abs( z ) );
 
       cornerWallMesh.updateMatrix();
       oppoCornerWallMesh.updateMatrix();
@@ -155,17 +155,17 @@ class EnvironmentManager {
       cornerWallMesh.receiveShadow     = true;
       oppoCornerWallMesh.receiveShadow = true;
 
-      this.wallsMeshes.add(cornerWallMesh);
-      this.wallsMeshes.add(oppoCornerWallMesh);
+      this.wallsMeshes.add( cornerWallMesh );
+      this.wallsMeshes.add( oppoCornerWallMesh );
 
-      cornerWallMesh     = new Mesh(wallGeometry, wallMaterial);
-      oppoCornerWallMesh = new Mesh(wallGeometry, wallMaterial);
+      cornerWallMesh     = new Mesh( wallGeometry, wallMaterial );
+      oppoCornerWallMesh = new Mesh( wallGeometry, wallMaterial );
 
       cornerWallMesh.matrixAutoUpdate     = false;
       oppoCornerWallMesh.matrixAutoUpdate = false;
 
-      cornerWallMesh.position.set(x, 0, Math.abs(z));
-      oppoCornerWallMesh.position.set(Math.abs(x), 0, z);
+      cornerWallMesh.position.set( x, 0, Math.abs( z ) );
+      oppoCornerWallMesh.position.set( Math.abs( x ), 0, z );
 
       cornerWallMesh.updateMatrix();
       oppoCornerWallMesh.updateMatrix();
@@ -175,25 +175,25 @@ class EnvironmentManager {
       cornerWallMesh.receiveShadow     = true;
       oppoCornerWallMesh.receiveShadow = true;
 
-      this.wallsMeshes.add(cornerWallMesh);
-      this.wallsMeshes.add(oppoCornerWallMesh);
+      this.wallsMeshes.add( cornerWallMesh );
+      this.wallsMeshes.add( oppoCornerWallMesh );
 
-      for (let i = Math.ceil(-this.depth / 2); i < Math.ceil(this.depth / 2); i++) {
-         wallGeometry = new BoxGeometry(0.5, 2, 1);
+      for ( let i = Math.ceil( -this.depth / 2 ); i < Math.ceil( this.depth / 2 ); i++ ) {
+         wallGeometry = new BoxGeometry( 0.5, 2, 1 );
 
-         if (i === Math.floor(this.depth / 2) || i === Math.ceil(-this.depth / 2)) {
-            wallGeometry = new BoxGeometry(0.5, 2, 1.5);
+         if ( i === Math.floor( this.depth / 2 ) || i === Math.ceil( -this.depth / 2 ) ) {
+            wallGeometry = new BoxGeometry( 0.5, 2, 1.5 );
          }
 
-         let wallMesh     = new Mesh(wallGeometry, wallMaterial);
-         let oppoWallMesh = new Mesh(wallGeometry, wallMaterial);
+         let wallMesh     = new Mesh( wallGeometry, wallMaterial );
+         let oppoWallMesh = new Mesh( wallGeometry, wallMaterial );
 
          wallMesh.matrixAutoUpdate     = false;
          oppoWallMesh.matrixAutoUpdate = false;
 
 
-         wallMesh.position.set(x, 0, i);
-         oppoWallMesh.position.set(Math.abs(x), 0, i);
+         wallMesh.position.set( x, 0, i );
+         oppoWallMesh.position.set( Math.abs( x ), 0, i );
 
          wallMesh.updateMatrix();
          oppoWallMesh.updateMatrix();
@@ -203,25 +203,25 @@ class EnvironmentManager {
          wallMesh.receiveShadow     = true;
          oppoWallMesh.receiveShadow = true;
 
-         this.wallsMeshes.add(wallMesh);
-         this.wallsMeshes.add(oppoWallMesh);
+         this.wallsMeshes.add( wallMesh );
+         this.wallsMeshes.add( oppoWallMesh );
       }
 
-      for (let i = Math.ceil(-this.width / 2); i < Math.ceil(this.width / 2); i++) {
-         wallGeometry = new BoxGeometry(1, 2, 0.5);
+      for ( let i = Math.ceil( -this.width / 2 ); i < Math.ceil( this.width / 2 ); i++ ) {
+         wallGeometry = new BoxGeometry( 1, 2, 0.5 );
 
-         if (i === Math.floor(this.width / 2) || i === Math.ceil(-this.width / 2)) {
-            wallGeometry = new BoxGeometry(1.5, 2, 0.5);
+         if ( i === Math.floor( this.width / 2 ) || i === Math.ceil( -this.width / 2 ) ) {
+            wallGeometry = new BoxGeometry( 1.5, 2, 0.5 );
          }
 
-         let wallMesh     = new Mesh(wallGeometry, wallMaterial);
-         let oppoWallMesh = new Mesh(wallGeometry, wallMaterial);
+         let wallMesh     = new Mesh( wallGeometry, wallMaterial );
+         let oppoWallMesh = new Mesh( wallGeometry, wallMaterial );
 
          wallMesh.matrixAutoUpdate     = false;
          oppoWallMesh.matrixAutoUpdate = false;
 
-         wallMesh.position.set(i, 0, z);
-         oppoWallMesh.position.set(i, 0, Math.abs(z));
+         wallMesh.position.set( i, 0, z );
+         oppoWallMesh.position.set( i, 0, Math.abs( z ) );
 
          wallMesh.updateMatrix();
          oppoWallMesh.updateMatrix();
@@ -231,24 +231,24 @@ class EnvironmentManager {
          wallMesh.receiveShadow     = true;
          oppoWallMesh.receiveShadow = true;
 
-         this.wallsMeshes.add(wallMesh);
-         this.wallsMeshes.add(oppoWallMesh);
+         this.wallsMeshes.add( wallMesh );
+         this.wallsMeshes.add( oppoWallMesh );
       }
 
 
-      this.world.scene.add(this.wallsMeshes);
+      this.world.scene.add( this.wallsMeshes );
 
    }
 
 
-   generateRooms(count, options = null) {
+   generateRooms( count, options = null ) {
 
    }
 
 
-   generateBackground(options = null) {
+   generateBackground( options = null ) {
 
-      if (options === null) {
+      if ( options === null ) {
          this.world.scene.background = this.background;
          this.world.scene.fog        = this.outBoundFog;
 
@@ -258,7 +258,7 @@ class EnvironmentManager {
    }
 
 
-   updateFog(delta) {
+   updateFog( delta ) {
 
 
 
@@ -268,10 +268,10 @@ class EnvironmentManager {
    generateFloor() {
       this.floorMesh.clear();
 
-      const floorGeometry = new PlaneGeometry(this.width, this.depth, 1, 1);
-      const grass         = new MeshBasicMaterial({map: this.world.assetManager.textures.get('Grass')});
-      const summerGrass   = new MeshBasicMaterial({map: this.world.assetManager.textures.get('SummerGrass')});
-      const leaves        = new MeshBasicMaterial({map: this.world.assetManager.textures.get('BushLeaves')});
+      const floorGeometry = new PlaneGeometry( this.width, this.depth, 1, 1 );
+      const grass         = new MeshBasicMaterial( { map: this.world.assetManager.textures.get( 'Grass' ) } );
+      const summerGrass   = new MeshBasicMaterial( { map: this.world.assetManager.textures.get( 'SummerGrass' ) } );
+      const leaves        = new MeshBasicMaterial( { map: this.world.assetManager.textures.get( 'BushLeaves' ) } );
       // var floorMaterials           = {};
       // floorMaterials['grass']      = new MeshBasicMaterial({map: this.world.assetManager.textures.get('SummerGrass')});
       // floorMaterials['dirt']       = new MeshBasicMaterial({map: this.world.assetManager.textures.get('SummerDirt')});
@@ -279,8 +279,8 @@ class EnvironmentManager {
       // floorMaterials['mud']        = new MeshBasicMaterial({map: this.world.assetManager.textures.get('SummerMud')});
       // floorMaterials['bushLeaves'] = new MeshBasicMaterial({map: this.world.assetManager.textures.get('BushLeaves')});
 
-      var material        = new MeshToonMaterial({map: this.world.assetManager.textures.get('Grass')});
-      var plane           = new Mesh(floorGeometry, material);
+      var material        = new MeshToonMaterial( { map: this.world.assetManager.textures.get( 'Grass' ) } );
+      var plane           = new Mesh( floorGeometry, material );
       plane.rotation.x    = -1 * Math.PI / 2;
       plane.position.y    = 0.1;
       plane.receiveShadow = true;
@@ -288,33 +288,33 @@ class EnvironmentManager {
       // plane.matrixAutoUpdate = false;
       plane.name          = 'Ground';
 
-      this.grass = new ShaderMaterial({
+      this.grass = new ShaderMaterial( {
          vertexShader, fragmentShader, uniforms: this.uniforms, side: DoubleSide
-      });
+      } );
 
       const instanceNumber = 1800000;
       const dummy          = new Object3D();
 
-      const grassGeometry = new PlaneGeometry(0.1, 2, 1, 2);
-      grassGeometry.translate(0, 0.2, 0);
+      const grassGeometry = new PlaneGeometry( 0.1, 2, 1, 2 );
+      grassGeometry.translate( 0, 0.2, 0 );
 
-      const leavesGeometry = new PlaneGeometry(0.2, 0.1, 2, 1);
+      const leavesGeometry = new PlaneGeometry( 0.2, 0.1, 2, 1 );
 
-      const grassMesh  = new InstancedMesh(grassGeometry, leaves, instanceNumber);
-      const leavesMesh = new InstancedMesh(leavesGeometry, leaves, instanceNumber);
+      const grassMesh  = new InstancedMesh( grassGeometry, leaves, instanceNumber );
+      const leavesMesh = new InstancedMesh( leavesGeometry, leaves, instanceNumber );
 
-      const grassInstancedMesh = new InstancedMesh(grassGeometry, this.grass, instanceNumber);
+      const grassInstancedMesh = new InstancedMesh( grassGeometry, this.grass, instanceNumber );
       grassInstancedMesh.name  = 'Grass';
 
-      const leavesInstancedMesh = new InstancedMesh(leavesGeometry, leaves, instanceNumber);
+      const leavesInstancedMesh = new InstancedMesh( leavesGeometry, leaves, instanceNumber );
       leavesInstancedMesh.name  = 'Leaves';
 
-      for (let i = 0; i < instanceNumber; i++) {
+      for ( let i = 0; i < instanceNumber; i++ ) {
 
-         dummy.position.set(MathUtils.randFloatSpread(150), 0, MathUtils.randFloatSpread(150));
+         dummy.position.set( MathUtils.randFloatSpread( 150 ), 0, MathUtils.randFloatSpread( 150 ) );
          dummy.rotation.y = Math.random() * Math.PI;
          dummy.updateMatrix();
-         grassInstancedMesh.setMatrixAt(i, dummy.matrix);
+         grassInstancedMesh.setMatrixAt( i, dummy.matrix );
 
          // dummy.position.set(MathUtils.randFloatSpread(500), 0, MathUtils.randFloatSpread(500));
          // dummy.updateMatrix();
@@ -322,25 +322,25 @@ class EnvironmentManager {
 
       }
 
-      this.floorMesh.add(plane);
-      this.floorMesh.add(grassInstancedMesh);
-      this.floorMesh.add(leavesInstancedMesh);
-      this.world.scene.add(this.floorMesh);
+      this.floorMesh.add( plane );
+      this.floorMesh.add( grassInstancedMesh );
+      this.floorMesh.add( leavesInstancedMesh );
+      this.world.scene.add( this.floorMesh );
 
    }
 
 
-   generateLights(options = null, DEBUG = false) {
-      const dirLight     = new DirectionalLight(0xffffff, 0.6);
-      const ambientLight = new AmbientLight(0xcccccc, 0.4);
+   generateLights( options = null, DEBUG = false ) {
+      const dirLight     = new DirectionalLight( 0xffffff, 0.6 );
+      const ambientLight = new AmbientLight( 0xcccccc, 0.4 );
 
-      if (options === null) {
+      if ( options === null ) {
 
          ambientLight.matrixAutoUpdate = false;
 
-         this.world.scene.add(ambientLight);
+         this.world.scene.add( ambientLight );
 
-         dirLight.position.set(1, 10, -1);
+         dirLight.position.set( 1, 10, -1 );
          dirLight.matrixAutoUpdate = false;
 
          dirLight.updateMatrix();
@@ -356,23 +356,25 @@ class EnvironmentManager {
          dirLight.shadow.mapSize.y     = 2048;
          dirLight.shadow.bias          = 0.01;
 
-         this.world.scene.add(dirLight);
+         this.world.scene.add( dirLight );
       } else {
 
       }
 
       /* TODO: DEBUG */
-      if (DEBUG) {
-         this.world.scene.add(new CameraHelper(dirLight.shadow.camera));
+      if ( DEBUG ) {
+         this.world.scene.add( new CameraHelper( dirLight.shadow.camera ) );
       }
 
    }
 
 
 
-   update(x, y, z) {
+   update( x, y, z ) {
 
-      if (x === this.width && y === this.height && z === this.depth) return;
+      if ( x === this.width && y === this.height && z === this.depth ) {
+         return;
+      }
 
       this.width  = x;
       this.depth  = z;
@@ -384,7 +386,7 @@ class EnvironmentManager {
    }
 
 
-   animate(delta) {
+   animate( delta ) {
       this.grass.uniforms.time.value = delta;
       this.grass.uniformsNeedUpdate  = true;
 
@@ -397,7 +399,7 @@ class EnvironmentManager {
 
 
 
-export {EnvironmentManager};
+export { EnvironmentManager };
 
 
 

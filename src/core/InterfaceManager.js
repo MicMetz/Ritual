@@ -2,10 +2,10 @@
  * @author MicMetzger /
  */
 
-import {Scene}           from "three";
-import {EventDispatcher} from "yuka";
-import {CONFIG}          from "../etc/Utilities";
-import MapManager        from "./MapManager.js";
+import { Scene } from "three";
+import { EventDispatcher } from "yuka";
+import { CONFIG } from "../etc/Utilities";
+import MapManager from "./MapManager.js";
 
 
 
@@ -15,10 +15,10 @@ class InterfaceManager {
     *
     * @param {World} world - A reference to the world.
     */
-   constructor(world) {
+   constructor( world ) {
 
       this.world      = world;
-      this.mapHandler = new MapManager(this.world, this.world.fieldMesh);
+      this.mapHandler = new MapManager( this.world, this.world.fieldMesh );
 
       this.currentTime = 0;
 
@@ -29,19 +29,19 @@ class InterfaceManager {
       this.endTimeInDamageIndication = Infinity;
 
       this.ui = {
-         userInterface: document.getElementById("user-interface"),
-         uiCrosshair  : document.getElementById("uiCrosshair"),
-         uiMinimap    : document.getElementById("uiMinimap"),
-         uiTimer      : document.getElementById("uiTimer"),
-         uiHealth     : document.getElementById("uiHealth"),
-         uiAmmo       : document.getElementById("uiAmmo"),
-         uiNade       : document.getElementById("uiNadeList"),
-         crosshair    : document.getElementById("crosshair"),
-         timer        : document.getElementById("timer"),
-         ammo         : document.getElementById("ammo"),
-         ammoRemaining: document.getElementById("ammoRemaining"),
-         health       : document.getElementById("health"),
-         nades        : document.getElementById("nades"),
+         userInterface: document.getElementById( "user-interface" ),
+         uiCrosshair  : document.getElementById( "uiCrosshair" ),
+         uiMinimap    : document.getElementById( "uiMinimap" ),
+         uiTimer      : document.getElementById( "uiTimer" ),
+         uiHealth     : document.getElementById( "uiHealth" ),
+         uiAmmo       : document.getElementById( "uiAmmo" ),
+         uiNade       : document.getElementById( "uiNadeList" ),
+         crosshair    : document.getElementById( "crosshair" ),
+         timer        : document.getElementById( "timer" ),
+         ammo         : document.getElementById( "ammo" ),
+         ammoRemaining: document.getElementById( "ammoRemaining" ),
+         health       : document.getElementById( "health" ),
+         nades        : document.getElementById( "nades" ),
       }
 
       this.sprites = {
@@ -60,7 +60,7 @@ class InterfaceManager {
     *
     * @param {number} time - The time delta.
     */
-   update(time) {
+   update( time ) {
 
       this.currentTime += time;
 
@@ -69,7 +69,7 @@ class InterfaceManager {
       this._updateTimerStatus();
       this._updateMapStatus();
 
-      if (this.currentTime >= this.endTimeOutDamageIndication) {
+      if ( this.currentTime >= this.endTimeOutDamageIndication ) {
 
          this._hideOutDamageIndication();
 
@@ -82,7 +82,7 @@ class InterfaceManager {
 
    _hideOutDamageIndication() {
 
-      this.sprites.crosshair.material.color.setHex(0xffffff);
+      this.sprites.crosshair.material.color.setHex( 0xffffff );
       this.endTimeOutDamageIndication = Infinity;
 
       return this;
@@ -112,7 +112,7 @@ class InterfaceManager {
 
    _showOutDamageIndication() {
 
-      this.sprites.crosshair.material.color.setHex(0xff0000);
+      this.sprites.crosshair.material.color.setHex( 0xff0000 );
       this.endTimeOutDamageIndication = this.currentTime + this.outDamageIndicatorTime;
 
       return this;
@@ -123,7 +123,7 @@ class InterfaceManager {
    /**
     *
     */
-   _setSizes() {
+   _updateSizes() {
 
    }
 
@@ -164,8 +164,8 @@ class InterfaceManager {
 
    _updateTimerStatus() {
 
-      var min     = Math.floor(this.currentTime / 60);
-      var seconds = Math.floor(this.currentTime % 60);
+      var min     = Math.floor( this.currentTime / 60 );
+      var seconds = Math.floor( this.currentTime % 60 );
 
       this.ui.timer.textContent = min + ":" + seconds
 
@@ -176,7 +176,7 @@ class InterfaceManager {
 
    _hideInterface() {
 
-      this.ui.userInterface.classList.add("hidden");
+      this.ui.userInterface.classList.add( "hidden" );
       return this;
 
    }
@@ -184,7 +184,7 @@ class InterfaceManager {
 
    _showInterface() {
 
-      this.ui.userInterface.classList.remove("hidden");
+      this.ui.userInterface.classList.remove( "hidden" );
 
       // this.sprites.crosshair.visible = true;
 
@@ -196,4 +196,4 @@ class InterfaceManager {
 
 
 
-export {InterfaceManager};
+export { InterfaceManager };

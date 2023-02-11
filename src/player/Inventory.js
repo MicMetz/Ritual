@@ -1,5 +1,8 @@
 export class Inventory {
-   constructor(params) {
+   stats = {}
+
+
+   constructor( params ) {
       this.map        = new Map();
       this.categories = new Map();
       this.size       = 0;
@@ -7,67 +10,67 @@ export class Inventory {
    }
 
 
-   add(item) {
-      if (this.size >= this.maxSize) {
-         console.log('inventory full');
+   add( item ) {
+      if ( this.size >= this.maxSize ) {
+         console.log( 'inventory full' );
          return false;
       }
 
-      if (this.map.has(item.name)) {
-         if (this.map.get(item.name).stackable) {
-            this.map.get(item.name).quantity++;
+      if ( this.map.has( item.name ) ) {
+         if ( this.map.get( item.name ).stackable ) {
+            this.map.get( item.name ).quantity++;
             this.size++;
-            if (this.categories.has(item.category)) {
-               this.categories.get(item.category).quantity++;
-               this.categories.append(item.category, item.name);
+            if ( this.categories.has( item.category ) ) {
+               this.categories.get( item.category ).quantity++;
+               this.categories.append( item.category, item.name );
             } else {
-               this.categories.set(item.category, {quantity: 1, items: [...item.name]});
+               this.categories.set( item.category, { quantity: 1, items: [ ...item.name ] } );
             }
             return true;
 
          } else {
-            console.log('item not stackable');
+            console.log( 'item not stackable' );
             return false;
          }
       } else {
-         this.map.set(item.name, item);
+         this.map.set( item.name, item );
          this.size++;
-         if (this.categories.has(item.category)) {
-            this.categories.get(item.category).quantity++;
-            this.categories.append(item.category, item.name);
+         if ( this.categories.has( item.category ) ) {
+            this.categories.get( item.category ).quantity++;
+            this.categories.append( item.category, item.name );
          } else {
-            this.categories.set(item.category, {quantity: 1, items: [...item.name]});
+            this.categories.set( item.category, { quantity: 1, items: [ ...item.name ] } );
          }
          return true;
       }
    }
 
 
-   remove(item) {
-      if (this.map.has(item.name)) {
-         if (this.map.get(item.name).stackable) {
-            if (this.map.get(item.name).quantity > 1) {
-               this.map.get(item.name).quantity--;
+   remove( item ) {
+      if ( this.map.has( item.name ) ) {
+         if ( this.map.get( item.name ).stackable ) {
+            if ( this.map.get( item.name ).quantity > 1 ) {
+               this.map.get( item.name ).quantity--;
                this.size--;
-               this.categories.get(item.category).quantity--;
-               this.categories.get(item.category).items.splice(this.categories.get(item.category).items.indexOf(item.name), 1);
+               this.categories.get( item.category ).quantity--;
+               this.categories.get( item.category ).items.splice( this.categories.get( item.category ).items.indexOf( item.name ), 1 );
                return true;
             } else {
-               this.map.delete(item.name);
+               this.map.delete( item.name );
                this.size--;
-               this.categories.get(item.category).quantity--;
-               this.categories.get(item.category).items.splice(this.categories.get(item.category).items.indexOf(item.name), 1);
+               this.categories.get( item.category ).quantity--;
+               this.categories.get( item.category ).items.splice( this.categories.get( item.category ).items.indexOf( item.name ), 1 );
                return true;
             }
          } else {
-            this.map.delete(item.name);
+            this.map.delete( item.name );
             this.size--;
-            this.categories.get(item.category).quantity--;
-            this.categories.get(item.category).items.splice(this.categories.get(item.category).items.indexOf(item.name), 1);
+            this.categories.get( item.category ).quantity--;
+            this.categories.get( item.category ).items.splice( this.categories.get( item.category ).items.indexOf( item.name ), 1 );
             return true;
          }
       } else {
-         console.log('item not in inventory');
+         console.log( 'item not in inventory' );
          return false;
       }
    }
@@ -93,58 +96,55 @@ export class Inventory {
    }
 
 
-   getItemsByCategory(category) {
-      return this.categories.get(category);
+   getItemsByCategory( category ) {
+      return this.categories.get( category );
    }
 
 
-   getItemByName(name) {
-      return this.map.get(name);
+   getItemByName( name ) {
+      return this.map.get( name );
    }
 
 
-   getItemByIndex(index) {
-      return this.map[index];
+   getItemByIndex( index ) {
+      return this.map[ index ];
    }
 
 
-   getItemByCategoryAndIndex(category, index) {
-      return this.categories.get(category).items[index];
+   getItemByCategoryAndIndex( category, index ) {
+      return this.categories.get( category ).items[ index ];
    }
 
 
-   getItemByCategoryAndName(category, name) {
-      return this.categories.get(category).items[name];
+   getItemByCategoryAndName( category, name ) {
+      return this.categories.get( category ).items[ name ];
    }
 
 
    getInventory() {}
 
 
-   getInventoryItem(item) {
+   getInventoryItem( item ) {
 
    }
 
 
    getInventoryMenu() {
-      const inventoryMenu = document.createElement('div');
-      inventoryMenu.classList.add('inventory-menu');
+      const inventoryMenu = document.createElement( 'div' );
+      inventoryMenu.classList.add( 'inventory-menu' );
       inventoryMenu.innerHTML = `
             <div class="inventory-menu__header">
                 <h2>Inventory</h2>
-                ${this.getInventory().map(item => `
+                ${this.getInventory().map( item => `
                     <div class="inventory-menu__item">
                         <img src="${item.image}" alt="${item.name}" />
                         <span>${item.name}</span>
                     </div>
-                `).join('')}
+                ` ).join( '' )}
             </div>
         `;
       return inventoryMenu;
    }
-
-
-   stats = {}
 
 
    getStats() {
@@ -153,17 +153,17 @@ export class Inventory {
 
 
    getStatsMenu() {
-      const statsMenu = document.createElement('div');
-      statsMenu.classList.add('stats-menu');
+      const statsMenu = document.createElement( 'div' );
+      statsMenu.classList.add( 'stats-menu' );
       statsMenu.innerHTML = `
             <div class="stats-menu__header">
                 <h2>Stats</h2>
-                ${this.getStats().map(stat => `
+                ${this.getStats().map( stat => `
                     <div class="stats-menu__item">
                         <span>${stat.name}+ : </span>
                         <span>${stat.value}</span>
                     </div>
-                `).join('')}
+                ` ).join( '' )}
             </div>
         `;
       return statsMenu;

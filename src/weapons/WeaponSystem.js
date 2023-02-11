@@ -1,9 +1,10 @@
 /**
  * @author MicMetzger /
-  */
+ */
 
-import {WEAPON_TYPES_ABILITY, WEAPON_TYPES_MELEE, WEAPON_TYPES_RANGE}       from "../etc/Constants.js";
-import { WEAPON_STATUS_EMPTY, WEAPON_STATUS_READY, WEAPON_STATUS_NOT_READY} from "../etc/Constants.js";
+import { WEAPON_TYPES_ABILITY, WEAPON_TYPES_MELEE, WEAPON_TYPES_RANGE } from "../etc/Constants.js";
+import { WEAPON_STATUS_EMPTY, WEAPON_STATUS_READY, WEAPON_STATUS_NOT_READY } from "../etc/Constants.js";
+
 
 
 class WeaponSystem {
@@ -12,29 +13,30 @@ class WeaponSystem {
     *
     * @param owner
     */
-   constructor(owner) {
+   constructor( owner ) {
 
-      this.owner         = owner;
+      this.owner          = owner;
       this._currentWeapon = null;
-      this.weaponsStore  = new Map();
+      this.weaponsStore   = new Map();
 
       this.nextWeapon = null;
       this.prevWeapon = null;
 
-      this.weaponsStore.set(WEAPON_TYPES_RANGE, null);
-      this.weaponsStore.set(WEAPON_TYPES_MELEE, null);
-      this.weaponsStore.set(WEAPON_TYPES_ABILITY, null);
+      this.weaponsStore.set( WEAPON_TYPES_RANGE, null );
+      this.weaponsStore.set( WEAPON_TYPES_MELEE, null );
+      this.weaponsStore.set( WEAPON_TYPES_ABILITY, null );
 
    }
 
 
-   set currentWeapon(weapon) {
+   set currentWeapon( weapon ) {
       this._currentWeapon = weapon;
-      this._currentWeapon.position.copy(this.owner.mainHand.position);
+      this._currentWeapon.position.copy( this.owner.mainHand.position );
    }
 
 
 }
 
 
-export {WeaponSystem};
+
+export { WeaponSystem };

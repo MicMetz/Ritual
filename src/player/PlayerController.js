@@ -2,8 +2,8 @@
  * @author MicMetzger /
  */
 
-import {EventDispatcher, Vector3, Logger, MathUtils} from 'yuka';
-import {PlayerActionController}                      from "./PlayerActionController.js";
+import { EventDispatcher, Vector3, Logger, MathUtils } from 'yuka';
+import { PlayerActionController } from "./PlayerActionController.js";
 
 
 
@@ -14,15 +14,15 @@ const target    = new Vector3();
 
 class PlayerController extends EventDispatcher {
 
-   constructor(owner = null, camera = null) {
+   constructor( owner = null, camera = null ) {
 
       super();
 
       this.owner            = owner;
       this.camera           = camera;
-      this.actionController = new PlayerActionController(owner);
+      this.actionController = new PlayerActionController( owner );
 
-      this.cameraOffset        = new Vector3(0, 20, 10);
+      this.cameraOffset        = new Vector3( 0, 20, 10 );
       this.cameraMovementSpeed = 2.5;
       this.rotationSpeed       = 5;
       this.brakingForce        = 10;
@@ -39,33 +39,33 @@ class PlayerController extends EventDispatcher {
          mouseDown: false
       };
 
-      this.perspectiveToggle = new Event('perspectiveToggle');
-      this.interactionToggle = new Event('interactionToggle');
-      this.inventoryToggle   = new Event('inventoryToggle');
-      this.reloadToggle      = new Event('reloadToggle');
-      this.equipToggle       = new Event('equipToggle');
-      this.fireToggle        = new Event('fireToggle');
+      this.perspectiveToggle = new Event( 'perspectiveToggle' );
+      this.interactionToggle = new Event( 'interactionToggle' );
+      this.inventoryToggle   = new Event( 'inventoryToggle' );
+      this.reloadToggle      = new Event( 'reloadToggle' );
+      this.equipToggle       = new Event( 'equipToggle' );
+      this.fireToggle        = new Event( 'fireToggle' );
 
-      this._mouseUpHandler           = onMouseUp.bind(this);
-      this._mouseDownHandler         = onMouseDown.bind(this);
-      this._mouseMoveHandler         = onMouseMove.bind(this);
-      this._pointerlockChangeHandler = onPointerlockChange.bind(this);
-      this._pointerlockErrorHandler  = onPointerlockError.bind(this);
-      this._keyDownHandler           = onKeyDown.bind(this);
-      this._keyUpHandler             = onKeyUp.bind(this);
+      this._mouseUpHandler           = onMouseUp.bind( this );
+      this._mouseDownHandler         = onMouseDown.bind( this );
+      this._mouseMoveHandler         = onMouseMove.bind( this );
+      this._pointerlockChangeHandler = onPointerlockChange.bind( this );
+      this._pointerlockErrorHandler  = onPointerlockError.bind( this );
+      this._keyDownHandler           = onKeyDown.bind( this );
+      this._keyUpHandler             = onKeyUp.bind( this );
 
    }
 
 
    connect() {
 
-      document.addEventListener('mouseup', this._mouseUpHandler, false);
-      document.addEventListener('mousedown', this._mouseDownHandler, false);
-      document.addEventListener('mousemove', this._mouseMoveHandler, false);
-      document.addEventListener('pointerlockchange', this._pointerlockChangeHandler, false);
-      document.addEventListener('pointerlockerror', this._pointerlockErrorHandler, false);
-      document.addEventListener('keydown', this._keyDownHandler, false);
-      document.addEventListener('keyup', this._keyUpHandler, false);
+      document.addEventListener( 'mouseup', this._mouseUpHandler, false );
+      document.addEventListener( 'mousedown', this._mouseDownHandler, false );
+      document.addEventListener( 'mousemove', this._mouseMoveHandler, false );
+      document.addEventListener( 'pointerlockchange', this._pointerlockChangeHandler, false );
+      document.addEventListener( 'pointerlockerror', this._pointerlockErrorHandler, false );
+      document.addEventListener( 'keydown', this._keyDownHandler, false );
+      document.addEventListener( 'keyup', this._keyUpHandler, false );
 
       document.body.requestPointerLock();
 
@@ -74,13 +74,13 @@ class PlayerController extends EventDispatcher {
 
    disconnect() {
 
-      document.removeEventListener('mouseup', this._mouseUpHandler, false);
-      document.removeEventListener('mousedown', this._mouseDownHandler, false);
-      document.removeEventListener('mousemove', this._mouseMoveHandler, false);
-      document.removeEventListener('pointerlockchange', this._pointerlockChangeHandler, false);
-      document.removeEventListener('pointerlockerror', this._pointerlockErrorHandler, false);
-      document.removeEventListener('keydown', this._keyDownHandler, false);
-      document.removeEventListener('keyup', this._keyUpHandler, false);
+      document.removeEventListener( 'mouseup', this._mouseUpHandler, false );
+      document.removeEventListener( 'mousedown', this._mouseDownHandler, false );
+      document.removeEventListener( 'mousemove', this._mouseMoveHandler, false );
+      document.removeEventListener( 'pointerlockchange', this._pointerlockChangeHandler, false );
+      document.removeEventListener( 'pointerlockerror', this._pointerlockErrorHandler, false );
+      document.removeEventListener( 'keydown', this._keyDownHandler, false );
+      document.removeEventListener( 'keyup', this._keyUpHandler, false );
 
    }
 
@@ -92,23 +92,23 @@ class PlayerController extends EventDispatcher {
    }
 
 
-   update(delta) {
+   update( delta ) {
 
       // mouse input
       const input = this.input;
 
-      direction.z = Number(input.backward) - Number(input.forward);
-      direction.x = Number(input.right) - Number(input.left);
+      direction.z = Number( input.backward ) - Number( input.forward );
+      direction.x = Number( input.right ) - Number( input.left );
       direction.normalize();
 
       // rotation
-      target.set(this.movementX, 0, this.movementY).normalize();
-      target.add(this.owner.position);
+      target.set( this.movementX, 0, this.movementY ).normalize();
+      target.add( this.owner.position );
 
-      this.owner.lookAt(target);
+      this.owner.lookAt( target );
 
       // update player position
-      if (direction.squaredLength() === 0) {
+      if ( direction.squaredLength() === 0 ) {
 
          // brake
          this.owner.velocity.x -= this.owner.velocity.x * this.brakingForce * delta;
@@ -116,23 +116,27 @@ class PlayerController extends EventDispatcher {
 
       } else {
 
-         this.owner.velocity.add(direction);
+         this.owner.velocity.add( direction );
 
       }
 
       // update shooting
-      if (this.input.mouseDown) {
+      if ( this.input.mouseDown ) {
 
          this.owner.attack();
 
       }
 
       // update camera
-      const offsetX = (this.camera.position.x - this.cameraOffset.x) - this.owner.position.x;
-      const offsetZ = (this.camera.position.z - this.cameraOffset.z) - this.owner.position.z;
+      const offsetX = ( this.camera.position.x - this.cameraOffset.x ) - this.owner.position.x;
+      const offsetZ = ( this.camera.position.z - this.cameraOffset.z ) - this.owner.position.z;
 
-      if (offsetX !== 0) this.camera.position.x -= (offsetX * delta * this.cameraMovementSpeed);
-      if (offsetZ !== 0) this.camera.position.z -= (offsetZ * delta * this.cameraMovementSpeed);
+      if ( offsetX !== 0 ) {
+         this.camera.position.x -= ( offsetX * delta * this.cameraMovementSpeed );
+      }
+      if ( offsetZ !== 0 ) {
+         this.camera.position.z -= ( offsetZ * delta * this.cameraMovementSpeed );
+      }
 
    }
 
@@ -153,17 +157,17 @@ class PlayerController extends EventDispatcher {
 
       this.movementX = 0;
       this.movementY = -1;
-      this.owner.rotation.fromEuler(0, Math.PI, 0);
+      this.owner.rotation.fromEuler( 0, Math.PI, 0 );
 
    }
 
 
-   setPosition(x, y, z) {
+   setPosition( x, y, z ) {
 
-      this.owner.position.set(x, y, z);
+      this.owner.position.set( x, y, z );
 
-      this.camera.position.set(x, y, z).add(this.cameraOffset);
-      this.camera.lookAt(x, y, z);
+      this.camera.position.set( x, y, z ).add( this.cameraOffset );
+      this.camera.lookAt( x, y, z );
 
    }
 
@@ -172,21 +176,21 @@ class PlayerController extends EventDispatcher {
 
 
 // handler
-function onMouseDown(event) {
+function onMouseDown( event ) {
 
-   if (event.which === 1) {
+   if ( event.which === 1 ) {
 
       this.input.mouseDown = true;
-      this.dispatchEvent(this.fireToggle);
+      this.dispatchEvent( this.fireToggle );
 
    }
 
 }
 
 
-function onMouseUp(event) {
+function onMouseUp( event ) {
 
-   if (event.which === 1) {
+   if ( event.which === 1 ) {
 
       this.input.mouseDown = false;
 
@@ -195,7 +199,7 @@ function onMouseUp(event) {
 }
 
 
-function onMouseMove(event) {
+function onMouseMove( event ) {
 
    const x = event.movementX / screen.width;
    const y = event.movementY / screen.height;
@@ -203,17 +207,17 @@ function onMouseMove(event) {
    this.movementX += x * this.rotationSpeed;
    this.movementY += y * this.rotationSpeed;
 
-   this.movementX = MathUtils.clamp(this.movementX, -1, 1);
-   this.movementY = MathUtils.clamp(this.movementY, -1, 1);
+   this.movementX = MathUtils.clamp( this.movementX, -1, 1 );
+   this.movementY = MathUtils.clamp( this.movementY, -1, 1 );
 
 }
 
 
 function onPointerlockChange() {
 
-   if (document.pointerLockElement === document.body) {
+   if ( document.pointerLockElement === document.body ) {
 
-      this.dispatchEvent({type: 'lock'});
+      this.dispatchEvent( { type: 'lock' } );
 
    } else {
 
@@ -221,7 +225,7 @@ function onPointerlockChange() {
 
       this.reset();
 
-      this.dispatchEvent({type: 'unlock'});
+      this.dispatchEvent( { type: 'unlock' } );
 
    }
 
@@ -230,12 +234,12 @@ function onPointerlockChange() {
 
 function onPointerlockError() {
 
-   Logger.warn('PlayerController: Unable to use Pointer Lock API.');
+   Logger.warn( 'PlayerController: Unable to use Pointer Lock API.' );
 
 }
 
 
-function onKeyDown(event) {
+function onKeyDown( event ) {
 
    switch (event.keyCode) {
 
@@ -264,19 +268,19 @@ function onKeyDown(event) {
          break;
 
       case 82: // r
-         this.dispatchEvent(this.reloadToggle);
+         this.dispatchEvent( this.reloadToggle );
          break;
 
       case 70: // f
-         this.dispatchEvent(this.equipToggle);
+         this.dispatchEvent( this.equipToggle );
          break;
 
       case 69: // e
-         this.dispatchEvent(this.interactionToggle);
+         this.dispatchEvent( this.interactionToggle );
          break;
 
       case 73: // i
-         this.dispatchEvent(this.inventoryToggle);
+         this.dispatchEvent( this.inventoryToggle );
          break;
 
 
@@ -285,7 +289,7 @@ function onKeyDown(event) {
 }
 
 
-function onKeyUp(event) {
+function onKeyUp( event ) {
 
    switch (event.keyCode) {
 
@@ -317,4 +321,4 @@ function onKeyUp(event) {
 }
 
 
-export {PlayerController};
+export { PlayerController };

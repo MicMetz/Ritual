@@ -1,103 +1,114 @@
 import { Goal, CompositeGoal, Vector3 } from 'yuka';
 import { SeekToPositionGoal } from './SeekToPositionGoal.js';
 
+
+
 const right = new Vector3( 1, 0, 0 );
-const left = new Vector3( - 1, 0, 0 );
+const left  = new Vector3( -1, 0, 0 );
+
+
 
 /**
-* Sub-goal which makes the enemy dodge from side to side.
-*
-* @author {@link https://github.com/Mugen87|Mugen87}
-*/
+ * Sub-goal which makes the enemy dodge from side to side.
+ *
+ * @author {@link https://github.com/Mugen87|Mugen87}
+ */
 class DodgeGoal extends CompositeGoal {
 
-	constructor( owner, right ) {
+   constructor( owner, right ) {
 
-		super( owner );
+      super( owner );
 
-		this.right = right;
-		this.targetPosition = new Vector3();
+      this.right          = right;
+      this.targetPosition = new Vector3();
 
-	}
+   }
 
-	activate() {
 
-		this.clearSubgoals();
+   activate() {
 
-		const owner = this.owner;
+      this.clearSubgoals();
 
-		if ( this.right ) {
+      const owner = this.owner;
 
-			// dodge to right as long as there is enough space
+      if ( this.right ) {
 
-			if ( owner.canMoveInDirection( right, this.targetPosition ) ) {
+         // dodge to right as long as there is enough space
 
-				this.addSubgoal( new SeekToPositionGoal( owner, this.targetPosition ) );
+         if ( owner.canMoveInDirection( right, this.targetPosition ) ) {
 
-			} else {
+            this.addSubgoal( new SeekToPositionGoal( owner, this.targetPosition ) );
 
-				// no space anymore, now dodge to left
+         } else {
 
-				this.right = false;
-				this.status = Goal.STATUS.INACTIVE;
+            // no space anymore, now dodge to left
 
-			}
+            this.right  = false;
+            this.status = Goal.STATUS.INACTIVE;
 
-		} else {
+         }
 
-			// dodge to left as long as there is enough space
+      } else {
 
-			if ( owner.canMoveInDirection( left, this.targetPosition ) ) {
+         // dodge to left as long as there is enough space
 
-				this.addSubgoal( new SeekToPositionGoal( owner, this.targetPosition ) );
+         if ( owner.canMoveInDirection( left, this.targetPosition ) ) {
 
-			} else {
+            this.addSubgoal( new SeekToPositionGoal( owner, this.targetPosition ) );
 
-				// no space anymore, now dodge to right
+         } else {
 
-				this.right = true;
-				this.status = Goal.STATUS.INACTIVE;
+            // no space anymore, now dodge to right
 
-			}
+            this.right  = true;
+            this.status = Goal.STATUS.INACTIVE;
 
-		}
+         }
 
-	}
+      }
 
-	execute() {
+   }
 
-		if ( this.active() ) {
 
-			const owner = this.owner;
+   execute() {
 
-			// stop executing if the traget is not visible anymore
+      if ( this.active() ) {
 
-			if ( owner.targetSystem.isTargetShootable() === false ) {
+         const owner = this.owner;
 
-				this.status = Goal.STATUS.COMPLETED;
+         // stop executing if the traget is not visible anymore
 
-			} else {
+         if ( owner.targetSystem.isTargetShootable() === false ) {
 
-				this.status = this.executeSubgoals();
+            this.status = Goal.STATUS.COMPLETED;
 
-				this.replanIfFailed();
+         } else {
 
-				// if completed, set the status to inactive in order to repeat the goal
+            this.status = this.executeSubgoals();
 
-				if ( this.completed() ) this.status = Goal.STATUS.INACTIVE;
+            this.replanIfFailed();
 
-			}
+            // if completed, set the status to inactive in order to repeat the goal
 
-		}
+            if ( this.completed() ) {
+               this.status = Goal.STATUS.INACTIVE;
+            }
 
-	}
+         }
 
-	terminate() {
+      }
 
-		this.clearSubgoals();
+   }
 
-	}
+
+   terminate() {
+
+      this.clearSubgoals();
+
+   }
 
 }
+
+
 
 export { DodgeGoal };

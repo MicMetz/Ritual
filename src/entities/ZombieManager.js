@@ -1,9 +1,9 @@
-import {Zombie} from './enemies/Zombie.js';
+import { Zombie } from './enemies/Zombie.js';
 
 
 
 class ZombieManager {
-   constructor(zombieContainer) {
+   constructor( zombieContainer ) {
       this.zombies = zombieContainer;
       this.count   = 0;
    }
@@ -15,11 +15,11 @@ class ZombieManager {
    }
 
 
-    addZombie(position) {
-       let zombie = new Zombie(position);
-       this.zombies.push(zombie);
-       return zombie;
-    }
+   addZombie( position ) {
+      let zombie = new Zombie( position );
+      this.zombies.push( zombie );
+      return zombie;
+   }
 
 
 }

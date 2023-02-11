@@ -1,8 +1,8 @@
 class SpawnSystem {
 
-   constructor(world) {
+   constructor( world ) {
 
-      this.world   = world;
+      this.world    = world;
       this.spawners = [];
 
 

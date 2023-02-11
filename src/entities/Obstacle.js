@@ -3,7 +3,7 @@
  * original {@link https://github.com/Mugen87|Mugen87}
  */
 
-import {AABB, GameEntity, OBB, Vector3} from 'yuka';
+import { AABB, GameEntity, OBB, Vector3 } from 'yuka';
 
 
 
@@ -20,17 +20,17 @@ class Obstacle extends GameEntity {
 
       this.needsUpdate = true; // controls update of render component since obstacles are mostly static
 
-      this.size = new Vector3(1, 1, 1);
+      this.size = new Vector3( 1, 1, 1 );
 
    }
 
 
    updateBoundingVolumes() {
 
-      this.aabb.fromCenterAndSize(this.position, this.size);
+      this.aabb.fromCenterAndSize( this.position, this.size );
 
-      this.obb.center.copy(this.position);
-      this.obb.halfSizes.copy(this.size).multiplyScalar(0.5);
+      this.obb.center.copy( this.position );
+      this.obb.halfSizes.copy( this.size ).multiplyScalar( 0.5 );
 
    }
 
@@ -38,4 +38,4 @@ class Obstacle extends GameEntity {
 
 
 
-export {Obstacle};
+export { Obstacle };

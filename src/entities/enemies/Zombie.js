@@ -1,7 +1,7 @@
-import {AnimationMixer}               from "three";
-import {BoundingSphere, StateMachine} from "yuka";
-import {ZOMBIETYPE} from "../../etc/Utilities.js";
-import Enemy        from "../Enemy.js";
+import { AnimationMixer } from "three";
+import { BoundingSphere, StateMachine } from "yuka";
+import { ZOMBIETYPE } from "../../etc/Utilities.js";
+import Enemy from "../Enemy.js";
 
 
 
@@ -11,17 +11,17 @@ class Zombie extends Enemy {
     * @param world
     * @param type
     */
-   constructor(world, type = ZOMBIETYPE.NORMAL) {
-      super(type);
+   constructor( world, type = ZOMBIETYPE.NORMAL ) {
+      super( type );
 
       this.world      = world;
-      this.bodyMesh   = world.assetManager.enemyModels.get(type).clone();
+      this.bodyMesh   = world.assetManager.enemyModels.get( type ).clone();
       this.zombieType = type;
 
       // Animations
-      this.animations           = new AnimationMixer(this.bodyMesh);
-      this.stateMachineMovement = new StateMachine(this);
-      this.stateMachineCombat   = new StateMachine(this);
+      this.animations           = new AnimationMixer( this.bodyMesh );
+      this.stateMachineMovement = new StateMachine( this );
+      this.stateMachineCombat   = new StateMachine( this );
 
       this.boundingRadius = 0.5;
 
@@ -70,19 +70,19 @@ class Zombie extends Enemy {
    }
 
 
-   updateHitEffect(timelapsed) {
-      if (this.hitted && this._hideHitEffectTime < this.world.time) {
+   updateHitEffect( timelapsed ) {
+      if ( this.hitted && this._hideHitEffectTime < this.world.time ) {
          this.disableHitEffect();
       }
    }
 
 
-   update(timelapsed) {
-      super.update(timelapsed);
-      this.animations.update(timelapsed);
+   update( timelapsed ) {
+      super.update( timelapsed );
+      this.animations.update( timelapsed );
       this.stateMachineMovement.update();
       this.stateMachineCombat.update();
-      this.updateHitEffect(timelapsed);
+      this.updateHitEffect( timelapsed );
    }
 
 
@@ -90,4 +90,4 @@ class Zombie extends Enemy {
 
 
 
-export {Zombie};
+export { Zombie };

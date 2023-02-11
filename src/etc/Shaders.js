@@ -1,7 +1,7 @@
 /**
  * @author MicMetzger /
  */
-import {Matrix4, Vector2, Vector3} from "three";
+import { Matrix4, Vector2, Vector3 } from "three";
 // import {MeshBVHUniformStruct, shaderIntersectFunction, shaderStructs} from "./three-mesh-bvh.js";
 
 
@@ -129,7 +129,7 @@ const ParticleShader = {
 const NightShader = {
 
    uniforms: {
-      'sceneDiffuse': {value: null}
+      'sceneDiffuse': { value: null }
    },
 
    vertexShader: `
@@ -264,4 +264,4 @@ const NightShader = {
 
 
 
-export {ProtectionShader, HitShader, ParticleShader, NightShader/* , ShadowShader */};
+export { ProtectionShader, HitShader, ParticleShader, NightShader/* , ShadowShader */ };

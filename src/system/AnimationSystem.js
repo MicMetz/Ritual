@@ -12,54 +12,54 @@ class AnimationSystem {
    }
 
 
-   add(animation) {
+   add( animation ) {
 
-      this.animations.push(animation);
-
-      return this;
-
-   }
-
-
-   remove(animation) {
-
-      const index = this.animations.indexOf(animation);
-      this.animations.splice(index, 1);
+      this.animations.push( animation );
 
       return this;
 
    }
 
 
-   update(delta) {
+   remove( animation ) {
+
+      const index = this.animations.indexOf( animation );
+      this.animations.splice( index, 1 );
+
+      return this;
+
+   }
+
+
+   update( delta ) {
 
       const animations = this.animations;
 
-      for (let i = (animations.length - 1); i >= 0; i--) {
+      for ( let i = ( animations.length - 1 ); i >= 0; i-- ) {
 
-         const animation = animations[i];
+         const animation = animations[ i ];
 
          animation._elapsedTime += delta;
 
          // check for completion
 
-         if (animation._elapsedTime >= (animation.duration + animation.delay)) {
+         if ( animation._elapsedTime >= ( animation.duration + animation.delay ) ) {
 
-            this.remove(animation);
+            this.remove( animation );
 
          }
 
          // perform animation
 
-         const t = Math.min(1, (Math.max(0, animation._elapsedTime - animation.delay) / animation.duration));
+         const t = Math.min( 1, ( Math.max( 0, animation._elapsedTime - animation.delay ) / animation.duration ) );
 
-         if (t > 0) {
+         if ( t > 0 ) {
 
             const object      = animation.object;
             const property    = animation.property;
             const targetValue = animation.targetValue;
 
-            object[property] = targetValue * t; // linear animation
+            object[ property ] = targetValue * t; // linear animation
 
          }
 
@@ -70,10 +70,10 @@ class AnimationSystem {
    }
 
 
-   changeTo(animation) {
+   changeTo( animation ) {
 
-      this.remove(animation);
-      this.add(animation);
+      this.remove( animation );
+      this.add( animation );
 
       return this;
 
@@ -101,4 +101,4 @@ class PropertyAnimation {
 
 
 
-export {AnimationSystem, PropertyAnimation};
+export { AnimationSystem, PropertyAnimation };

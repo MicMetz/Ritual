@@ -1,104 +1,112 @@
 import { MovingEntity, Ray, Vector3 } from 'yuka';
 import { MESSAGE_HIT } from '../core/Constants.js';
 
+
+
 const intersectionPoint = new Vector3();
-const ray = new Ray();
+const ray               = new Ray();
+
+
 
 /**
-* Base class for representing a projectile.
-*
-* @author {@link https://github.com/Mugen87|Mugen87}
-*/
+ * Base class for representing a projectile.
+ *
+ * @author {@link https://github.com/Mugen87|Mugen87}
+ */
 class Projectile extends MovingEntity {
 
-	/**
-	* Constructs a new projectile with the given values.
-	*
-	* @param {GameEntity} owner - The owner of this projectile.
-	* @param {Ray} ray - The ray that defines the trajectory of this projectile.
-	*/
-	constructor( owner = null, ray = new Ray() ) {
+   /**
+    * Constructs a new projectile with the given values.
+    *
+    * @param {GameEntity} owner - The owner of this projectile.
+    * @param {Ray} ray - The ray that defines the trajectory of this projectile.
+    */
+   constructor( owner = null, ray = new Ray() ) {
 
-		super();
+      super();
 
-		this.canActivateTrigger = false;
+      this.canActivateTrigger = false;
 
-		this.owner = owner;
-		this.ray = ray;
+      this.owner = owner;
+      this.ray   = ray;
 
-		this.lifetime = 0;
-		this.currentTime = 0;
+      this.lifetime    = 0;
+      this.currentTime = 0;
 
-		this.damage = 0;
+      this.damage = 0;
 
-	}
+   }
 
-	/**
-	* Executed when this game entity is updated for the first time by its entity manager.
-	*
-	* @return {Projectile} A reference to this game entity.
-	*/
-	start() {
 
-		// make the render component visible when the projectile was updated
-		// by the entity manager at least once
+   /**
+    * Executed when this game entity is updated for the first time by its entity manager.
+    *
+    * @return {Projectile} A reference to this game entity.
+    */
+   start() {
 
-		this._renderComponent.visible = true;
+      // make the render component visible when the projectile was updated
+      // by the entity manager at least once
 
-		return this;
+      this._renderComponent.visible = true;
 
-	}
+      return this;
 
-	/**
-	* Update method of this projectile.
-	*
-	* @param {Number} delta - The time delta value;
-	* @return {Projectile} A reference to this projectile.
-	*/
-	update( delta ) {
+   }
 
-		const world = this.owner.world;
 
-		this.currentTime += delta;
+   /**
+    * Update method of this projectile.
+    *
+    * @param {Number} delta - The time delta value;
+    * @return {Projectile} A reference to this projectile.
+    */
+   update( delta ) {
 
-		if ( this.currentTime > this.lifetime ) {
+      const world = this.owner.world;
 
-			world.remove( this );
+      this.currentTime += delta;
 
-		} else {
+      if ( this.currentTime > this.lifetime ) {
 
-			ray.copy( this.ray );
-			ray.origin.copy( this.position );
+         world.remove( this );
 
-			super.update( delta );
+      } else {
 
-			const entity = world.checkProjectileIntersection( this, intersectionPoint );
+         ray.copy( this.ray );
+         ray.origin.copy( this.position );
 
-			if ( entity !== null ) {
+         super.update( delta );
 
-				// calculate distance from origin to intersection point
+         const entity = world.checkProjectileIntersection( this, intersectionPoint );
 
-				const distanceToIntersection = ray.origin.squaredDistanceTo( intersectionPoint );
-				const validDistance = ray.origin.squaredDistanceTo( this.position );
+         if ( entity !== null ) {
 
-				if ( distanceToIntersection <= validDistance ) {
+            // calculate distance from origin to intersection point
 
-					// inform game entity about hit
+            const distanceToIntersection = ray.origin.squaredDistanceTo( intersectionPoint );
+            const validDistance          = ray.origin.squaredDistanceTo( this.position );
 
-					this.owner.sendMessage( entity, MESSAGE_HIT, 0, { damage: this.damage, direction: this.ray.direction } );
+            if ( distanceToIntersection <= validDistance ) {
 
-					// remove projectile from world
+               // inform game entity about hit
 
-					world.remove( this );
+               this.owner.sendMessage( entity, MESSAGE_HIT, 0, { damage: this.damage, direction: this.ray.direction } );
 
-				}
+               // remove projectile from world
 
-			}
+               world.remove( this );
 
-		}
+            }
 
-	}
+         }
+
+      }
+
+   }
 
 }
+
+
 
 export { Projectile };

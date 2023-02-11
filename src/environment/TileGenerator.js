@@ -1,17 +1,16 @@
-import {Group}    from "three";
+import { Group } from "three";
 import * as THREE from 'three';
 
 
 
-
 class TileGenerator extends Group {
-   constructor(params) {
+   constructor( params ) {
       super();
-      this.init(params);
+      this.init( params );
    }
 
 
-   init(params) {
+   init( params ) {
       this.params = params;
       this.loadTiles();
    }

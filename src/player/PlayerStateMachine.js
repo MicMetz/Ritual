@@ -19,8 +19,8 @@ class PlayerStateMachine {
     * @param name
     * @param type
     */
-   addState(name, type) {
-      this.states[name] = type;
+   addState( name, type ) {
+      this.states[ name ] = type;
    }
 
 
@@ -29,21 +29,21 @@ class PlayerStateMachine {
     *
     * @param name {string} - name of the state to transition to
     */
-   changeTo(name) {
+   changeTo( name ) {
 
       const previousState = this.currentState;
 
-      if (previousState) {
-         if (this.currentState.Name === name) {
+      if ( previousState ) {
+         if ( this.currentState.Name === name ) {
             return;
          }
          previousState.exit();
       }
 
-      const state       = new this.states[name](this);
+      const state       = new this.states[ name ]( this );
       this.currentState = state;
 
-      state.enter(previousState);
+      state.enter( previousState );
 
    }
 
@@ -54,9 +54,9 @@ class PlayerStateMachine {
     * @param timeElapsed {number}  - time elapsed since last update
     * @param input      {object}  - input object from the player
     */
-   update(timeElapsed, input) {
-      if (this.currentState) {
-         this.currentState.update(timeElapsed, input);
+   update( timeElapsed, input ) {
+      if ( this.currentState ) {
+         this.currentState.update( timeElapsed, input );
       }
    }
 
@@ -65,4 +65,4 @@ class PlayerStateMachine {
 
 
 
-export {PlayerStateMachine};
+export { PlayerStateMachine };

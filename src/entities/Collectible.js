@@ -1,4 +1,4 @@
-import {GameEntity} from "yuka";
+import { GameEntity } from "yuka";
 
 
 
@@ -15,7 +15,7 @@ class Collectible extends GameEntity {
    }
 
 
-   handleMessage(telegram) {
+   handleMessage( telegram ) {
 
       const message = telegram.message;
 
@@ -28,7 +28,7 @@ class Collectible extends GameEntity {
 
          default:
 
-            console.warn('Collectible: Unknown message.');
+            console.warn( 'Collectible: Unknown message.' );
 
       }
 
@@ -41,4 +41,4 @@ class Collectible extends GameEntity {
 
 
 
-export {Collectible};
+export { Collectible };

@@ -3,7 +3,7 @@
  */
 
 class PlayerControllerProxy {
-   constructor(animations) {
+   constructor( animations ) {
       this._animations = animations
    }
 
@@ -17,4 +17,4 @@ class PlayerControllerProxy {
 
 
 
-export {PlayerControllerProxy}
+export { PlayerControllerProxy }

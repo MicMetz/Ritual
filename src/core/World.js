@@ -7,23 +7,23 @@ import {
    DynamicDrawUsage, Group, InstancedMesh, Mesh, MeshBasicMaterial, Object3D, PCFSoftShadowMap,
    PerspectiveCamera, PlaneGeometry, Points, PointsMaterial, Scene, ShaderMaterial, SphereGeometry,
    sRGBEncoding, WebGLRenderer, MathUtils,
-}                                    from "three";
-import * as THREE                    from 'three';
-import * as YUKA                     from 'yuka';
-import {HitShader, ProtectionShader} from "../etc/Shaders.js";
-import {Weapon}                      from "../weapons/Weapon.js";
-import {AssetManager}                from './AssetManager.js';
-import {PlayerController}            from '../player/PlayerController.js';
-import {Player}                      from '../player/Player.js';
-import {Guard}                       from '../entities/Guard.js';
-import {Pursuer}                     from '../entities/Pursuer.js';
-import {PursuerGeometry}             from '../patterns/PursuerGeometry.js';
-import {AnimationSystem}             from '../system/AnimationSystem.js';
-import {EnvironmentManager}          from "./EnvironmentManager.js";
-import {InterfaceManager}            from "./InterfaceManager.js";
-import {SceneManager}                from './SceneManager.js';
-import {Tower}                       from '../entities/Tower.js';
-import {dumpObject, GUARDTYPE}       from '../etc/Utilities.js';
+} from "three";
+import * as THREE from 'three';
+import * as YUKA from 'yuka';
+import { HitShader, ProtectionShader } from "../etc/Shaders.js";
+import { Weapon } from "../weapons/Weapon.js";
+import { AssetManager } from './AssetManager.js';
+import { PlayerController } from '../player/PlayerController.js';
+import { Player } from '../player/Player.js';
+import { Guard } from '../entities/Guard.js';
+import { Pursuer } from '../entities/Pursuer.js';
+import { PursuerGeometry } from '../patterns/PursuerGeometry.js';
+import { AnimationSystem } from '../system/AnimationSystem.js';
+import { EnvironmentManager } from "./EnvironmentManager.js";
+import { InterfaceManager } from "./InterfaceManager.js";
+import { SceneManager } from './SceneManager.js';
+import { Tower } from '../entities/Tower.js';
+import { dumpObject, GUARDTYPE } from '../etc/Utilities.js';
 
 
 
@@ -59,12 +59,12 @@ class World {
       this.currentStage = 1;
       this.maxStage     = 14;
 
-      this.environmentManager = new EnvironmentManager(this);
+      this.environmentManager = new EnvironmentManager( this );
 
 
-      this.field = new YUKA.Vector3(10000, 1, 10000);
+      this.field = new YUKA.Vector3( 10000, 1, 10000 );
 
-      this.wall        = new YUKA.Vector3(0.5, 1, 0.5);
+      this.wall        = new YUKA.Vector3( 0.5, 1, 0.5 );
       this.wallsMeshes = new Group();
 
       this.camera        = null;
@@ -105,32 +105,32 @@ class World {
 
       this.assetManager    = null;
       this.animationSystem = new AnimationSystem();
-      this.sceneManager    = new SceneManager(this);
+      this.sceneManager    = new SceneManager( this );
 
       this._requestID = null;
 
-      this._startAnimation        = startAnimation.bind(this);
-      this._stopAnimation         = stopAnimation.bind(this);
-      this._onContinueButtonClick = onContinueButtonClick.bind(this);
-      this._onWindowResize        = onWindowResize.bind(this);
-      this._onRestart             = onRestart.bind(this);
-      this._onQuit                = onQuit.bind(this);
+      this._startAnimation        = startAnimation.bind( this );
+      this._stopAnimation         = stopAnimation.bind( this );
+      this._onContinueButtonClick = onContinueButtonClick.bind( this );
+      this._onWindowResize        = onWindowResize.bind( this );
+      this._onRestart             = onRestart.bind( this );
+      this._onQuit                = onQuit.bind( this );
 
       this.ui = {
-         continueButton       : document.getElementById('menu-continue'),
-         restartButtonMenu    : document.getElementById('menu-restart'),
-         restartButtonComplete: document.getElementById('complete-restart'),
-         restartButtonGameOver: document.getElementById('gameover-restart'),
-         quitButtonMenu       : document.getElementById('menu-quit'),
-         quitButtonComplete   : document.getElementById('complete-quit'),
-         quitButtonGameOver   : document.getElementById('gameover-quit'),
-         menu                 : document.getElementById('menu'),
-         levelComplete        : document.getElementById('level-complete'),
-         gameComplete         : document.getElementById('game-complete'),
-         gameOver             : document.getElementById('game-over'),
-         stagesCleared        : document.getElementById('stages-cleared'),
-         startScreen          : document.getElementById('splash-screen'),
-         loadingScreen        : document.getElementById('loading-screen')
+         continueButton       : document.getElementById( 'menu-continue' ),
+         restartButtonMenu    : document.getElementById( 'menu-restart' ),
+         restartButtonComplete: document.getElementById( 'complete-restart' ),
+         restartButtonGameOver: document.getElementById( 'gameover-restart' ),
+         quitButtonMenu       : document.getElementById( 'menu-quit' ),
+         quitButtonComplete   : document.getElementById( 'complete-quit' ),
+         quitButtonGameOver   : document.getElementById( 'gameover-quit' ),
+         menu                 : document.getElementById( 'menu' ),
+         levelComplete        : document.getElementById( 'level-complete' ),
+         gameComplete         : document.getElementById( 'game-complete' ),
+         gameOver             : document.getElementById( 'game-over' ),
+         stagesCleared        : document.getElementById( 'stages-cleared' ),
+         startScreen          : document.getElementById( 'splash-screen' ),
+         loadingScreen        : document.getElementById( 'loading-screen' )
       };
 
    }
@@ -138,19 +138,19 @@ class World {
 
    init() {
 
-      this.assetManager = new AssetManager(this);
-      this.assetManager.init().then(() => {
+      this.assetManager = new AssetManager( this );
+      this.assetManager.init().then( () => {
 
          this._initEnvironment();
          this._initBackground();
          this._initPlayer();
          this._initControls();
          this.environmentManager.init();
-         this._loadStage(this.currentStage);
+         this._loadStage( this.currentStage );
 
          this.ui.startScreen.remove();
 
-      });
+      } );
 
    }
 
@@ -159,12 +159,12 @@ class World {
 
       const delta = this.time.update().getDelta();
 
-      if (this.active) {
-         this.animationSystem.update(delta);
-         this.controls.update(delta);
-         this.entityManager.update(delta);
+      if ( this.active ) {
+         this.animationSystem.update( delta );
+         this.controls.update( delta );
+         this.entityManager.update( delta );
          // this.userInterface.update(delta);
-         this.environmentManager.animate(delta);
+         this.environmentManager.animate( delta );
 
          this._enforceNonPenetrationConstraint();
          this._checkPlayerCollision();
@@ -176,158 +176,160 @@ class World {
          this._updateProjectileMeshes();
 
 
-         this.renderer.render(this.scene, this.camera);
+         this.renderer.render( this.scene, this.camera );
 
       }
 
    }
 
 
-   addGuard(guard) {
+   addGuard( guard ) {
 
-      this.guards.push(guard);
-      this.entityManager.add(guard);
+      this.guards.push( guard );
+      this.entityManager.add( guard );
 
-      if (_DEBUG_) {
+      if ( _DEBUG_ ) {
          guard.visible = false;
       }
-      this.scene.add(guard._renderComponent);
+      this.scene.add( guard._renderComponent );
 
    }
 
 
-   removeGuard(guard) {
+   removeGuard( guard ) {
 
-      const index = this.guards.indexOf(guard);
-      this.guards.splice(index, 1);
+      const index = this.guards.indexOf( guard );
+      this.guards.splice( index, 1 );
 
-      this.entityManager.remove(guard);
-      this.scene.remove(guard._renderComponent);
-
-   }
-
-
-   addPursuer(pursuer) {
-
-      this.pursuers.push(pursuer);
-      this.entityManager.add(pursuer);
-
-      this.scene.add(pursuer._renderComponent);
+      this.entityManager.remove( guard );
+      this.scene.remove( guard._renderComponent );
 
    }
 
 
-   removePursuer(pursuer) {
+   addPursuer( pursuer ) {
 
-      const index = this.pursuers.indexOf(pursuer);
-      this.pursuers.splice(index, 1);
+      this.pursuers.push( pursuer );
+      this.entityManager.add( pursuer );
 
-      this.entityManager.remove(pursuer);
-      this.scene.remove(pursuer._renderComponent);
-
-   }
-
-
-   addTower(tower) {
-
-      this.towers.push(tower);
-      this.entityManager.add(tower);
-
-      this.scene.add(tower._renderComponent);
-
+      this.scene.add( pursuer._renderComponent );
 
    }
 
 
-   removeTower(tower) {
+   removePursuer( pursuer ) {
 
-      const index = this.towers.indexOf(tower);
-      this.towers.splice(index, 1);
+      const index = this.pursuers.indexOf( pursuer );
+      this.pursuers.splice( index, 1 );
 
-      this.entityManager.remove(tower);
-      this.scene.remove(tower._renderComponent);
+      this.entityManager.remove( pursuer );
+      this.scene.remove( pursuer._renderComponent );
 
    }
 
 
-   addProjectile(projectile) {
+   addTower( tower ) {
 
-      if (projectile.isPlayerProjectile) {
+      this.towers.push( tower );
+      this.entityManager.add( tower );
 
-         this.playerProjectiles.push(projectile);
+      this.scene.add( tower._renderComponent );
+
+
+   }
+
+
+   removeTower( tower ) {
+
+      const index = this.towers.indexOf( tower );
+      this.towers.splice( index, 1 );
+
+      this.entityManager.remove( tower );
+      this.scene.remove( tower._renderComponent );
+
+   }
+
+
+   addProjectile( projectile ) {
+
+      if ( projectile.isPlayerProjectile ) {
+
+         this.playerProjectiles.push( projectile );
 
       } else {
 
-         if (projectile.isDestructible) {
+         if ( projectile.isDestructible ) {
 
-            this.enemyDestructibleProjectiles.push(projectile);
+            this.enemyDestructibleProjectiles.push( projectile );
 
 
          } else {
 
-            if (_DEBUG_) {
+            if ( _DEBUG_ ) {
                projectile.visible = false;
             }
-            this.enemyProjectiles.push(projectile);
+            this.enemyProjectiles.push( projectile );
 
          }
 
       }
 
-      this.entityManager.add(projectile);
+      this.entityManager.add( projectile );
 
    }
 
 
-   removeProjectile(projectile) {
+   removeProjectile( projectile ) {
 
-      if (projectile.isPlayerProjectile) {
+      if ( projectile.isPlayerProjectile ) {
 
-         const index = this.playerProjectiles.indexOf(projectile);
-         this.playerProjectiles.splice(index, 1);
+         const index = this.playerProjectiles.indexOf( projectile );
+         this.playerProjectiles.splice( index, 1 );
 
       } else {
 
-         if (projectile.isDestructible) {
+         if ( projectile.isDestructible ) {
 
-            const index = this.enemyDestructibleProjectiles.indexOf(projectile);
-            this.enemyDestructibleProjectiles.splice(index, 1);
+            const index = this.enemyDestructibleProjectiles.indexOf( projectile );
+            this.enemyDestructibleProjectiles.splice( index, 1 );
 
          } else {
 
-            const index = this.enemyProjectiles.indexOf(projectile);
-            this.enemyProjectiles.splice(index, 1);
+            const index = this.enemyProjectiles.indexOf( projectile );
+            this.enemyProjectiles.splice( index, 1 );
 
          }
 
       }
 
-      this.entityManager.remove(projectile);
+      this.entityManager.remove( projectile );
 
    }
 
 
-   addObstacle(obstacle) {
+   addObstacle( obstacle ) {
 
-      this.obstacles.push(obstacle);
-      this.entityManager.add(obstacle);
-
-   }
-
-
-   removeObstacle(obstacle) {
-
-      const index = this.obstacles.indexOf(obstacle);
-      this.obstacles.splice(index, 1);
-
-      this.entityManager.remove(obstacle);
+      this.obstacles.push( obstacle );
+      this.entityManager.add( obstacle );
 
    }
 
 
-   playAudio(audio) {
+   removeObstacle( obstacle ) {
 
-      if (audio.isPlaying === true) audio.stop();
+      const index = this.obstacles.indexOf( obstacle );
+      this.obstacles.splice( index, 1 );
+
+      this.entityManager.remove( obstacle );
+
+   }
+
+
+   playAudio( audio ) {
+
+      if ( audio.isPlaying === true ) {
+         audio.stop();
+      }
       audio.play();
 
    }
@@ -337,17 +339,17 @@ class World {
 
       const loadingScreen = this.ui.loadingScreen;
 
-      loadingScreen.classList.add('fade-out');
-      loadingScreen.addEventListener('transitionend', onTransitionEnd);
+      loadingScreen.classList.add( 'fade-out' );
+      loadingScreen.addEventListener( 'transitionend', onTransitionEnd );
 
    }
 
 
-   _initEnvironment(callback) {
+   _initEnvironment( callback ) {
 
       // camera
-      this.camera = new PerspectiveCamera(35, window.innerWidth / window.innerHeight, 0.1, 200);
-      this.camera.add(this.assetManager.listener);
+      this.camera = new PerspectiveCamera( 35, window.innerWidth / window.innerHeight, 0.1, 200 );
+      this.camera.add( this.assetManager.listener );
 
       // scene
       this.scene = new Scene();
@@ -355,114 +357,114 @@ class World {
 
 
       // player
-      this.playerMesh                  = this.assetManager.characterModels.get('Android');
+      this.playerMesh                  = this.assetManager.characterModels.get( 'Android' );
       this.playerMesh.matrixAutoUpdate = false;
-      this.scene.add(this.playerMesh);
+      this.scene.add( this.playerMesh );
       // console.log(dumpObject(this.playerMesh));
 
       // player projectiles
-      const playerProjectileGeometry = new PlaneGeometry(0.2, 1);
-      playerProjectileGeometry.rotateX(Math.PI * -0.5);
-      const playerProjectileMaterial = new MeshBasicMaterial({color: 0xfff9c2});
+      const playerProjectileGeometry = new PlaneGeometry( 0.2, 1 );
+      playerProjectileGeometry.rotateX( Math.PI * -0.5 );
+      const playerProjectileMaterial = new MeshBasicMaterial( { color: 0xfff9c2 } );
 
-      this.playerProjectileMesh = new InstancedMesh(playerProjectileGeometry, playerProjectileMaterial, this.maxPlayerProjectiles);
-      this.playerProjectileMesh.instanceMatrix.setUsage(DynamicDrawUsage);
+      this.playerProjectileMesh = new InstancedMesh( playerProjectileGeometry, playerProjectileMaterial, this.maxPlayerProjectiles );
+      this.playerProjectileMesh.instanceMatrix.setUsage( DynamicDrawUsage );
       this.playerProjectileMesh.frustumCulled = false;
-      this.scene.add(this.playerProjectileMesh);
+      this.scene.add( this.playerProjectileMesh );
 
       // enemy projectile
-      const enemyProjectileGeometry = new SphereGeometry(0.4, 16, 16);
-      enemyProjectileGeometry.rotateX(Math.PI * -0.5);
-      const enemyProjectileMaterial = new MeshBasicMaterial({color: 0x43254d});
+      const enemyProjectileGeometry = new SphereGeometry( 0.4, 16, 16 );
+      enemyProjectileGeometry.rotateX( Math.PI * -0.5 );
+      const enemyProjectileMaterial = new MeshBasicMaterial( { color: 0x43254d } );
 
-      this.enemyProjectileMesh = new InstancedMesh(enemyProjectileGeometry, enemyProjectileMaterial, this.maxEnemyProjectiles);
-      this.enemyProjectileMesh.instanceMatrix.setUsage(DynamicDrawUsage);
+      this.enemyProjectileMesh = new InstancedMesh( enemyProjectileGeometry, enemyProjectileMaterial, this.maxEnemyProjectiles );
+      this.enemyProjectileMesh.instanceMatrix.setUsage( DynamicDrawUsage );
       this.enemyProjectileMesh.frustumCulled = false;
-      this.scene.add(this.enemyProjectileMesh);
+      this.scene.add( this.enemyProjectileMesh );
 
       // enemy destructible projectile
-      const enemyDestructibleProjectileGeometry = new SphereGeometry(0.4, 16, 16);
-      enemyDestructibleProjectileGeometry.rotateX(Math.PI * -0.5);
-      const enemyDestructibleProjectileMaterial = new MeshBasicMaterial({color: 0xf34d08});
+      const enemyDestructibleProjectileGeometry = new SphereGeometry( 0.4, 16, 16 );
+      enemyDestructibleProjectileGeometry.rotateX( Math.PI * -0.5 );
+      const enemyDestructibleProjectileMaterial = new MeshBasicMaterial( { color: 0xf34d08 } );
 
-      this.enemyDestructibleProjectileMesh = new InstancedMesh(enemyDestructibleProjectileGeometry, enemyDestructibleProjectileMaterial, this.maxEnemyProjectiles);
-      this.enemyDestructibleProjectileMesh.instanceMatrix.setUsage(DynamicDrawUsage);
+      this.enemyDestructibleProjectileMesh = new InstancedMesh( enemyDestructibleProjectileGeometry, enemyDestructibleProjectileMaterial, this.maxEnemyProjectiles );
+      this.enemyDestructibleProjectileMesh.instanceMatrix.setUsage( DynamicDrawUsage );
       this.enemyDestructibleProjectileMesh.frustumCulled = false;
-      this.scene.add(this.enemyDestructibleProjectileMesh);
+      this.scene.add( this.enemyDestructibleProjectileMesh );
 
       // obstacle
-      const obtacleGeometry = new BoxGeometry(1, 1, 1);
-      const obtacleMaterial = new MeshBasicMaterial({color: 0xdedad3});
+      const obtacleGeometry = new BoxGeometry( 1, 1, 1 );
+      const obtacleMaterial = new MeshBasicMaterial( { color: 0xdedad3 } );
 
-      this.obstacleMesh               = new InstancedMesh(obtacleGeometry, obtacleMaterial, this.maxObstacles);
+      this.obstacleMesh               = new InstancedMesh( obtacleGeometry, obtacleMaterial, this.maxObstacles );
       this.obstacleMesh.frustumCulled = false;
       this.obstacleMesh.castShadow    = true;
-      this.scene.add(this.obstacleMesh);
+      this.scene.add( this.obstacleMesh );
 
       // pursuer enemy
       const pursuerGeometry = new PursuerGeometry();
-      const pursuerMaterial = new MeshBasicMaterial({color: 0x333132});
+      const pursuerMaterial = new MeshBasicMaterial( { color: 0x333132 } );
 
-      this.pursuerMesh                  = new Mesh(pursuerGeometry, pursuerMaterial);
+      this.pursuerMesh                  = new Mesh( pursuerGeometry, pursuerMaterial );
       this.pursuerMesh.matrixAutoUpdate = false;
       this.pursuerMesh.castShadow       = true;
 
       // tower enemy
-      const towerGeometry = new CylinderGeometry(0.5, 0.5, 1, 16);
-      const towerMaterial = new MeshBasicMaterial({color: 0x333132});
+      const towerGeometry = new CylinderGeometry( 0.5, 0.5, 1, 16 );
+      const towerMaterial = new MeshBasicMaterial( { color: 0x333132 } );
 
-      this.towerMesh                  = new Mesh(towerGeometry, towerMaterial);
+      this.towerMesh                  = new Mesh( towerGeometry, towerMaterial );
       this.towerMesh.matrixAutoUpdate = false;
       this.towerMesh.castShadow       = true;
 
 
-      const guardGeometry             = new SphereGeometry(0.5, 16, 16);
-      const guardMaterial             = new MeshBasicMaterial({color: 0x333132});
-      this.guardMesh                  = new Mesh(guardGeometry, guardMaterial);
+      const guardGeometry             = new SphereGeometry( 0.5, 16, 16 );
+      const guardMaterial             = new MeshBasicMaterial( { color: 0x333132 } );
+      this.guardMesh                  = new Mesh( guardGeometry, guardMaterial );
       this.guardMesh.matrixAutoUpdate = false;
       this.guardMesh.castShadow       = true;
 
       // this.guardMesh.add(this.assetManager.cloneModel('guard'));
 
-      const protectionGeometry             = new SphereGeometry(0.75, 16, 16);
-      const protectionMaterial             = new ShaderMaterial(ProtectionShader);
+      const protectionGeometry             = new SphereGeometry( 0.75, 16, 16 );
+      const protectionMaterial             = new ShaderMaterial( ProtectionShader );
       protectionMaterial.transparent       = true;
-      this.protectionMesh                  = new Mesh(protectionGeometry, protectionMaterial);
+      this.protectionMesh                  = new Mesh( protectionGeometry, protectionMaterial );
       this.protectionMesh.matrixAutoUpdate = false;
       this.protectionMesh.visible          = false;
 
-      const hitGeometry       = new PlaneGeometry(2.5, 2.5);
-      const hitMaterial       = new ShaderMaterial(HitShader);
+      const hitGeometry       = new PlaneGeometry( 2.5, 2.5 );
+      const hitMaterial       = new ShaderMaterial( HitShader );
       hitMaterial.transparent = true;
-      this.hitMesh            = new Mesh(hitGeometry, hitMaterial);
+      this.hitMesh            = new Mesh( hitGeometry, hitMaterial );
       this.hitMesh.visible    = false;
 
       // renderer
-      this.renderer = new WebGLRenderer({antialias: true});
-      this.renderer.setSize(window.innerWidth, window.innerHeight);
+      this.renderer = new WebGLRenderer( { antialias: true } );
+      this.renderer.setSize( window.innerWidth, window.innerHeight );
       this.renderer.outputEncoding    = sRGBEncoding;
       this.renderer.shadowMap.enabled = true;
       this.renderer.shadowMap.type    = PCFSoftShadowMap;
-      document.body.appendChild(this.renderer.domElement);
+      document.body.appendChild( this.renderer.domElement );
 
       // listeners
-      window.addEventListener('resize', this._onWindowResize, false);
-      this.ui.continueButton.addEventListener('click', this._onContinueButtonClick, false);
-      this.ui.restartButtonMenu.addEventListener('click', this._onRestart, false);
-      this.ui.restartButtonComplete.addEventListener('click', this._onRestart, false);
-      this.ui.restartButtonGameOver.addEventListener('click', this._onRestart, false);
-      this.ui.quitButtonMenu.addEventListener('click', this._onQuit, false);
-      this.ui.quitButtonComplete.addEventListener('click', this._onQuit, false);
-      this.ui.quitButtonGameOver.addEventListener('click', this._onQuit, false);
+      window.addEventListener( 'resize', this._onWindowResize, false );
+      this.ui.continueButton.addEventListener( 'click', this._onContinueButtonClick, false );
+      this.ui.restartButtonMenu.addEventListener( 'click', this._onRestart, false );
+      this.ui.restartButtonComplete.addEventListener( 'click', this._onRestart, false );
+      this.ui.restartButtonGameOver.addEventListener( 'click', this._onRestart, false );
+      this.ui.quitButtonMenu.addEventListener( 'click', this._onQuit, false );
+      this.ui.quitButtonComplete.addEventListener( 'click', this._onQuit, false );
+      this.ui.quitButtonGameOver.addEventListener( 'click', this._onQuit, false );
 
-      this.userInterface = new InterfaceManager(this);
+      this.userInterface = new InterfaceManager( this );
 
    }
 
 
 
-   _initBackground(params) {
-      const background_color = new Color(0x030303);
+   _initBackground( params ) {
+      const background_color = new Color( 0x030303 );
       this.environmentManager.generateBackground();
    }
 
@@ -472,74 +474,74 @@ class World {
       const protectionMesh    = this.protectionMesh.clone();
       protectionMesh.material = this.protectionMesh.material.clone(); // cloning a mesh does not clone its material (but we need unique uniforms!)
 
-      const initialWeaponMesh = this.assetManager.weapons.get('FireAxe').clone();
+      const initialWeaponMesh = this.assetManager.weapons.get( 'FireAxe' ).clone();
       // this.playerMesh.add(initialWeaponMesh);
-      this.playerMesh.add(protectionMesh)
-      this.player                = new Player(this, this.playerMesh, initialWeaponMesh, this.assetManager.mixers.get('Android'),
-        this.assetManager.animations.get('Android'));
+      this.playerMesh.add( protectionMesh )
+      this.player                = new Player( this, this.playerMesh, initialWeaponMesh, this.assetManager.mixers.get( 'Android' ),
+        this.assetManager.animations.get( 'Android' ) );
       this.player.protectionMesh = protectionMesh
 
       // particle system
-      this.scene.add(this.player.particleSystem._points);
+      this.scene.add( this.player.particleSystem._points );
 
       // audio
-      const playerShot    = this.assetManager.audios.get('playerShot');
-      const playerHit     = this.assetManager.audios.get('playerHit');
-      const playerExplode = this.assetManager.audios.get('playerExplode');
+      const playerShot    = this.assetManager.audios.get( 'playerShot' );
+      const playerHit     = this.assetManager.audios.get( 'playerHit' );
+      const playerExplode = this.assetManager.audios.get( 'playerExplode' );
 
-      this.playerMesh.add(playerShot, playerHit, playerExplode);
+      this.playerMesh.add( playerShot, playerHit, playerExplode );
 
-      this.player.audios.set('playerShot', playerShot);
-      this.player.audios.set('playerHit', playerHit);
-      this.player.audios.set('playerExplode', playerExplode);
+      this.player.audios.set( 'playerShot', playerShot );
+      this.player.audios.set( 'playerHit', playerHit );
+      this.player.audios.set( 'playerExplode', playerExplode );
 
-      this.player.setRenderComponent(this.playerMesh, sync);
+      this.player.setRenderComponent( this.playerMesh, sync );
 
       //
-      this.entityManager.add(this.player);
+      this.entityManager.add( this.player );
 
    }
 
 
    _initControls() {
 
-      this.controls = new PlayerController(this.player, this.camera);
-      this.controls.setPosition(new YUKA.Vector3(0, 0, 0));
+      this.controls = new PlayerController( this.player, this.camera );
+      this.controls.setPosition( new YUKA.Vector3( 0, 0, 0 ) );
 
-      this.controls.addEventListener('lock', () => {
+      this.controls.addEventListener( 'lock', () => {
 
-         this.ui.menu.classList.add('hidden');
+         this.ui.menu.classList.add( 'hidden' );
 
          this.time.reset();
 
          this._startAnimation();
 
-      });
+      } );
 
-      this.controls.addEventListener('unlock', () => {
+      this.controls.addEventListener( 'unlock', () => {
 
-         if (this.gameOver === false) {
+         if ( this.gameOver === false ) {
 
-            this.ui.menu.classList.remove('hidden');
+            this.ui.menu.classList.remove( 'hidden' );
 
             this._stopAnimation();
 
          }
 
-      });
+      } );
 
    }
 
 
-   _createGuard(type) {
-      console.log(type);
-      if (!type) {
+   _createGuard( type ) {
+      console.log( type );
+      if ( !type ) {
          type = GUARDTYPE.ASSAULT;
       }
 
-      const guardMesh = this.assetManager.enemyModels.get(type);
-      const mixer     = this.assetManager.animations.get(type);
-      const guard     = new Guard(this, type, guardMesh);
+      const guardMesh = this.assetManager.enemyModels.get( type );
+      const mixer     = this.assetManager.animations.get( type );
+      const guard     = new Guard( this, type, guardMesh );
       // console.log(guardMesh);
 
       const protectionMesh    = this.protectionMesh.clone();
@@ -547,32 +549,32 @@ class World {
       const hitMesh           = this.hitMesh.clone();
       hitMesh.material        = this.hitMesh.material.clone();
 
-      guardMesh.add(protectionMesh);
-      guardMesh.add(hitMesh);
+      guardMesh.add( protectionMesh );
+      guardMesh.add( hitMesh );
 
-      guard.setRenderComponent(guardMesh, sync);
+      guard.setRenderComponent( guardMesh, sync );
       guard.bodyMesh       = guardMesh;
       guard.protectionMesh = protectionMesh;
       guard.hitMesh        = hitMesh;
       // console.log('guard', guard);
 
-      const enemyShot           = this.assetManager.cloneAudio('enemyShot');
-      const enemyHit            = this.assetManager.cloneAudio('enemyHit');
-      const coreExplode         = this.assetManager.cloneAudio('coreExplode');
-      const coreShieldHit       = this.assetManager.cloneAudio('coreShieldHit');
-      const coreShieldDestroyed = this.assetManager.cloneAudio('coreShieldDestroyed');
+      const enemyShot           = this.assetManager.cloneAudio( 'enemyShot' );
+      const enemyHit            = this.assetManager.cloneAudio( 'enemyHit' );
+      const coreExplode         = this.assetManager.cloneAudio( 'coreExplode' );
+      const coreShieldHit       = this.assetManager.cloneAudio( 'coreShieldHit' );
+      const coreShieldDestroyed = this.assetManager.cloneAudio( 'coreShieldDestroyed' );
 
-      guardMesh.add(enemyShot);
-      guardMesh.add(enemyHit);
-      guardMesh.add(coreExplode);
-      guardMesh.add(coreShieldHit);
-      guardMesh.add(coreShieldDestroyed);
+      guardMesh.add( enemyShot );
+      guardMesh.add( enemyHit );
+      guardMesh.add( coreExplode );
+      guardMesh.add( coreShieldHit );
+      guardMesh.add( coreShieldDestroyed );
 
-      guard.audios.set('enemyShot', enemyShot);
-      guard.audios.set('enemyHit', enemyHit);
-      guard.audios.set('coreExplode', coreExplode);
-      guard.audios.set('coreShieldHit', coreShieldHit);
-      guard.audios.set('coreShieldDestroyed', coreShieldDestroyed);
+      guard.audios.set( 'enemyShot', enemyShot );
+      guard.audios.set( 'enemyHit', enemyHit );
+      guard.audios.set( 'coreExplode', coreExplode );
+      guard.audios.set( 'coreShieldHit', coreShieldHit );
+      guard.audios.set( 'coreShieldDestroyed', coreShieldDestroyed );
 
       return guard;
 
@@ -581,18 +583,18 @@ class World {
 
    _createPursuer() {
 
-      const pursuer     = new Pursuer(this);
+      const pursuer     = new Pursuer( this );
       const pursuerMesh = this.pursuerMesh.clone();
-      pursuer.setRenderComponent(pursuerMesh, sync);
+      pursuer.setRenderComponent( pursuerMesh, sync );
 
-      const enemyShot    = this.assetManager.cloneAudio('enemyShot');
-      const enemyExplode = this.assetManager.cloneAudio('enemyExplode');
+      const enemyShot    = this.assetManager.cloneAudio( 'enemyShot' );
+      const enemyExplode = this.assetManager.cloneAudio( 'enemyExplode' );
 
-      pursuer.audios.set('enemyShot', enemyShot);
-      pursuer.audios.set('enemyExplode', enemyExplode);
+      pursuer.audios.set( 'enemyShot', enemyShot );
+      pursuer.audios.set( 'enemyExplode', enemyExplode );
 
-      pursuerMesh.add(enemyShot);
-      pursuerMesh.add(enemyExplode);
+      pursuerMesh.add( enemyShot );
+      pursuerMesh.add( enemyExplode );
 
       return pursuer;
 
@@ -601,21 +603,21 @@ class World {
 
    _createTower() {
 
-      const tower     = new Tower(this);
+      const tower     = new Tower( this );
       const towerMesh = this.towerMesh.clone();
-      tower.setRenderComponent(towerMesh, sync);
+      tower.setRenderComponent( towerMesh, sync );
 
-      const enemyShot    = this.assetManager.cloneAudio('enemyShot');
-      const enemyExplode = this.assetManager.cloneAudio('enemyExplode');
-      const enemyHit     = this.assetManager.cloneAudio('enemyHit');
+      const enemyShot    = this.assetManager.cloneAudio( 'enemyShot' );
+      const enemyExplode = this.assetManager.cloneAudio( 'enemyExplode' );
+      const enemyHit     = this.assetManager.cloneAudio( 'enemyHit' );
 
-      tower.audios.set('enemyShot', enemyShot);
-      tower.audios.set('enemyExplode', enemyExplode);
-      tower.audios.set('enemyHit', enemyHit);
+      tower.audios.set( 'enemyShot', enemyShot );
+      tower.audios.set( 'enemyExplode', enemyExplode );
+      tower.audios.set( 'enemyHit', enemyHit );
 
-      towerMesh.add(enemyShot);
-      towerMesh.add(enemyExplode);
-      towerMesh.add(enemyHit);
+      towerMesh.add( enemyShot );
+      towerMesh.add( enemyExplode );
+      towerMesh.add( enemyHit );
 
       return tower;
 
@@ -629,25 +631,25 @@ class World {
       const pursuers = this.pursuers;
       const towers   = this.towers;
 
-      if (player._GOD_MODE_ === false) {
+      if ( player._GOD_MODE_ === false ) {
 
          // perform intersection test with guards
-         for (let i = 0, l = guards.length; i < l; i++) {
+         for ( let i = 0, l = guards.length; i < l; i++ ) {
 
-            const guard = guards[i];
+            const guard = guards[ i ];
 
-            const squaredDistance = player.position.squaredDistanceTo(guard.position);
+            const squaredDistance = player.position.squaredDistanceTo( guard.position );
             const range           = player.boundingRadius + guard.boundingRadius;
 
-            if (squaredDistance <= (range * range)) {
+            if ( squaredDistance <= ( range * range ) ) {
 
-               if (player.obb.intersectsBoundingSphere(guard.boundingSphere) === true) {
+               if ( player.obb.intersectsBoundingSphere( guard.boundingSphere ) === true ) {
 
                   // dead
 
                   player.healthPoints--;
-                  const audio = player.audios.get('playerHit');
-                  this.playAudio(audio);
+                  const audio = player.audios.get( 'playerHit' );
+                  this.playAudio( audio );
 
 
 
@@ -660,23 +662,23 @@ class World {
          }
 
          // perform intersection test with pursuers
-         for (let i = 0, l = pursuers.length; i < l; i++) {
+         for ( let i = 0, l = pursuers.length; i < l; i++ ) {
 
-            const pursuer = pursuers[i];
+            const pursuer = pursuers[ i ];
 
-            const squaredDistance = player.position.squaredDistanceTo(pursuer.position);
+            const squaredDistance = player.position.squaredDistanceTo( pursuer.position );
             const range           = player.boundingRadius + pursuer.boundingRadius;
 
-            if (squaredDistance <= (range * range)) {
+            if ( squaredDistance <= ( range * range ) ) {
 
-               if (player.obb.intersectsBoundingSphere(pursuer.boundingSphere) === true) {
+               if ( player.obb.intersectsBoundingSphere( pursuer.boundingSphere ) === true ) {
 
                   // dead
 
                   player.healthPoints = 0;
 
-                  const audio = player.audios.get('playerExplode');
-                  this.playAudio(audio);
+                  const audio = player.audios.get( 'playerExplode' );
+                  this.playAudio( audio );
                   return;
 
                }
@@ -686,23 +688,23 @@ class World {
          }
 
          // perform intersection test with towers
-         for (let i = 0, l = towers.length; i < l; i++) {
+         for ( let i = 0, l = towers.length; i < l; i++ ) {
 
-            const tower = towers[i];
+            const tower = towers[ i ];
 
-            const squaredDistance = player.position.squaredDistanceTo(tower.position);
+            const squaredDistance = player.position.squaredDistanceTo( tower.position );
             const range           = player.boundingRadius + tower.boundingRadius;
 
-            if (squaredDistance <= (range * range)) {
+            if ( squaredDistance <= ( range * range ) ) {
 
-               if (player.obb.intersectsBoundingSphere(tower.boundingSphere) === true) {
+               if ( player.obb.intersectsBoundingSphere( tower.boundingSphere ) === true ) {
 
                   // dead
 
                   player.healthPoints = 0;
 
-                  const audio = player.audios.get('playerExplode');
-                  this.playAudio(audio);
+                  const audio = player.audios.get( 'playerExplode' );
+                  this.playAudio( audio );
                   return;
 
                }
@@ -719,9 +721,9 @@ class World {
       const playerProjectiles = this.playerProjectiles;
 
       // perform intersection test of player projectiles
-      for (let i = (playerProjectiles.length - 1); i >= 0; i--) {
+      for ( let i = ( playerProjectiles.length - 1 ); i >= 0; i-- ) {
 
-         this._checkPlayerProjectileCollision(playerProjectiles[i]);
+         this._checkPlayerProjectileCollision( playerProjectiles[ i ] );
 
       }
 
@@ -734,41 +736,41 @@ class World {
       const enemyDestructibleProjectiles = this.enemyDestructibleProjectiles;
 
       // perform intersection test of enemy projectiles
-      for (let i = (enemyProjectiles.length - 1); i >= 0; i--) {
+      for ( let i = ( enemyProjectiles.length - 1 ); i >= 0; i-- ) {
 
-         this._checkEnemyProjectileCollision(enemyProjectiles[i]);
+         this._checkEnemyProjectileCollision( enemyProjectiles[ i ] );
 
       }
 
-      for (let i = (enemyDestructibleProjectiles.length - 1); i >= 0; i--) {
+      for ( let i = ( enemyDestructibleProjectiles.length - 1 ); i >= 0; i-- ) {
 
-         this._checkEnemyProjectileCollision(enemyDestructibleProjectiles[i]);
+         this._checkEnemyProjectileCollision( enemyDestructibleProjectiles[ i ] );
 
       }
 
    }
 
 
-   _checkEnemyProjectileCollision(projectile) {
+   _checkEnemyProjectileCollision( projectile ) {
 
       const obstacles         = this.obstacles;
       const player            = this.player;
       const playerProjectiles = this.playerProjectiles;
 
-      for (let i = 0, l = obstacles.length; i < l; i++) {
+      for ( let i = 0, l = obstacles.length; i < l; i++ ) {
 
          // first test (find out how close objects are)
-         const obstacle = obstacles[i];
+         const obstacle = obstacles[ i ];
 
-         const squaredDistance = projectile.position.squaredDistanceTo(obstacle.position);
+         const squaredDistance = projectile.position.squaredDistanceTo( obstacle.position );
          const range           = projectile.boundingRadius + obstacle.boundingRadius;
 
-         if (squaredDistance <= (range * range)) {
+         if ( squaredDistance <= ( range * range ) ) {
 
             // second more expensive test (only performed if objects are close enough)
-            if (obstacle.obb.intersectsBoundingSphere(projectile.boundingSphere) === true) {
+            if ( obstacle.obb.intersectsBoundingSphere( projectile.boundingSphere ) === true ) {
 
-               this.removeProjectile(projectile);
+               this.removeProjectile( projectile );
                return;
 
             }
@@ -777,24 +779,24 @@ class World {
 
       }
 
-      if (projectile.isDestructible === true) {
+      if ( projectile.isDestructible === true ) {
 
          // perform intersection test with player projectiles
-         for (let i = (playerProjectiles.length - 1); i >= 0; i--) {
+         for ( let i = ( playerProjectiles.length - 1 ); i >= 0; i-- ) {
 
             // first test (find out how close objects are)
-            const playerProjectile = playerProjectiles[i];
+            const playerProjectile = playerProjectiles[ i ];
 
-            const squaredDistance = projectile.position.squaredDistanceTo(playerProjectile.position);
+            const squaredDistance = projectile.position.squaredDistanceTo( playerProjectile.position );
             const range           = projectile.boundingRadius + playerProjectile.boundingRadius;
 
-            if (squaredDistance <= (range * range)) {
+            if ( squaredDistance <= ( range * range ) ) {
 
                // second more expensive test (only performed if objects are close enough)
-               if (playerProjectile.obb.intersectsBoundingSphere(projectile.boundingSphere) === true) {
+               if ( playerProjectile.obb.intersectsBoundingSphere( projectile.boundingSphere ) === true ) {
 
-                  this.removeProjectile(projectile);
-                  this.removeProjectile(playerProjectile);
+                  this.removeProjectile( projectile );
+                  this.removeProjectile( playerProjectile );
                   return;
 
                }
@@ -806,15 +808,15 @@ class World {
       }
 
       // perform intersection test with player
-      const squaredDistance = projectile.position.squaredDistanceTo(player.position);
+      const squaredDistance = projectile.position.squaredDistanceTo( player.position );
       const range           = projectile.boundingRadius + player.boundingRadius;
 
-      if (squaredDistance <= (range * range)) {
+      if ( squaredDistance <= ( range * range ) ) {
 
-         if (player.obb.intersectsBoundingSphere(projectile.boundingSphere) === true) {
+         if ( player.obb.intersectsBoundingSphere( projectile.boundingSphere ) === true ) {
 
-            projectile.sendMessage(player, 'hit');
-            this.removeProjectile(projectile);
+            projectile.sendMessage( player, 'hit' );
+            this.removeProjectile( projectile );
             return;
 
          }
@@ -824,7 +826,7 @@ class World {
    }
 
 
-   _checkPlayerProjectileCollision(playerProjectile) {
+   _checkPlayerProjectileCollision( playerProjectile ) {
 
       const guards    = this.guards;
       const pursuers  = this.pursuers;
@@ -834,21 +836,21 @@ class World {
       // enemies
 
       // guards
-      for (let i = 0, l = guards.length; i < l; i++) {
+      for ( let i = 0, l = guards.length; i < l; i++ ) {
 
          // first test (find out how close objects are)
-         const guard = guards[i];
+         const guard = guards[ i ];
 
-         const squaredDistance = playerProjectile.position.squaredDistanceTo(guard.position);
+         const squaredDistance = playerProjectile.position.squaredDistanceTo( guard.position );
          const range           = playerProjectile.boundingRadius + guard.boundingRadius;
 
-         if (squaredDistance <= (range * range)) {
+         if ( squaredDistance <= ( range * range ) ) {
 
             // second more expensive test (only performed if objects are close enough)
-            if (playerProjectile.obb.intersectsBoundingSphere(guard.boundingSphere) === true) {
+            if ( playerProjectile.obb.intersectsBoundingSphere( guard.boundingSphere ) === true ) {
 
-               playerProjectile.sendMessage(guard, 'hit');
-               this.removeProjectile(playerProjectile);
+               playerProjectile.sendMessage( guard, 'hit' );
+               this.removeProjectile( playerProjectile );
                return;
 
             }
@@ -858,21 +860,21 @@ class World {
       }
 
       // pursuers
-      for (let i = 0, l = pursuers.length; i < l; i++) {
+      for ( let i = 0, l = pursuers.length; i < l; i++ ) {
 
          // first test (find out how close objects are)
-         const pursuer = pursuers[i];
+         const pursuer = pursuers[ i ];
 
-         const squaredDistance = playerProjectile.position.squaredDistanceTo(pursuer.position);
+         const squaredDistance = playerProjectile.position.squaredDistanceTo( pursuer.position );
          const range           = playerProjectile.boundingRadius + pursuer.boundingRadius;
 
-         if (squaredDistance <= (range * range)) {
+         if ( squaredDistance <= ( range * range ) ) {
 
             // second more expensive test (only performed if objects are close enough)
-            if (playerProjectile.obb.intersectsBoundingSphere(pursuer.boundingSphere) === true) {
+            if ( playerProjectile.obb.intersectsBoundingSphere( pursuer.boundingSphere ) === true ) {
 
-               playerProjectile.sendMessage(pursuer, 'hit');
-               this.removeProjectile(playerProjectile);
+               playerProjectile.sendMessage( pursuer, 'hit' );
+               this.removeProjectile( playerProjectile );
                return;
 
             }
@@ -882,21 +884,21 @@ class World {
       }
 
       // towers
-      for (let i = 0, l = towers.length; i < l; i++) {
+      for ( let i = 0, l = towers.length; i < l; i++ ) {
 
          // first test (find out how close objects are)
-         const tower = towers[i];
+         const tower = towers[ i ];
 
-         const squaredDistance = playerProjectile.position.squaredDistanceTo(tower.position);
+         const squaredDistance = playerProjectile.position.squaredDistanceTo( tower.position );
          const range           = playerProjectile.boundingRadius + tower.boundingRadius;
 
-         if (squaredDistance <= (range * range)) {
+         if ( squaredDistance <= ( range * range ) ) {
 
             // second more expensive test (only performed if objects are close enough)
-            if (playerProjectile.obb.intersectsBoundingSphere(tower.boundingSphere) === true) {
+            if ( playerProjectile.obb.intersectsBoundingSphere( tower.boundingSphere ) === true ) {
 
-               playerProjectile.sendMessage(tower, 'hit', 0, playerProjectile);
-               this.removeProjectile(playerProjectile);
+               playerProjectile.sendMessage( tower, 'hit', 0, playerProjectile );
+               this.removeProjectile( playerProjectile );
                return;
 
             }
@@ -906,20 +908,20 @@ class World {
       }
 
       // obstacles
-      for (let i = 0, l = obstacles.length; i < l; i++) {
+      for ( let i = 0, l = obstacles.length; i < l; i++ ) {
 
          // first test (find out how close objects are)
-         const obstacle = obstacles[i];
+         const obstacle = obstacles[ i ];
 
-         const squaredDistance = playerProjectile.position.squaredDistanceTo(obstacle.position);
+         const squaredDistance = playerProjectile.position.squaredDistanceTo( obstacle.position );
          const range           = playerProjectile.boundingRadius + obstacle.boundingRadius;
 
-         if (squaredDistance <= (range * range)) {
+         if ( squaredDistance <= ( range * range ) ) {
 
             // second more expensive test (only performed if objects are close enough)
-            if (playerProjectile.obb.intersectsOBB(obstacle.obb) === true) {
+            if ( playerProjectile.obb.intersectsOBB( obstacle.obb ) === true ) {
 
-               this.removeProjectile(playerProjectile);
+               this.removeProjectile( playerProjectile );
                return;
 
             }
@@ -938,31 +940,31 @@ class World {
       const pursuers = this.pursuers;
       const towers   = this.towers;
 
-      if (player.healthPoints === 0) {
+      if ( player.healthPoints === 0 ) {
 
          this.active   = false;
          this.gameOver = true;
-         this.ui.gameOver.classList.remove('hidden');
+         this.ui.gameOver.classList.remove( 'hidden' );
          this.controls.exit();
 
       } else {
 
          // check guard protection
-         if (this.guardsProtected === true && (pursuers.length === 0 && towers.length === 0)) {
+         if ( this.guardsProtected === true && ( pursuers.length === 0 && towers.length === 0 ) ) {
 
             // disable protection when all pursuers are destroyed
             this.guardsProtected = false;
 
-            for (let i = 0, l = guards.length; i < l; i++) {
+            for ( let i = 0, l = guards.length; i < l; i++ ) {
 
-               guards[i].disableProtection();
+               guards[ i ].disableProtection();
 
             }
 
          }
 
          // all guards have been destroyed
-         if (guards.length === 0) {
+         if ( guards.length === 0 ) {
 
             // advance
             this.currentStage++;
@@ -973,25 +975,25 @@ class World {
             // restore hit points after clearing a stage
             this.player.heal();
 
-            if (this.currentStage > this.maxStage) {
+            if ( this.currentStage > this.maxStage ) {
 
                // game completed
                this.gameOver = true;
 
                this.controls.exit();
-               this.ui.gameComplete.classList.remove('hidden');
+               this.ui.gameComplete.classList.remove( 'hidden' );
 
             } else {
 
                // load next stage
-               this.ui.levelComplete.classList.remove('hidden');
+               this.ui.levelComplete.classList.remove( 'hidden' );
 
-               setTimeout(() => {
+               setTimeout( () => {
 
-                  this._loadStage(this.currentStage);
-                  this.ui.levelComplete.classList.add('hidden');
+                  this._loadStage( this.currentStage );
+                  this.ui.levelComplete.classList.add( 'hidden' );
 
-               }, 1000);
+               }, 1000 );
 
             }
 
@@ -1002,13 +1004,13 @@ class World {
    }
 
 
-   _loadStage(id) {
+   _loadStage( id ) {
 
       this._clearStage();
 
-      this._updateMenu(id);
+      this._updateMenu( id );
 
-      this.sceneManager.load(id);
+      this.sceneManager.load( id );
 
       this.active = true;
 
@@ -1017,69 +1019,69 @@ class World {
 
 
 
-   updateField(x, y, z) {
-      this.field.set(x, y, z);
-      this.environmentManager.update(x, y, z);
+   updateField( x, y, z ) {
+      this.field.set( x, y, z );
+      this.environmentManager.update( x, y, z );
    }
 
 
    _updateWalls() {
 
-      const wallGeometry = new BoxGeometry(1, 1, 1);
-      const wallMaterial = new MeshBasicMaterial({color: 0x8e8e8e});
+      const wallGeometry = new BoxGeometry( 1, 1, 1 );
+      const wallMaterial = new MeshBasicMaterial( { color: 0x8e8e8e } );
 
       this.wallsMeshes.clear();
-      for (let x = -this.field.x; x <= this.field.x; x++) {
-         if (x === -this.field.x / 2 || x === this.field.x / 2) {
-            for (let z = -this.field.z; z <= this.field.z; z++) {
-               if (z === -this.field.z / 2 || z === this.field.z / 2) {
-                  for (let i = -this.field.x / 2; i <= this.field.x / 2; i++) {
-                     const wallMesh            = new Mesh(wallGeometry, wallMaterial);
+      for ( let x = -this.field.x; x <= this.field.x; x++ ) {
+         if ( x === -this.field.x / 2 || x === this.field.x / 2 ) {
+            for ( let z = -this.field.z; z <= this.field.z; z++ ) {
+               if ( z === -this.field.z / 2 || z === this.field.z / 2 ) {
+                  for ( let i = -this.field.x / 2; i <= this.field.x / 2; i++ ) {
+                     const wallMesh            = new Mesh( wallGeometry, wallMaterial );
                      wallMesh.matrixAutoUpdate = false;
-                     wallMesh.position.set(i, 0.5, z);
+                     wallMesh.position.set( i, 0.5, z );
                      wallMesh.updateMatrix();
                      wallMesh.castShadow    = true;
                      wallMesh.receiveShadow = true;
-                     this.wallsMeshes.add(wallMesh);
+                     this.wallsMeshes.add( wallMesh );
                   }
                } else {
-                  const wallMesh            = new Mesh(wallGeometry, wallMaterial);
+                  const wallMesh            = new Mesh( wallGeometry, wallMaterial );
                   wallMesh.matrixAutoUpdate = false;
-                  wallMesh.position.set(x, 0.5, z);
+                  wallMesh.position.set( x, 0.5, z );
                   wallMesh.updateMatrix();
                   wallMesh.castShadow    = true;
                   wallMesh.receiveShadow = true;
-                  this.wallsMeshes.add(wallMesh);
+                  this.wallsMeshes.add( wallMesh );
                }
             }
          }
       }
-      this.scene.add(this.wallsMeshes);
+      this.scene.add( this.wallsMeshes );
 
    }
 
 
-   _updateMenu(currentStage) {
+   _updateMenu( currentStage ) {
 
-      if (currentStage > 1) {
+      if ( currentStage > 1 ) {
 
          this.ui.continueButton.textContent = '■ Continue';
 
-         this.ui.continueButton.classList.remove('hidden');
-         this.ui.restartButtonMenu.classList.add('show-inline');
+         this.ui.continueButton.classList.remove( 'hidden' );
+         this.ui.restartButtonMenu.classList.add( 'show-inline' );
 
-         this.ui.quitButtonMenu.classList.remove('hidden');
-         this.ui.quitButtonMenu.classList.add('show-inline');
+         this.ui.quitButtonMenu.classList.remove( 'hidden' );
+         this.ui.quitButtonMenu.classList.add( 'show-inline' );
 
       } else {
 
          this.ui.continueButton.textContent = '■ Start';
 
-         this.ui.continueButton.classList.remove('show-inline');
-         this.ui.restartButtonMenu.classList.add('hidden');
+         this.ui.continueButton.classList.remove( 'show-inline' );
+         this.ui.restartButtonMenu.classList.add( 'hidden' );
 
-         this.ui.quitButtonMenu.classList.remove('show-inline');
-         this.ui.quitButtonMenu.classList.add('hidden');
+         this.ui.quitButtonMenu.classList.remove( 'show-inline' );
+         this.ui.quitButtonMenu.classList.add( 'hidden' );
 
       }
 
@@ -1100,70 +1102,70 @@ class World {
 
       this.guardsProtected = false;
 
-      for (let i = (guards.length - 1); i >= 0; i--) {
+      for ( let i = ( guards.length - 1 ); i >= 0; i-- ) {
 
-         this.removeGuard(guards[i]);
-
-      }
-
-      for (let i = (pursuers.length - 1); i >= 0; i--) {
-
-         this.removePursuer(pursuers[i]);
+         this.removeGuard( guards[ i ] );
 
       }
 
-      for (let i = (towers.length - 1); i >= 0; i--) {
+      for ( let i = ( pursuers.length - 1 ); i >= 0; i-- ) {
 
-         this.removeTower(towers[i]);
-
-      }
-
-      for (let i = (obstacles.length - 1); i >= 0; i--) {
-
-         this.removeObstacle(obstacles[i]);
+         this.removePursuer( pursuers[ i ] );
 
       }
 
-      for (let i = (enemyProjectiles.length - 1); i >= 0; i--) {
+      for ( let i = ( towers.length - 1 ); i >= 0; i-- ) {
 
-         this.removeProjectile(enemyProjectiles[i]);
-
-      }
-
-      for (let i = (enemyDestructibleProjectiles.length - 1); i >= 0; i--) {
-
-         this.removeProjectile(enemyDestructibleProjectiles[i]);
+         this.removeTower( towers[ i ] );
 
       }
 
-      for (let i = (playerProjectiles.length - 1); i >= 0; i--) {
+      for ( let i = ( obstacles.length - 1 ); i >= 0; i-- ) {
 
-         this.removeProjectile(playerProjectiles[i]);
+         this.removeObstacle( obstacles[ i ] );
 
       }
 
-      this._updateObstaclesMeshes(true);
+      for ( let i = ( enemyProjectiles.length - 1 ); i >= 0; i-- ) {
+
+         this.removeProjectile( enemyProjectiles[ i ] );
+
+      }
+
+      for ( let i = ( enemyDestructibleProjectiles.length - 1 ); i >= 0; i-- ) {
+
+         this.removeProjectile( enemyDestructibleProjectiles[ i ] );
+
+      }
+
+      for ( let i = ( playerProjectiles.length - 1 ); i >= 0; i-- ) {
+
+         this.removeProjectile( playerProjectiles[ i ] );
+
+      }
+
+      this._updateObstaclesMeshes( true );
 
       this.player.particleSystem.clear();
 
    }
 
 
-   _updateObstaclesMeshes(force) {
+   _updateObstaclesMeshes( force ) {
 
       let needsUpdate = force || false;
 
       const obstacleCount = this.obstacles.length;
 
-      for (let i = 0; i < obstacleCount; i++) {
+      for ( let i = 0; i < obstacleCount; i++ ) {
 
-         const obstacle = this.obstacles[i];
+         const obstacle = this.obstacles[ i ];
 
-         if (obstacle.needsUpdate === true) {
+         if ( obstacle.needsUpdate === true ) {
 
             obstacle.updateBoundingVolumes(); // ensure bounding volume is up-to-date
 
-            this.obstacleMesh.setMatrixAt(i, obstacle.worldMatrix);
+            this.obstacleMesh.setMatrixAt( i, obstacle.worldMatrix );
             obstacle.needsUpdate = false;
             needsUpdate          = true;
 
@@ -1171,7 +1173,7 @@ class World {
 
       }
 
-      if (needsUpdate === true) {
+      if ( needsUpdate === true ) {
 
          this.obstacleMesh.count                      = obstacleCount;
          this.obstacleMesh.instanceMatrix.needsUpdate = true;
@@ -1187,12 +1189,12 @@ class World {
 
       const playerProjectileCount = this.playerProjectiles.length;
 
-      for (let i = 0; i < playerProjectileCount; i++) {
+      for ( let i = 0; i < playerProjectileCount; i++ ) {
 
-         const projectile = this.playerProjectiles[i];
+         const projectile = this.playerProjectiles[ i ];
 
-         if (this.player.strategy === 'range') {
-            this.playerProjectileMesh.setMatrixAt(i, projectile.worldMatrix);
+         if ( this.player.strategy === 'range' ) {
+            this.playerProjectileMesh.setMatrixAt( i, projectile.worldMatrix );
          } else {
 
          }
@@ -1207,10 +1209,10 @@ class World {
       const enemyProjectileCount = this.enemyProjectiles.length;
 
 
-      for (let i = 0; i < enemyProjectileCount; i++) {
+      for ( let i = 0; i < enemyProjectileCount; i++ ) {
 
-         const projectile = this.enemyProjectiles[i];
-         this.enemyProjectileMesh.setMatrixAt(i, projectile.worldMatrix);
+         const projectile = this.enemyProjectiles[ i ];
+         this.enemyProjectileMesh.setMatrixAt( i, projectile.worldMatrix );
 
       }
 
@@ -1221,10 +1223,10 @@ class World {
 
       const enemyDestructibleProjectileCount = this.enemyDestructibleProjectiles.length;
 
-      for (let i = 0; i < enemyDestructibleProjectileCount; i++) {
+      for ( let i = 0; i < enemyDestructibleProjectileCount; i++ ) {
 
-         const projectile = this.enemyDestructibleProjectiles[i];
-         this.enemyDestructibleProjectileMesh.setMatrixAt(i, projectile.worldMatrix);
+         const projectile = this.enemyDestructibleProjectiles[ i ];
+         this.enemyDestructibleProjectileMesh.setMatrixAt( i, projectile.worldMatrix );
 
       }
 
@@ -1243,38 +1245,38 @@ class World {
 
       // guards
 
-      for (let i = 0, il = guards.length; i < il; i++) {
+      for ( let i = 0, il = guards.length; i < il; i++ ) {
 
-         const guard = guards[i];
+         const guard = guards[ i ];
 
-         for (let j = 0, jl = guards.length; j < jl; j++) {
+         for ( let j = 0, jl = guards.length; j < jl; j++ ) {
 
-            const entity = guards[j];
+            const entity = guards[ j ];
 
-            if (guard !== entity) {
+            if ( guard !== entity ) {
 
-               this._checkOverlappingEntites(guard, entity);
+               this._checkOverlappingEntites( guard, entity );
 
             }
 
 
          }
 
-         for (let j = 0, jl = pursuers.length; j < jl; j++) {
+         for ( let j = 0, jl = pursuers.length; j < jl; j++ ) {
 
-            this._checkOverlappingEntites(guard, pursuers[j]);
-
-         }
-
-         for (let j = 0, jl = towers.length; j < jl; j++) {
-
-            this._checkOverlappingEntites(guard, towers[j]);
+            this._checkOverlappingEntites( guard, pursuers[ j ] );
 
          }
 
-         for (let j = 0, jl = obstacles.length; j < jl; j++) {
+         for ( let j = 0, jl = towers.length; j < jl; j++ ) {
 
-            this._checkOverlappingEntites(guard, obstacles[j]);
+            this._checkOverlappingEntites( guard, towers[ j ] );
+
+         }
+
+         for ( let j = 0, jl = obstacles.length; j < jl; j++ ) {
+
+            this._checkOverlappingEntites( guard, obstacles[ j ] );
 
          }
 
@@ -1282,39 +1284,39 @@ class World {
 
       // pursuer
 
-      for (let i = 0, il = pursuers.length; i < il; i++) {
+      for ( let i = 0, il = pursuers.length; i < il; i++ ) {
 
-         const pursuer = pursuers[i];
+         const pursuer = pursuers[ i ];
 
-         for (let j = 0, jl = guards.length; j < jl; j++) {
+         for ( let j = 0, jl = guards.length; j < jl; j++ ) {
 
-            const entity = guards[j];
+            const entity = guards[ j ];
 
-            this._checkOverlappingEntites(pursuer, entity);
+            this._checkOverlappingEntites( pursuer, entity );
 
          }
 
-         for (let j = 0, jl = pursuers.length; j < jl; j++) {
+         for ( let j = 0, jl = pursuers.length; j < jl; j++ ) {
 
-            const entity = pursuers[j];
+            const entity = pursuers[ j ];
 
-            if (pursuer !== entity) {
+            if ( pursuer !== entity ) {
 
-               this._checkOverlappingEntites(pursuer, entity);
+               this._checkOverlappingEntites( pursuer, entity );
 
             }
 
          }
 
-         for (let j = 0, jl = towers.length; j < jl; j++) {
+         for ( let j = 0, jl = towers.length; j < jl; j++ ) {
 
-            this._checkOverlappingEntites(pursuer, towers[j]);
+            this._checkOverlappingEntites( pursuer, towers[ j ] );
 
          }
 
-         for (let j = 0, jl = obstacles.length; j < jl; j++) {
+         for ( let j = 0, jl = obstacles.length; j < jl; j++ ) {
 
-            this._checkOverlappingEntites(pursuer, obstacles[j]);
+            this._checkOverlappingEntites( pursuer, obstacles[ j ] );
 
          }
 
@@ -1323,22 +1325,22 @@ class World {
    }
 
 
-   _checkOverlappingEntites(entity1, entity2) {
+   _checkOverlappingEntites( entity1, entity2 ) {
 
       // code based on "Programming Game AI by Example", chapter 3 section "Ensuring Zero Overlap"
 
-      toVector.subVectors(entity1.position, entity2.position);
+      toVector.subVectors( entity1.position, entity2.position );
 
       const distance = toVector.length();
       const range    = entity1.boundingRadius + entity2.boundingRadius;
 
       const overlap = range - distance;
 
-      if (overlap >= 0) {
+      if ( overlap >= 0 ) {
 
-         toVector.divideScalar(distance || 1); // normalize
-         displacement.copy(toVector).multiplyScalar(overlap);
-         entity1.position.add(displacement);
+         toVector.divideScalar( distance || 1 ); // normalize
+         displacement.copy( toVector ).multiplyScalar( overlap );
+         entity1.position.add( displacement );
 
       }
 
@@ -1350,9 +1352,9 @@ class World {
 
 
 
-function sync(entity, renderComponent) {
+function sync( entity, renderComponent ) {
 
-   renderComponent.matrix.copy(entity.worldMatrix);
+   renderComponent.matrix.copy( entity.worldMatrix );
 
 }
 
@@ -1380,13 +1382,13 @@ function onRestart() {
 
    this.currentStage = 1;
 
-   this._loadStage(this.currentStage);
+   this._loadStage( this.currentStage );
 
-   this.ui.gameComplete.classList.add('hidden');
-   this.ui.gameOver.classList.add('hidden');
+   this.ui.gameComplete.classList.add( 'hidden' );
+   this.ui.gameOver.classList.add( 'hidden' );
 
-   const audio = this.assetManager.audios.get('buttonClick');
-   this.playAudio(audio);
+   const audio = this.assetManager.audios.get( 'buttonClick' );
+   this.playAudio( audio );
 
 }
 
@@ -1414,9 +1416,9 @@ function onQuit() {
    this.currentStage = -1;
 
 
-   this.ui.gameComplete.classList.add('hidden');
-   this.ui.gameOver.classList.add('hidden');
-   this.ui.intro.classList.remove('hidden');
+   this.ui.gameComplete.classList.add( 'hidden' );
+   this.ui.gameOver.classList.add( 'hidden' );
+   this.ui.intro.classList.remove( 'hidden' );
 
 }
 
@@ -1425,13 +1427,13 @@ function onContinueButtonClick() {
 
    this.controls.connect();
 
-   const audio = this.assetManager.audios.get('buttonClick');
-   this.playAudio(audio);
+   const audio = this.assetManager.audios.get( 'buttonClick' );
+   this.playAudio( audio );
 
 }
 
 
-function onTransitionEnd(event) {
+function onTransitionEnd( event ) {
 
    event.target.remove();
 
@@ -1443,14 +1445,14 @@ function onWindowResize() {
    this.camera.aspect = window.innerWidth / window.innerHeight;
    this.camera.updateProjectionMatrix();
 
-   this.renderer.setSize(window.innerWidth, window.innerHeight);
+   this.renderer.setSize( window.innerWidth, window.innerHeight );
 
 }
 
 
 function startAnimation() {
 
-   this._requestID = requestAnimationFrame(this._startAnimation);
+   this._requestID = requestAnimationFrame( this._startAnimation );
 
    this.update();
 
@@ -1459,7 +1461,7 @@ function startAnimation() {
 
 function stopAnimation() {
 
-   cancelAnimationFrame(this._requestID);
+   cancelAnimationFrame( this._requestID );
 
 }
 

@@ -3,184 +3,195 @@
  * original {@link https://github.com/Mugen87|Mugen87}
  */
 
-import {BufferAttribute, BufferGeometry, DynamicDrawUsage, Points, ShaderMaterial, TextureLoader, Vector3} from "three";
+import { BufferAttribute, BufferGeometry, DynamicDrawUsage, Points, ShaderMaterial, TextureLoader, Vector3 } from "three";
 
 import { ParticleShader } from '../etc/Shaders.js';
 
+
+
 class ParticleSystem {
 
-	constructor() {
+   constructor() {
 
-		this.particles = [];
-		this.maxParticles = 0;
+      this.particles    = [];
+      this.maxParticles = 0;
 
-		this._needsUpdate = false;
+      this._needsUpdate = false;
 
-		// for rendering
+      // for rendering
 
-		this._points = null;
+      this._points = null;
 
-	}
+   }
 
-	add( particle ) {
 
-		this.particles.push( particle );
+   add( particle ) {
 
-		this._needsUpdate = true;
+      this.particles.push( particle );
 
-		return this;
+      this._needsUpdate = true;
 
-	}
+      return this;
 
-	remove( particle ) {
+   }
 
-		const index = this.particles.indexOf( particle );
-		this.particles.splice( index, 1 );
 
-		this._needsUpdate = true;
+   remove( particle ) {
 
-		return this;
+      const index = this.particles.indexOf( particle );
+      this.particles.splice( index, 1 );
 
-	}
+      this._needsUpdate = true;
 
-	clear() {
+      return this;
 
-		this.particles.length = 0;
+   }
 
-	}
 
-	init( maxParticles ) {
+   clear() {
 
-		this.maxParticles = maxParticles;
+      this.particles.length = 0;
 
-		const loader = new TextureLoader();
-		const map = loader.load( './textures/quad.png' );
+   }
 
-		const material = new ShaderMaterial( ParticleShader );
-		material.uniforms.map.value = map;
-		material.transparent = true;
-		material.depthWrite = false;
 
-		const geometry = new BufferGeometry();
+   init( maxParticles ) {
 
-		const positionAttribute = new BufferAttribute( new Float32Array( 3 * maxParticles ), 3 );
-		positionAttribute.setUsage( DynamicDrawUsage );
-		geometry.setAttribute( 'position', positionAttribute );
+      this.maxParticles = maxParticles;
 
-		const opacityAttribute = new BufferAttribute( new Float32Array( maxParticles ), 1 );
-		opacityAttribute.setUsage( DynamicDrawUsage );
-		geometry.setAttribute( 'opacity', opacityAttribute );
+      const loader = new TextureLoader();
+      const map    = loader.load( './textures/quad.png' );
 
-		const sizeAttribute = new BufferAttribute( new Uint8Array( maxParticles ), 1 );
-		sizeAttribute.setUsage( DynamicDrawUsage );
-		geometry.setAttribute( 'size', sizeAttribute );
+      const material              = new ShaderMaterial( ParticleShader );
+      material.uniforms.map.value = map;
+      material.transparent        = true;
+      material.depthWrite         = false;
 
-		const angleAttribute = new BufferAttribute( new Float32Array( maxParticles ), 1 );
-		angleAttribute.setUsage( DynamicDrawUsage );
-		geometry.setAttribute( 'angle', angleAttribute );
+      const geometry = new BufferGeometry();
 
-		const tAttribute = new BufferAttribute( new Float32Array( maxParticles ), 1 );
-		tAttribute.setUsage( DynamicDrawUsage );
-		geometry.setAttribute( 't', tAttribute );
+      const positionAttribute = new BufferAttribute( new Float32Array( 3 * maxParticles ), 3 );
+      positionAttribute.setUsage( DynamicDrawUsage );
+      geometry.setAttribute( 'position', positionAttribute );
 
-		this._points = new Points( geometry, material );
+      const opacityAttribute = new BufferAttribute( new Float32Array( maxParticles ), 1 );
+      opacityAttribute.setUsage( DynamicDrawUsage );
+      geometry.setAttribute( 'opacity', opacityAttribute );
 
-		return this;
+      const sizeAttribute = new BufferAttribute( new Uint8Array( maxParticles ), 1 );
+      sizeAttribute.setUsage( DynamicDrawUsage );
+      geometry.setAttribute( 'size', sizeAttribute );
 
-	}
+      const angleAttribute = new BufferAttribute( new Float32Array( maxParticles ), 1 );
+      angleAttribute.setUsage( DynamicDrawUsage );
+      geometry.setAttribute( 'angle', angleAttribute );
 
-	update( delta ) {
+      const tAttribute = new BufferAttribute( new Float32Array( maxParticles ), 1 );
+      tAttribute.setUsage( DynamicDrawUsage );
+      geometry.setAttribute( 't', tAttribute );
 
-		const particles = this.particles;
-		const geometry = this._points.geometry;
+      this._points = new Points( geometry, material );
 
-		// update particles array
+      return this;
 
-		for ( let i = ( particles.length - 1 ); i >= 0; i -- ) {
+   }
 
-			const particle = particles[ i ];
-			particle._elapsedTime += delta;
 
-			if ( particle._elapsedTime >= particle.lifetime ) {
+   update( delta ) {
 
-				this.remove( particle );
+      const particles = this.particles;
+      const geometry  = this._points.geometry;
 
-			}
+      // update particles array
 
-		}
+      for ( let i = ( particles.length - 1 ); i >= 0; i-- ) {
 
-		// update buffer data for rendering
+         const particle = particles[ i ];
+         particle._elapsedTime += delta;
 
-		// rebuild position and opacity buffer if necessary
+         if ( particle._elapsedTime >= particle.lifetime ) {
 
-		if ( this._needsUpdate === true ) {
+            this.remove( particle );
 
-			const positionAttribute = geometry.getAttribute( 'position' );
-			const opacityAttribute = geometry.getAttribute( 'opacity' );
-			const sizeAttribute = geometry.getAttribute( 'size' );
-			const angleAttribute = geometry.getAttribute( 'angle' );
+         }
 
-			for ( let i = 0, l = particles.length; i < l; i ++ ) {
+      }
 
-				const particle = particles[ i ];
+      // update buffer data for rendering
 
-				const position = particle.position;
-				const opacity = particle.opacity;
-				const size = particle.size;
-				const angle = particle.angle;
+      // rebuild position and opacity buffer if necessary
 
-				positionAttribute.setXYZ( i, position.x, position.y, position.z );
-				opacityAttribute.setX( i, opacity );
-				sizeAttribute.setX( i, size );
-				angleAttribute.setX( i, angle );
+      if ( this._needsUpdate === true ) {
 
-			}
+         const positionAttribute = geometry.getAttribute( 'position' );
+         const opacityAttribute  = geometry.getAttribute( 'opacity' );
+         const sizeAttribute     = geometry.getAttribute( 'size' );
+         const angleAttribute    = geometry.getAttribute( 'angle' );
 
-			positionAttribute.needsUpdate = true;
-			opacityAttribute.needsUpdate = true;
-			sizeAttribute.needsUpdate = true;
-			angleAttribute.needsUpdate = true;
+         for ( let i = 0, l = particles.length; i < l; i++ ) {
 
-		}
+            const particle = particles[ i ];
 
-		// always rebuild "t" attribute which is used for animation
+            const position = particle.position;
+            const opacity  = particle.opacity;
+            const size     = particle.size;
+            const angle    = particle.angle;
 
-		const tAttribute = geometry.getAttribute( 't' );
+            positionAttribute.setXYZ( i, position.x, position.y, position.z );
+            opacityAttribute.setX( i, opacity );
+            sizeAttribute.setX( i, size );
+            angleAttribute.setX( i, angle );
 
-		for ( let i = 0, l = particles.length; i < l; i ++ ) {
+         }
 
-			const particle = particles[ i ];
+         positionAttribute.needsUpdate = true;
+         opacityAttribute.needsUpdate  = true;
+         sizeAttribute.needsUpdate     = true;
+         angleAttribute.needsUpdate    = true;
 
-			tAttribute.setX( i, particle._elapsedTime / particle.lifetime );
+      }
 
-		}
+      // always rebuild "t" attribute which is used for animation
 
-		tAttribute.needsUpdate = true;
+      const tAttribute = geometry.getAttribute( 't' );
 
-		// update draw range
+      for ( let i = 0, l = particles.length; i < l; i++ ) {
 
-		geometry.setDrawRange( 0, particles.length );
+         const particle = particles[ i ];
 
-		return this;
+         tAttribute.setX( i, particle._elapsedTime / particle.lifetime );
 
-	}
+      }
+
+      tAttribute.needsUpdate = true;
+
+      // update draw range
+
+      geometry.setDrawRange( 0, particles.length );
+
+      return this;
+
+   }
 
 }
+
+
 
 class Particle {
 
-	constructor( position = new Vector3(), lifetime = 1, opacity = 1, size = 10, angle = 0 ) {
+   constructor( position = new Vector3(), lifetime = 1, opacity = 1, size = 10, angle = 0 ) {
 
-		this.position = position;
-		this.lifetime = lifetime;
-		this.opacity = opacity;
-		this.size = size;
-		this.angle = angle;
+      this.position = position;
+      this.lifetime = lifetime;
+      this.opacity  = opacity;
+      this.size     = size;
+      this.angle    = angle;
 
-		this._elapsedTime = 0;
+      this._elapsedTime = 0;
 
-	}
+   }
 
 }
+
+
 
 export { ParticleSystem, Particle };
